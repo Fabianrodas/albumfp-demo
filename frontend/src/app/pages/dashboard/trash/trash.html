@@ -1,0 +1,29 @@
+<section class="page-header trash-header">
+  <div class="page-header__copy">
+    <h1 class="page-title">Papelera</h1>
+    <p class="page-subtitle">Los archivos se eliminan automáticamente después de 30 días.</p>
+  </div>
+  @if(deleted().length){
+    <div class="page-actions">
+      <button type="button" class="btn btn-secondary" (click)="restoreAll()" [disabled]="busy()">Restaurar todos</button>
+      <button type="button" class="btn btn-danger" (click)="deleteAll()" [disabled]="busy()">Borrar todos</button>
+    </div>
+  }
+</section>
+
+@if(error()){<p class="notice notice-error">{{error()}}</p>}
+
+@if(deleted().length){
+  <app-media-grid
+    [items]="deleted()"
+    mode="trash"
+    role="owner"
+    appScrollReveal
+    (restore)="restore($event)"
+    (permanentDelete)="deletePermanent($event)"
+  />
+}@else if (loaded() && !error()) {
+  <section class="empty-state trash-empty">
+    <div class="empty-state__copy"><h2>La papelera está vacía.</h2><p>Los archivos que elimines aparecerán aquí durante 30 días.</p></div>
+  </section>
+}

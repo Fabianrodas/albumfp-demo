@@ -1,0 +1,40 @@
+@if (confirm.request(); as request) {
+  <app-modal
+    [open]="true"
+    [title]="request.title"
+    size="sm"
+    [dismissable]="!request.requireText"
+    (closed)="cancel()">
+    <p class="confirm-message">{{ request.message }}</p>
+
+    @if (request.requireText) {
+      <label class="form-label confirm-guard">
+        <!-- El texto va en un span propio: como hijo suelto de un flex en
+             columna, el <b> se iba a su propia línea y la frase se partía. -->
+        <span>Escribe <b>{{ request.requireText }}</b> para confirmar</span>
+        <input
+          class="field"
+          [ngModel]="typed()"
+          (ngModelChange)="typed.set($event)"
+          name="confirmation"
+          autocomplete="off"
+          spellcheck="false">
+      </label>
+    }
+
+    <div modal-actions>
+      <button type="button" class="btn btn-ghost" (click)="cancel()">
+        {{ request.cancelLabel || 'Cancelar' }}
+      </button>
+      <button
+        type="button"
+        class="btn"
+        [class.btn-danger]="request.danger"
+        [class.btn-brand]="!request.danger"
+        [disabled]="blocked()"
+        (click)="accept()">
+        {{ request.confirmLabel || 'Confirmar' }}
+      </button>
+    </div>
+  </app-modal>
+}

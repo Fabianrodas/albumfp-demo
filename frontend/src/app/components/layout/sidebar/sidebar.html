@@ -1,0 +1,23 @@
+<aside class="sidebar">
+  <a class="brand" routerLink="/inicio" aria-label="Ir al inicio de AlbumFP">
+    <img src="logo_white.png" alt=""><span>AlbumFP</span>
+  </a>
+
+  <div class="nav-label">Biblioteca</div>
+  <nav class="primary-nav" aria-label="Navegación principal">
+    <a routerLink="/inicio" routerLinkActive="active"><app-icon name="home"/><span>Inicio</span></a>
+    <a routerLink="/biblioteca" routerLinkActive="active"><app-icon name="calendar"/><span>Biblioteca</span></a>
+    <a routerLink="/albumes" routerLinkActive="active"><app-icon name="albums"/><span>Mis álbumes</span></a>
+    <a routerLink="/lugares" routerLinkActive="active"><app-icon name="pin"/><span>Lugares</span></a>
+    <a routerLink="/favoritos" routerLinkActive="active"><app-icon name="heart"/><span>Favoritos</span></a>
+    <a routerLink="/compartido" routerLinkActive="active"><app-icon name="share"/><span>Compartido</span></a>
+    <a routerLink="/archivo" routerLinkActive="active"><app-icon name="archive"/><span>Archivo</span></a>
+    <a routerLink="/papelera" routerLinkActive="active"><app-icon name="trash"/><span>Papelera</span></a>
+  </nav>
+
+  <nav class="utility-nav" aria-label="Apariencia">
+    <button type="button" class="nav-button" (click)="theme.toggle()" [attr.aria-pressed]="theme.isDark()" [title]="theme.isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+      <app-icon [name]="theme.isDark() ? 'sun' : 'moon'"/><span>{{ theme.isDark() ? 'Modo claro' : 'Modo oscuro' }}</span>
+    </button>
+  </nav>
+</aside>

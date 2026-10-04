@@ -29,6 +29,8 @@ coverage/
 **/data/media/
 **/data/tmp/
 **/data/quarantine/
+/backend/storage/
+/backend/uploads/
 *.dump
 *.backup
 *.sql

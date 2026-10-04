@@ -1,0 +1,5 @@
+<figure class="shot" [style.--ratio]="ratio()">
+  <img [src]="src()" [alt]="alt()" [style.object-position]="crop()" [style.scale]="zoom()"
+    [attr.loading]="priority() ? 'eager' : 'lazy'" [attr.fetchpriority]="priority() ? 'high' : null"
+    decoding="async" width="1000" height="750">
+</figure>

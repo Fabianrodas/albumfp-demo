@@ -1,0 +1,90 @@
+/* Lado del formulario de las dos pantallas de cuenta. Habla la misma lengua que
+   el resto del sitio y que el dashboard: Fraunces en el titular, Inter en todo
+   lo demás. register.css importa este archivo. */
+
+.auth-heading { margin-bottom: 32px; }
+
+.auth-heading h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(30px, 3.4vw, 40px);
+  line-height: 1.08;
+  letter-spacing: -.028em;
+  text-wrap: balance;
+}
+/* Sobre el fondo desnudo, no sobre papel liso: `--text-soft` cae a 4,3:1 cuando
+   el campo mas tenido de la aurora barre por debajo, y AA pide 4,5:1. A simple
+   vista son el mismo gris oscuro. */
+.auth-heading > span {
+  display: block;
+  margin-top: 14px;
+  max-width: 36ch;
+  color: var(--text);
+  font-size: 14.5px;
+  line-height: 1.62;
+}
+
+form { display: grid; gap: 18px; }
+
+/* Etiquetas visibles y legibles: ni placeholder solo, ni versalitas diminutas. */
+.form-label {
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+}
+.field { min-height: 48px; font-size: 14.5px; }
+
+/* El ojo de la contrasena es el unico control tactil del formulario y la regla
+   global lo deja en 30px. Se amplia solo aqui (el dashboard no usa esta clase)
+   y el relleno del campo crece con el para que el texto no pase por debajo. */
+.field-icon__toggle { width: 44px; height: 44px; }
+.field-icon:has(.field-icon__toggle) > .field { padding-right: 52px; }
+
+/* Recuérdame: casilla y explicación en una fila, sin caja ni borde. Lo que
+   hace de verdad (dejar la sesión abierta tras cerrar el navegador) merece
+   una línea escrita, no adivinarse del nombre. */
+.remember-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  cursor: pointer;
+}
+.remember-row input {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex: 0 0 auto;
+  accent-color: var(--brand-800);
+  cursor: pointer;
+}
+.remember-row span { display: grid; gap: 3px; }
+.remember-row b { font-size: 13px; font-weight: 600; color: var(--text); }
+.remember-row small { font-size: 12px; line-height: 1.45; color: var(--text-soft); }
+
+.submit {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 8px;
+  font-size: 14.5px;
+}
+.submit:not(:disabled):hover { box-shadow: 0 10px 26px rgba(18, 52, 38, .2); }
+.auth-error { margin: 0; font-size: 13px; }
+
+.switch { margin: 26px 0 0; color: var(--text-soft); font-size: 13.5px; }
+.switch a {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-strong);
+  padding-bottom: 2px;
+}
+.switch a:hover { border-color: var(--text); }
+
+/* Las transiciones de `.btn` y `.field` vienen de styles.css, que comparte el
+   dashboard. No se tocan ahí: se anulan solo aquí, porque las vistas públicas
+   van sin movimiento de ningún tipo. */
+.field, .field-icon__toggle, .submit, .switch a, .form-label { transition: none; }

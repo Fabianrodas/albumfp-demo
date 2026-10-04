@@ -1,0 +1,81 @@
+<section class="comments" aria-labelledby="comments-title">
+  <header class="comments__head">
+    <h2 id="comments-title">Comentarios</h2>
+    @if (total()) { <span class="comments__count">{{ total() }}</span> }
+  </header>
+
+  @if (error()) {
+    <div class="notice notice-error comments__error" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-secondary" (click)="loadNext()">Reintentar</button>
+    </div>
+  }
+
+  @if (!comments().length && loading()) {
+    <p class="comments__state" aria-live="polite">Cargando comentarios…</p>
+  } @else if (!comments().length && !error()) {
+    <p class="comments__state">{{ readOnly() ? 'Todavía no hay comentarios.' : 'Todavía no hay comentarios. Sé la primera persona en escribir uno.' }}</p>
+  }
+
+  @if (comments().length) {
+    <ol class="comments__list">
+      @for (comment of comments(); track comment.id) {
+        <li class="comment">
+          <span class="comment__avatar" aria-hidden="true">
+            @if (comment.author.has_avatar) { <img [src]="avatarUrl(comment.author.id)" alt="" loading="lazy"> }
+            @else { <b>{{ initials(comment.author.username) }}</b> }
+          </span>
+          <div class="comment__main">
+            <p class="comment__meta">
+              <strong>{{ comment.author.full_name }}</strong>
+              <span>&#64;{{ comment.author.username }}</span>
+              <time [attr.datetime]="comment.created_at">{{ comment.created_at | date:'d MMM y, HH:mm' }}</time>
+              @if (comment.edited) { <span class="comment__edited">(editado)</span> }
+            </p>
+            @if (editingId() === comment.id) {
+              <form class="comment__edit" (ngSubmit)="saveEdit(comment)">
+                <label class="sr-only" [for]="'comment-edit-' + comment.id">Editar comentario</label>
+                <textarea class="field textarea" [id]="'comment-edit-' + comment.id" [name]="'commentEdit' + comment.id"
+                  [(ngModel)]="editDraft" [attr.maxlength]="max" rows="3"></textarea>
+                <div class="comment__actions">
+                  <button type="button" class="btn btn-ghost" (click)="cancelEdit()">Cancelar</button>
+                  <button type="submit" class="btn btn-brand" [disabled]="savingEdit() || !trimmedLength(editDraft)">Guardar</button>
+                </div>
+              </form>
+            } @else {
+              <p class="comment__body">{{ comment.body }}</p>
+              @if (comment.is_own && !readOnly()) {
+                <div class="comment__tools">
+                  <button type="button" class="text-action" (click)="startEdit(comment)" [attr.aria-label]="'Editar tu comentario'">Editar</button>
+                  <button type="button" class="text-action text-action--danger" (click)="remove(comment)" [attr.aria-label]="'Eliminar tu comentario'">Eliminar</button>
+                </div>
+              }
+            }
+          </div>
+        </li>
+      }
+    </ol>
+    @if (hasMore()) {
+      <button type="button" class="btn btn-secondary comments__more" [disabled]="loading()" (click)="loadNext()">
+        {{ loading() ? 'Cargando…' : 'Cargar más comentarios' }}
+      </button>
+    }
+  }
+
+  @if (readOnly()) {
+    <p class="comments__hint">Solo las cuentas con acceso a este recuerdo pueden comentar.</p>
+  } @else {
+    <form class="composer" (ngSubmit)="submit()">
+      <label class="sr-only" for="comment-draft">Escribe un comentario</label>
+      <textarea class="field textarea" id="comment-draft" name="commentDraft" [(ngModel)]="draft"
+        [attr.maxlength]="max" rows="3" placeholder="Escribe un comentario…"></textarea>
+      <div class="composer__row">
+        <span class="composer__count" [class.is-over]="draft.length > max">{{ draft.length }}/{{ max }}</span>
+        <button type="submit" class="btn btn-brand" [disabled]="posting() || !trimmedLength(draft)">
+          @if (posting()) { <span class="btn-spinner"></span> }Comentar
+        </button>
+      </div>
+      @if (composeError()) { <p class="form-error" role="alert">{{ composeError() }}</p> }
+    </form>
+  }
+</section>

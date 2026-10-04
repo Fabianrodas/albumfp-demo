@@ -1,0 +1,91 @@
+:host { display: block; }
+
+.landing { --pad: clamp(16px, 3vw, 40px); display: block; }
+
+/* Los CTA del sitio público son un punto más grandes que los del dashboard,
+   pero la misma pieza: mismo color, mismo radio, misma transición. */
+.cta { min-height: 48px; padding: 13px 26px; font-size: 14.5px; }
+
+h1, h2 {
+  font-family: var(--display);
+  font-weight: 500;
+  letter-spacing: -.028em;
+  text-wrap: balance;
+  margin: 0;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  max-width: var(--public-max);
+  margin: 0 auto;
+  padding: clamp(36px, 4vw, 60px) var(--pad) clamp(48px, 6vw, 80px);
+  display: grid;
+  gap: clamp(36px, 4.5vw, 68px);
+  align-items: center;
+}
+
+.hero__copy { max-width: 36ch; }
+.hero h1 { font-size: clamp(2.4rem, 5.4vw, 4.4rem); line-height: 1.03; }
+/* Sobre el fondo desnudo, no sobre papel liso: `--text-soft` cae a 4,3:1 cuando
+   el campo mas tenido de la aurora barre por debajo, y AA pide 4,5:1. A simple
+   vista son el mismo gris oscuro. */
+.hero__lead {
+  margin: 22px 0 0;
+  max-width: 46ch;
+  font-size: clamp(16px, 1.35vw, 18.5px);
+  line-height: 1.62;
+  color: var(--text);
+}
+.hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+
+/* ---------- Bloque de álbum ---------- */
+
+.block {
+  max-width: var(--public-max);
+  margin: 0 auto;
+  padding: 0 var(--pad) clamp(80px, 9vw, 128px);
+  display: grid;
+  gap: clamp(36px, 4.5vw, 72px);
+  align-items: center;
+}
+
+.block__copy h2 { font-size: clamp(1.9rem, 3.4vw, 3rem); line-height: 1.1; max-width: 15ch; }
+.block__copy p {
+  margin: 20px 0 0;
+  max-width: 46ch;
+  font-size: 16px;
+  line-height: 1.68;
+  color: var(--text-soft);
+}
+.block__copy .cta { margin-top: 30px; }
+
+/* ---------- Responsive ---------- */
+
+@media (min-width: 1000px) {
+  .hero { grid-template-columns: minmax(0, 25fr) minmax(0, 34fr); min-height: 78svh; }
+  .hero h1 { font-size: clamp(3rem, 4.4vw, 4.4rem); }
+
+  /* La foto a la izquierda y el texto a la derecha, como pide el bloque. */
+  .block { grid-template-columns: minmax(0, 34fr) minmax(0, 25fr); }
+}
+
+@media (min-width: 1280px) {
+  .hero__copy { max-width: none; }
+}
+
+@media (max-width: 999px) {
+  /* En vertical el texto va primero: la captura acompaña, no encabeza. */
+  .block__shot { order: 2; }
+  /* En una sola columna los dos CTA "Crear cuenta" quedan a un scroll corto de
+     distancia; el segundo repite el primero sin aportar nada nuevo. */
+  .block__copy .cta { display: none; }
+}
+
+/* Por encima de app-public-backdrop, que vive en la capa posicionada. */
+.landing { position: relative; z-index: 1; }
+
+/* Las transiciones de `.btn` y `.field` vienen de styles.css, que comparte el
+   dashboard. No se tocan ahí: se anulan solo aquí, porque las vistas públicas
+   van sin movimiento de ningún tipo. */
+.landing .btn { transition: none; }

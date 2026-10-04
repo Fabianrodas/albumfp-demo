@@ -1,0 +1,26 @@
+<section class="public-feed" aria-labelledby="public-feed-title">
+  <header class="feed-toolbar">
+    <div class="feed-heading">
+      <p class="page-kicker">Explorar</p>
+      <h2 id="public-feed-title">Fotos públicas de la comunidad</h2>
+      <p>Lo último que otras personas han decidido compartir en álbumes públicos.</p>
+    </div>
+    <div class="sort-fields">
+      <label class="sort-field"><span>Ordenar por</span><select id="explore-sort-by" name="exploreSortBy" [(ngModel)]="sortBy" (change)="changeSort()"><option value="created_at">Fecha de subida</option><option value="taken_at">Fecha de captura</option></select></label>
+      <label class="sort-field"><span>Dirección</span><select id="explore-sort-dir" name="exploreSortDir" [(ngModel)]="sortDir" (change)="changeSort()"><option value="desc">Más nuevas</option><option value="asc">Más viejas</option></select></label>
+    </div>
+  </header>
+  @if (error()) { <p class="notice notice-error error-banner">{{ error() }}</p> }
+  @if (media().length) {
+    <div class="feed-grid" appScrollReveal="stagger">@for (item of media(); track item.id) { <app-public-media-card [media]="item" /> }</div>
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Paginación de fotos públicas">
+        <button type="button" class="btn btn-secondary" [disabled]="page() === 1" (click)="goTo(page() - 1)">Anterior</button>
+        <span class="pager__status">Página {{ page() }} de {{ totalPages() }}</span>
+        <button type="button" class="btn btn-secondary" [disabled]="page() === totalPages()" (click)="goTo(page() + 1)">Siguiente</button>
+      </nav>
+    }
+  } @else if (loaded() && !error()) {
+    <section class="empty-state public-empty"><div class="empty-state__copy"><h2>Aún nadie ha compartido una foto.</h2><p>Cuando alguien publique un álbum, sus fotos aparecerán aquí.</p></div></section>
+  }
+</section>

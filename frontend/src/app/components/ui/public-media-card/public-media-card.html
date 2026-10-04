@@ -1,0 +1,19 @@
+<article class="public-card">
+  <a class="public-card__cover" [routerLink]="detailLink()" [queryParams]="{ from: 'explore' }" [attr.aria-label]="'Abrir ' + (media().file_type === 'video' ? 'video ' : 'foto ') + (media().title || 'sin título')">
+    @if (url() && media().file_type === 'image') {
+      <img [src]="url()" [alt]="media().title || 'Foto compartida'">
+    } @else if (media().file_type === 'video') {
+      <div class="public-card__video-placeholder" aria-hidden="true">
+        <app-icon name="video" [size]="28" />
+        <span>Video</span>
+      </div>
+    } @else {
+      <div class="public-card__placeholder" aria-hidden="true"></div>
+    }
+  </a>
+
+  <div class="public-card__body">
+    @if (media().title) { <a class="public-card__title" [routerLink]="detailLink()" [queryParams]="{ from: 'explore' }">{{ media().title }}</a> }
+    <app-user-chip [user]="media().owner" />
+  </div>
+</article>

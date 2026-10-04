@@ -1,0 +1,17 @@
+.qr-block { display: grid; justify-items: center; gap: 9px; padding: 4px 0 2px; }
+
+/* Blanco siempre, también en modo oscuro: un QR sobre fondo oscuro se lee mal
+   o directamente no se lee. */
+.qr-frame {
+  padding: 10px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  line-height: 0;
+}
+.qr-frame img { display: block; width: 220px; height: 220px; image-rendering: pixelated; }
+
+.qr-hint { margin: 0; max-width: 34ch; text-align: center; font-size: 11.5px; line-height: 1.5; color: var(--muted); }
+
+.qr-download { text-decoration: none; font-size: 11.5px; font-weight: 800; color: var(--brand-800); }
+.qr-download:hover { text-decoration: underline; }

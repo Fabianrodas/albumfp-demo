@@ -1,0 +1,49 @@
+<div class="location-picker">
+  <p class="location-picker__intro">La ubicación se guarda en esta biblioteca. La búsqueda de lugares y los mapas en línea están desactivados.</p>
+
+  <div class="location-picker__coordinates">
+    <label class="form-label">
+      Latitud
+      <input
+        class="field"
+        type="number"
+        min="-90"
+        max="90"
+        step="any"
+        inputmode="decimal"
+        autocomplete="off"
+        [value]="latitude()"
+        (input)="onLatitudeInput($any($event.target).value)"
+        aria-describedby="location-picker-help"
+      >
+    </label>
+    <label class="form-label">
+      Longitud
+      <input
+        class="field"
+        type="number"
+        min="-180"
+        max="180"
+        step="any"
+        inputmode="decimal"
+        autocomplete="off"
+        [value]="longitude()"
+        (input)="onLongitudeInput($any($event.target).value)"
+        aria-describedby="location-picker-help"
+      >
+    </label>
+  </div>
+
+  <div class="location-picker__preview" role="status" aria-live="polite">
+    <app-icon name="pin" [size]="18" />
+    @if (marker(); as point) {
+      <span>{{ point.lat.toFixed(5) }}, {{ point.lon.toFixed(5) }}</span>
+      <small>Se guardará localmente</small>
+    } @else {
+      <span>Sin coordenadas seleccionadas</span>
+    }
+  </div>
+
+  @if (error()) { <p class="location-picker__error" role="alert">{{ error() }}</p> }
+  <p class="location-picker__hint" id="location-picker-help">Usa grados decimales, por ejemplo los datos GPS de la foto. Puedes cambiar los valores antes de guardar.</p>
+</div>

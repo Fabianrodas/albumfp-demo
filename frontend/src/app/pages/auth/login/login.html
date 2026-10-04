@@ -1,0 +1,49 @@
+<div class="auth-heading">
+  <h1>Vuelve a tus álbumes.</h1>
+  <span>Entra para ver tu biblioteca y lo que han compartido contigo.</span>
+</div>
+<form (ngSubmit)="submit()" [attr.aria-busy]="loading()">
+  <label class="form-label" [class.is-invalid]="!!usernameMsg()">Usuario
+    <div class="field-icon">
+      <app-icon name="user" [size]="16"/>
+      <input class="field" [ngModel]="username()" (ngModelChange)="username.set($event)" (blur)="touch('username')"
+        name="username" placeholder="Nombre de usuario" autocomplete="username" maxlength="50" autofocus
+        [attr.aria-invalid]="usernameMsg() ? 'true' : null" [attr.aria-describedby]="usernameMsg() ? 'login-username-error' : null">
+    </div>
+    @if (usernameMsg(); as message) { <span class="field-error" id="login-username-error">{{ message }}</span> }
+  </label>
+
+  <label class="form-label" [class.is-invalid]="!!passwordMsg()">Contraseña
+    <div class="field-icon">
+      <app-icon name="lock" [size]="16"/>
+      <input class="field" [ngModel]="password()" (ngModelChange)="password.set($event)" (blur)="touch('password')"
+        [type]="showPassword() ? 'text' : 'password'" name="password" placeholder="Tu contraseña" autocomplete="current-password"
+        [attr.aria-invalid]="passwordMsg() ? 'true' : null" [attr.aria-describedby]="passwordMsg() ? 'login-password-error' : null">
+      <button type="button" class="field-icon__toggle" (click)="showPassword.set(!showPassword())"
+        [attr.aria-pressed]="showPassword()"
+        [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+        <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="16"/>
+      </button>
+    </div>
+    @if (passwordMsg(); as message) { <span class="field-error" id="login-password-error">{{ message }}</span> }
+  </label>
+
+  <label class="remember-row">
+    <input type="checkbox" [ngModel]="remember()" (ngModelChange)="remember.set($event)" name="remember">
+    <span>
+      <b>Recuérdame</b>
+      <small>Mantén la sesión abierta en este dispositivo hasta que cierres sesión.</small>
+    </span>
+  </label>
+
+  @if(error()){<p class="notice notice-error auth-error shake-in" role="alert">{{error()}}</p>}
+  <button class="btn btn-brand submit" type="submit" [disabled]="loading() || passkeyLoading()">@if(loading()){<span class="btn-spinner"></span>}{{ loading() ? 'Ingresando…' : 'Iniciar sesión' }}</button>
+  @if (passkeys) {
+    <button class="btn btn-secondary submit passkey-login" type="button" (click)="passkeyLogin()"
+      [disabled]="loading() || passkeyLoading()" [attr.aria-busy]="passkeyLoading()">
+      @if (passkeyLoading()) { <span class="btn-spinner"></span> } @else { <app-icon name="lock" [size]="16"/> }Entrar con passkey
+    </button>
+  }
+</form>
+<p class="switch">¿No tienes cuenta? <a routerLink="/registro">Crear cuenta</a></p>
+<p class="switch">¿Perdiste tu contraseña? <a routerLink="/recuperar">Usa un código de recuperación</a></p>

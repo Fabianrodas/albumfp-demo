@@ -1,0 +1,75 @@
+<div class="auth-heading">
+  <h1>Empieza tu biblioteca.</h1>
+  <span>AlbumFP no necesita un correo: basta con tu nombre, un usuario y una contraseña.</span>
+</div>
+
+@if (registrationMode() === 'closed') {
+  <p class="notice notice-error" role="alert">El registro de nuevas cuentas está cerrado por ahora.</p>
+  <p class="switch">¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a></p>
+} @else if (registrationMode() !== null) {
+  <form (ngSubmit)="submit()" [attr.aria-busy]="loading()">
+    @if (registrationMode() === 'invite_only') {
+      <label class="form-label">Código de invitación
+        <div class="field-icon">
+          <app-icon name="lock" [size]="16"/>
+          <input class="field" [ngModel]="inviteToken()" (ngModelChange)="inviteToken.set($event)"
+            name="inviteToken" placeholder="El que te compartieron" autocomplete="off">
+        </div>
+        <span class="password-hint">El registro es solo por invitación. Pide un enlace a quien te invitó.</span>
+      </label>
+    }
+
+    <label class="form-label" [class.is-invalid]="!!fullNameMsg()">Nombre completo
+      <div class="field-icon">
+        <app-icon name="user" [size]="16"/>
+        <input class="field" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" (blur)="touch('fullName')"
+          name="fullName" placeholder="Cómo te llamas" autocomplete="name" maxlength="120" autofocus
+          [attr.aria-invalid]="fullNameMsg() ? 'true' : null" [attr.aria-describedby]="fullNameMsg() ? 'register-fullname-error' : null">
+      </div>
+      @if (fullNameMsg(); as message) { <span class="field-error" id="register-fullname-error">{{ message }}</span> }
+    </label>
+
+    <label class="form-label" [class.is-invalid]="!!usernameMsg()">Usuario
+      <div class="field-icon">
+        <app-icon name="user" [size]="16"/>
+        <input class="field" [ngModel]="username()" (ngModelChange)="username.set($event)" (blur)="touch('username')"
+          name="username" placeholder="Con el que iniciarás sesión" autocomplete="username" maxlength="50"
+          [attr.aria-invalid]="usernameMsg() ? 'true' : null" [attr.aria-describedby]="usernameMsg() ? 'register-username-error' : null">
+      </div>
+      @if (usernameMsg(); as message) { <span class="field-error" id="register-username-error">{{ message }}</span> }
+      @else { <span class="password-hint">Letras, números, punto, guion y guion bajo.</span> }
+    </label>
+
+    <label class="form-label" [class.is-invalid]="!!passwordMsg()">Contraseña
+      <div class="field-icon">
+        <app-icon name="lock" [size]="16"/>
+        <input class="field" [ngModel]="password()" (ngModelChange)="password.set($event)" (blur)="touch('password')"
+          [type]="showPassword() ? 'text' : 'password'" name="password" [placeholder]="'Mínimo ' + minPassword + ' caracteres'"
+          autocomplete="new-password"
+          [attr.aria-invalid]="passwordMsg() ? 'true' : null" [attr.aria-describedby]="passwordMsg() ? 'register-password-error' : null">
+        <button type="button" class="field-icon__toggle" (click)="showPassword.set(!showPassword())"
+          [attr.aria-pressed]="showPassword()"
+          [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+          <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="16"/>
+        </button>
+      </div>
+      @if (passwordMsg(); as message) { <span class="field-error" id="register-password-error">{{ message }}</span> }
+      @else { <span class="password-hint">Al menos {{ minPassword }} caracteres y que no sea solo números. La consulta de filtraciones está desactivada en esta edición local.</span> }
+    </label>
+
+    <label class="form-label" [class.is-invalid]="!!confirmMsg()">Confirmar contraseña
+      <div class="field-icon">
+        <app-icon name="lock" [size]="16"/>
+        <input class="field" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)" (blur)="touch('confirmPassword')"
+          [type]="showPassword() ? 'text' : 'password'" name="confirmPassword" placeholder="Repite tu contraseña"
+          autocomplete="new-password"
+          [attr.aria-invalid]="confirmMsg() ? 'true' : null" [attr.aria-describedby]="confirmMsg() ? 'register-confirm-error' : null">
+      </div>
+      @if (confirmMsg(); as message) { <span class="field-error" id="register-confirm-error">{{ message }}</span> }
+    </label>
+
+    @if(error()){<p class="notice notice-error auth-error shake-in" role="alert">{{error()}}</p>}
+    <button class="btn btn-brand submit" type="submit" [disabled]="loading()">@if(loading()){<span class="btn-spinner"></span>}{{ loading() ? 'Creando cuenta…' : 'Crear cuenta' }}</button>
+  </form>
+  <p class="switch">¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a></p>
+}

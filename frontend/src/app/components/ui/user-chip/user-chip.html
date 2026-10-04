@@ -1,0 +1,17 @@
+<a
+  class="user-chip"
+  [class.user-chip--md]="size() === 'md'"
+  [routerLink]="['/u', user().username]"
+  [attr.aria-label]="'Ver el perfil de ' + user().username">
+  <span class="user-chip__avatar">
+    @if (user().has_avatar) {
+      <img [src]="avatarUrl()" alt="" loading="lazy">
+    } @else {
+      <b>{{ initials() }}</b>
+    }
+  </span>
+  <span class="user-chip__copy">
+    <b>&#64;{{ user().username }}</b>
+    @if (showFullName()) { <small>{{ user().full_name }}</small> }
+  </span>
+</a>

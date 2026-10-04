@@ -26,3 +26,21 @@ npm.cmd run build
 Never point tests or setup at a database other than `albumfp_demo_test` or the
 Demo-owned `albumfp_demo`. The backend URL guard requires an explicit local
 PostgreSQL URL on port `55432` and refuses the default local PostgreSQL port.
+
+## Publication scan
+
+Stage the intended release tree, then run the deterministic repository scan
+from the Demo root:
+
+```powershell
+.\backend\.venv\Scripts\python.exe scripts\publication_scan.py
+```
+
+The scanner reads staged Git blobs and checks tracked paths and text for
+credential patterns, literal database passwords, user home-directory paths,
+non-loopback IP addresses, external runtime URLs, and ignored runtime artifacts.
+It is a project-specific check, not a general secret scanner. Regression tests
+for its route, test-file, and ignore rules are included in the backend suite.
+
+For the v1.0.0 release gate, Gitleaks was unavailable in the local environment;
+it was not run or represented by the deterministic scan.

@@ -1,0 +1,127 @@
+:host { display: block; }
+
+/* Alto exacto de la ventana y sin desbordar: las dos pantallas de cuenta tienen
+   que entrar enteras, sin scroll. */
+.auth-shell {
+  height: 100svh;
+  display: grid;
+  /* Transparente: el color lo pone app-public-backdrop, por debajo. */
+  background: transparent;
+  overflow: hidden;
+}
+
+/* ---------- Formulario ---------- */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: clamp(20px, 3vw, 40px) clamp(20px, 5vw, 56px) clamp(20px, 3vw, 40px);
+}
+
+/* La marca a la izquierda y el interruptor de tema a la derecha. Estas dos
+   pantallas no llevan `public-nav`, asi que el interruptor tiene que vivir aqui
+   o no habria forma de cambiar de tema antes de entrar. */
+.auth-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.tema {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text);
+}
+.tema:hover { border-color: var(--text-soft); }
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 11px;
+  text-decoration: none;
+  color: var(--text);
+  font: 500 27px/1 var(--display);
+  letter-spacing: -.02em;
+}
+.brand img { width: 38px; height: 38px; object-fit: contain; }
+
+.auth-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(16px, 2.5vw, 36px) 0;
+  width: 100%;
+  max-width: 25.5rem;
+  margin: 0 auto;
+  /* Si la ventana es de verdad muy baja, que ceda el formulario y no la página
+     entera: así el panel visual no se descoloca. */
+  overflow-y: auto;
+}
+
+/* ---------- Panel visual ---------- */
+
+.auth-visual {
+  background: var(--forest-bg);
+  color: var(--forest-text);
+  padding: clamp(28px, 4vw, 56px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(24px, 3.5vw, 44px);
+  overflow: hidden;
+}
+
+.auth-visual__shots { position: relative; padding: 0 clamp(20px, 4vw, 56px); }
+.shot-main { display: block; }
+/* Se apoya dentro del marco principal, no colgando por debajo: si sobresale,
+   se come la cita que va justo detrás. */
+.shot-a {
+  display: block;
+  position: absolute;
+  z-index: 2;
+  width: 46%;
+  left: 0;
+  bottom: 3%;
+}
+
+.auth-visual__claim {
+  flex: 0 0 auto;
+  margin: 0;
+  font: italic 400 clamp(1.3rem, 1.9vw, 1.75rem)/1.28 var(--display);
+  letter-spacing: -.02em;
+  max-width: 20ch;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (min-width: 960px) {
+  /* El formulario manda; el panel acompaña. */
+  .auth-shell { grid-template-columns: minmax(0, 42fr) minmax(0, 58fr); }
+}
+
+@media (max-width: 959px) {
+  /* En vertical el panel desaparece del todo. Cuatro campos más una banda
+     decorativa no caben en una pantalla de móvil, y lo que no puede faltar es
+     el formulario. */
+  .auth-visual { display: none; }
+  .auth-shell { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Por encima de app-public-backdrop, que vive en la capa posicionada. */
+.auth-shell { position: relative; z-index: 1; }
+
+/* Las transiciones de `.btn` y `.field` vienen de styles.css, que comparte el
+   dashboard. No se tocan ahí: se anulan solo aquí, porque las vistas públicas
+   van sin movimiento de ningún tipo. */
+.auth-shell a, .auth-shell .btn { transition: none; }

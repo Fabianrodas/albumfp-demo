@@ -1,0 +1,47 @@
+<button type="button" class="bell__trigger" (click)="toggle()" [attr.aria-expanded]="open()"
+        aria-haspopup="dialog" [attr.aria-label]="label()" [title]="label()">
+  <app-icon name="bell" [size]="18"/>
+  @if (unread()) { <span class="bell__badge" aria-hidden="true">{{ badge() }}</span> }
+</button>
+
+@if (open()) {
+  <section class="bell__panel" role="dialog" aria-label="Notificaciones">
+    <header class="bell__head">
+      <h2>Notificaciones</h2>
+      @if (unread()) {
+        <button type="button" class="bell__all" [disabled]="markingAll()" (click)="markAll()">Marcar todas como leídas</button>
+      }
+    </header>
+
+    <div class="bell__body">
+      @if (list.items().length) {
+        <ul class="bell__list">
+          @for (notice of list.items(); track notice.id) {
+            <li>
+              <button type="button" class="bell__item" [class.is-unread]="!notice.read_at" (click)="select(notice)">
+                @if (!notice.read_at) { <span class="bell__dot" aria-label="Sin leer"></span> }
+                <span class="bell__copy">
+                  <span class="bell__text">{{ text(notice) }}</span>
+                  <time class="bell__time" [attr.datetime]="notice.created_at">{{ notice.created_at | date:'d MMM, HH:mm' }}</time>
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      } @else if (list.loading() || !list.loaded()) {
+        <p class="bell__state">Cargando…</p>
+      } @else if (!list.error()) {
+        <p class="bell__state">No tienes notificaciones.</p>
+      }
+
+      @if (list.error()) {
+        <p class="bell__state bell__state--error" role="alert">No pudimos cargar tus notificaciones. Inténtalo de nuevo.</p>
+      }
+      @if (list.hasMore()) {
+        <button type="button" class="btn btn-ghost bell__more" [disabled]="list.loading()" (click)="list.loadMore()">
+          @if (list.loading()) { <span class="btn-spinner"></span> } Cargar más
+        </button>
+      }
+    </div>
+  </section>
+}

@@ -14,7 +14,7 @@ class DatabaseSafetyTests(unittest.TestCase):
         for host in ("localhost", "127.0.0.1", "::1"):
             with self.subTest(host=host):
                 self.assertEqual(validator(host), host)
-        for host in ("0.0.0.0", "::", "192.0.2.1", "server.example"):
+        for host in ("192.0.2.2", "::", "192.0.2.1", "server.example"):
             with self.subTest(host=host):
                 with self.assertRaises(ValueError):
                     validator(host)
@@ -42,6 +42,46 @@ class DatabaseSafetyTests(unittest.TestCase):
         url = "postgresql+psycopg2://albumfp_demo:secret@localhost:55432/albumfp_demo"
         with self.assertRaises(ValueError):
             db.parse_demo_database_url(url, purpose="test")
+
+    def test_disposable_postgres_fixture_requires_exact_test_only_opt_in(self):
+        url = "postgresql+psycopg2://albumfp_demo:secret@127.0.0.1:55432/albumfp_disposable_l10a_t123_unit"
+        loader = db.database_url_from_environment
+        with self.assertRaises(RuntimeError):
+            loader({"TEST_DATABASE_URL": url}, purpose="test")
+
+        fixture = {
+            "TEST_DATABASE_URL": url,
+            "ALBUMFP_DEMO_TEST_MODE": "1",
+            "ALBUMFP_L10A_TEMPLATE_DB": "albumfp_disposable_template",
+            "ALBUMFP_DEMO_SCRATCH_DATABASE": "albumfp_disposable_l10a_t123_unit",
+        }
+        self.assertEqual(loader(fixture, purpose="test"), url)
+
+        for key, value in (
+            ("ALBUMFP_DEMO_TEST_MODE", "0"),
+            ("ALBUMFP_DEMO_SCRATCH_DATABASE", "albumfp_disposable_other"),
+            ("ALBUMFP_L10A_TEMPLATE_DB", "albumfp_demo_test"),
+        ):
+            with self.subTest(key=key):
+                unsafe = {**fixture, key: value}
+                with self.assertRaises(RuntimeError):
+                    loader(unsafe, purpose="test")
+
+    def test_disposable_test_fixture_still_requires_loopback_and_demo_role(self):
+        loader = db.database_url_from_environment
+        fixture = {
+            "ALBUMFP_DEMO_TEST_MODE": "1",
+            "ALBUMFP_L10A_TEMPLATE_DB": "albumfp_disposable_template",
+            "ALBUMFP_DEMO_SCRATCH_DATABASE": "albumfp_disposable_l10a_t123_unit",
+        }
+        for authority in (
+            "albumfp_demo:secret@db.example.test:55432",
+            "albumfp_demo_admin:secret@127.0.0.1:55432",
+        ):
+            with self.subTest(authority=authority):
+                url = f"postgresql+psycopg2://{authority}/albumfp_disposable_l10a_t123_unit"
+                with self.assertRaises(RuntimeError):
+                    loader({**fixture, "TEST_DATABASE_URL": url}, purpose="test")
 
     def test_refuses_the_real_product_database_name(self):
         url = "postgresql+psycopg2://albumfp_demo:secret@localhost:55432/albumfp"

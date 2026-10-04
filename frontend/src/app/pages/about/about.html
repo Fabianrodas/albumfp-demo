@@ -1,0 +1,58 @@
+<app-public-backdrop />
+<app-public-nav />
+
+<main class="about">
+  <header class="about-hero">
+    <div class="about-hero__copy" appScrollReveal>
+      <p class="page-kicker">AlbumFP Demo · edición local</p>
+      <h1>Tus recuerdos, <em>en su propio lugar.</em></h1>
+      <p class="about-hero__lead">
+        Organiza fotos y videos en álbumes privados. Esta edición guarda la biblioteca en tu equipo
+        y no envía tus archivos a servicios externos.
+      </p>
+      <a class="btn btn-brand cta" routerLink="/registro">Crear cuenta local</a>
+    </div>
+
+    <div class="about-hero__visual" appScrollReveal>
+      <div class="brand-card" aria-label="AlbumFP Demo, biblioteca privada local">
+        <div class="brand-card__mark"><img src="/logo.png" alt="" width="128" height="128"></div>
+        <p class="brand-card__title">AlbumFP</p>
+        <p class="brand-card__caption">Tu biblioteca, guardada aquí.</p>
+        <div class="brand-card__chips" aria-hidden="true"><span>Álbumes</span><span>Fotos</span><span>Recuerdos</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="dedication" aria-labelledby="local-title">
+    <div class="dedication__copy" appScrollReveal>
+      <p class="page-kicker">Hecho para probar en privado</p>
+      <h2 id="local-title">Todo se queda en tu equipo.</h2>
+      <p>La aplicación usa PostgreSQL y almacenamiento local. El servidor y la interfaz solo escuchan en direcciones de loopback.</p>
+      <p class="dedication__remate">Sin telemetría ni llamadas a servicios de producción.</p>
+    </div>
+
+    <div class="dedication__visual" appScrollReveal>
+      <article class="local-card">
+        <span class="local-card__icon" aria-hidden="true">01</span>
+        <h3>Biblioteca privada</h3>
+        <p>Sube archivos sintéticos o tuyos a una instalación local de prueba.</p>
+      </article>
+      <article class="local-card local-card--accent">
+        <span class="local-card__icon" aria-hidden="true">02</span>
+        <h3>Sin servicios externos</h3>
+        <p>La búsqueda de lugares, OCR y enriquecimientos en línea están desactivados.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="closing" aria-labelledby="closing-title">
+    <div class="closing__panel" appScrollReveal>
+      <p class="page-kicker">Versión Demo · v1.0.0</p>
+      <h2 id="closing-title">Empieza una biblioteca de prueba.</h2>
+      <p>Crea una cuenta local y organiza una colección de ejemplo.</p>
+      <a class="btn btn-brand cta" routerLink="/registro">Crear cuenta local</a>
+    </div>
+  </section>
+</main>
+
+<app-public-footer />

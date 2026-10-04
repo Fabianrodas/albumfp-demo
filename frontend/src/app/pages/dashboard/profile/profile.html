@@ -1,0 +1,297 @@
+<section class="page-header">
+  <div class="page-header__copy"><h1 class="page-title">Mi perfil</h1></div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-secondary" (click)="changingPassword.set(true)"><app-icon name="lock" [size]="16"/>Cambiar contraseña</button>
+    <button type="button" class="btn btn-brand" (click)="openEdit()"><app-icon name="settings" [size]="16"/>Editar cuenta</button>
+  </div>
+</section>
+
+<section class="identity surface-card">
+  <button type="button" class="identity__avatar" (click)="openEdit()"
+          [attr.aria-label]="auth.user()?.has_avatar ? 'Cambiar tu foto de perfil' : 'Añadir una foto de perfil'">
+    @if (auth.user()?.has_avatar) {
+      <img [src]="auth.myAvatarUrl()" alt="">
+    } @else {
+      <span>{{ initials() }}</span>
+    }
+    <span class="identity__avatar-edit" aria-hidden="true"><app-icon name="edit" [size]="15"/></span>
+  </button>
+
+  <div class="identity__who">
+    <h2>{{ auth.user()?.full_name }}</h2>
+    <p class="identity__handle">&#64;{{ auth.user()?.username }}</p>
+    @if (memberSince()) { <p class="identity__since">En AlbumFP desde {{ memberSince() }}</p> }
+    @if (storagePercent() !== null) {
+      <div class="identity__storage">
+        <div class="identity__storage-bar"><span [style.width.%]="storagePercent()"></span></div>
+        <p class="identity__storage-text">{{ formatBytes(stats()!.storage_used_bytes) }} de {{ formatBytes(stats()!.storage_quota_bytes!) }} usados</p>
+      </div>
+    }
+  </div>
+
+  <nav class="identity__counts" aria-label="Tu biblioteca">
+    <a routerLink="/albumes"><strong>{{ stats()?.total_albums ?? '-' }}</strong><span>Álbumes</span></a>
+    <a routerLink="/compartido"><strong>{{ stats()?.total_shared ?? '-' }}</strong><span>Compartido</span></a>
+    <a routerLink="/favoritos"><strong>{{ stats()?.total_favorites ?? '-' }}</strong><span>Favoritos</span></a>
+  </nav>
+</section>
+
+<section class="settings-card surface-card">
+  <div class="settings-head">
+    <span class="settings-icon"><app-icon name="lock" [size]="18"/></span>
+    <div><h2>Sesiones activas</h2><p>Dispositivos donde tienes la sesión abierta ahora mismo.</p></div>
+  </div>
+
+  <ul class="session-list">
+    @for (session of sessions(); track session.id) {
+      <li class="session-row">
+        <div class="session-row__info">
+          <p class="session-row__device">
+            <span [title]="session.user_agent_summary || ''">{{ describeDevice(session.user_agent_summary) }}</span>
+            @if (session.current) { <span class="session-row__badge">Este dispositivo</span> }
+          </p>
+          <p class="session-row__meta">Última actividad: {{ session.last_used_at | date:'d MMM, HH:mm' }}</p>
+        </div>
+        <button type="button" class="btn btn-ghost" [disabled]="revokingSessionId() === session.id"
+                (click)="revokeSession(session)">
+          @if (revokingSessionId() === session.id) { <span class="btn-spinner"></span> }
+          Cerrar esta sesión
+        </button>
+      </li>
+    } @empty {
+      <li class="session-row session-row--empty">Cargando sesiones…</li>
+    }
+  </ul>
+
+  @if (hasOtherSessions()) {
+    <button type="button" class="btn btn-secondary" [disabled]="revokingOthers()" (click)="revokeOtherSessions()">
+      @if (revokingOthers()) { <span class="btn-spinner"></span> }
+      Cerrar las demás sesiones
+    </button>
+  }
+</section>
+
+<section class="settings-card notification-prefs surface-card">
+  <div class="settings-head">
+    <span class="settings-icon"><app-icon name="bell" [size]="18"/></span>
+    <div><h2>Notificaciones</h2><p>Qué avisos nuevos aparecen en la campana de AlbumFP.</p></div>
+  </div>
+
+  @if (prefs(); as current) {
+    <div class="pref-list">
+      @for (option of prefOptions; track option.key) {
+        <label class="favorite-control pref-row">
+          <input type="checkbox" [name]="option.key" [checked]="current[option.key]" [disabled]="savingPref() === option.key"
+                 (change)="togglePref(option.key, $any($event.target))">
+          <span class="pref-row__copy"><b>{{ option.label }}</b><small>{{ option.hint }}</small></span>
+        </label>
+      }
+    </div>
+  } @else {
+    <p class="helper">Cargando preferencias…</p>
+  }
+</section>
+
+<section class="settings-card passkeys surface-card">
+  <div class="settings-head">
+    <span class="settings-icon"><app-icon name="lock" [size]="18"/></span>
+    <div>
+      <h2>Passkeys</h2>
+      <p>Entra con la huella, la cara o el PIN de tu dispositivo, sin escribir la contraseña. La contraseña y los códigos de recuperación siguen sirviendo.</p>
+    </div>
+  </div>
+  @if (passkeys().length) {
+    <ul class="passkey-list">
+      @for (p of passkeys(); track p.id) {
+        <li class="passkey-row">
+          <div>
+            <b>{{ p.nickname }}</b>
+            <small>Añadida el {{ p.created_at | date:'d MMM y' }} ·
+              @if (p.last_used_at) { último uso el {{ p.last_used_at | date:'d MMM y, HH:mm' }} } @else { sin usar todavía }</small>
+          </div>
+          <div class="passkey-row__actions">
+            <button type="button" class="btn btn-ghost" (click)="openRename(p)" [attr.aria-label]="'Renombrar ' + p.nickname">Renombrar</button>
+            <button type="button" class="btn btn-ghost" (click)="deletePasskey(p)" [attr.aria-label]="'Eliminar ' + p.nickname">Eliminar</button>
+          </div>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="helper">Todavía no tienes ninguna passkey.</p>
+  }
+  @if (passkeysSupported) {
+    <div class="recovery-reveal__actions">
+      <button type="button" class="btn btn-brand" (click)="openAddPasskey()">Añadir passkey</button>
+    </div>
+  } @else {
+    <p class="helper">Este navegador no admite passkeys.</p>
+  }
+</section>
+
+<app-modal [open]="addingPasskey()" title="Añadir passkey" (closed)="closeAddPasskey()">
+  <p class="helper">Escribe tu contraseña actual y un nombre para reconocer este dispositivo. Después tu navegador te pedirá confirmar con la huella, la cara o el PIN.</p>
+  <label class="form-label">Nombre
+    <input class="field" [(ngModel)]="passkeyNickname" name="passkeyNickname" maxlength="60" placeholder="Portátil, teléfono…">
+  </label>
+  <label class="form-label">Contraseña actual
+    <div class="field-icon"><app-icon name="lock" [size]="16"/><input class="field" type="password" [(ngModel)]="passkeyPassword" name="passkeyCurrentPassword" autocomplete="current-password"></div>
+  </label>
+  @if (passkeyError()) { <p class="notice notice-error" role="alert">{{ passkeyError() }}</p> }
+  <div modal-actions>
+    <button type="button" class="btn btn-ghost" (click)="closeAddPasskey()">Cancelar</button>
+    <button type="button" class="btn btn-brand" [disabled]="registeringPasskey()" (click)="confirmAddPasskey()">
+      @if (registeringPasskey()) { <span class="btn-spinner"></span> }Continuar
+    </button>
+  </div>
+</app-modal>
+
+<app-modal [open]="!!renaming()" title="Renombrar passkey" (closed)="closeRename()">
+  <label class="form-label">Nombre
+    <input class="field" [(ngModel)]="renameNickname" name="renameNickname" maxlength="60">
+  </label>
+  <div modal-actions>
+    <button type="button" class="btn btn-ghost" (click)="closeRename()">Cancelar</button>
+    <button type="button" class="btn btn-brand" (click)="saveRename()">Guardar</button>
+  </div>
+</app-modal>
+
+<section class="settings-card recovery-codes surface-card">
+  <div class="settings-head">
+    <span class="settings-icon"><app-icon name="lock" [size]="18"/></span>
+    <div>
+      <h2>Códigos de recuperación</h2>
+      <p>AlbumFP no usa email. Si pierdes tu contraseña, entras con tu usuario y uno de estos códigos. Cada uno sirve una sola vez; guárdalos fuera de este dispositivo.</p>
+    </div>
+  </div>
+
+  @if (revealedCodes().length) {
+    <div class="recovery-reveal" role="region" aria-label="Tus códigos de recuperación">
+      <p class="notice"><b>Guárdalos ahora.</b> No se vuelven a mostrar: al salir de esta página desaparecen de la pantalla.</p>
+      <ol class="recovery-reveal__list">
+        @for (code of revealedCodes(); track code) { <li>{{ code }}</li> }
+      </ol>
+      <div class="recovery-reveal__actions">
+        <button type="button" class="btn btn-secondary" (click)="copyCodes()">Copiar</button>
+        <button type="button" class="btn btn-secondary" (click)="downloadCodes()"><app-icon name="download" [size]="16"/>Descargar .txt</button>
+        <button type="button" class="btn btn-secondary" (click)="printCodes()">Imprimir</button>
+        <button type="button" class="btn btn-brand" (click)="dismissCodes()">Ya los guardé</button>
+      </div>
+    </div>
+  } @else {
+    @if (recoveryStatus(); as s) {
+      <p class="helper">
+        @if (s.total) { Te quedan {{ s.remaining }} de {{ s.total }} códigos sin usar@if (s.created_at) { (generados el {{ s.created_at | date:'d MMM y' }})}. }
+        @else { No tienes códigos de recuperación. Si pierdes la contraseña no habrá forma de entrar. }
+      </p>
+    }
+    <div class="recovery-reveal__actions">
+      <button type="button" class="btn btn-brand" (click)="openGenerate()">{{ recoveryStatus()?.total ? 'Generar códigos nuevos' : 'Generar códigos' }}</button>
+      @if (recoveryStatus()?.total) { <button type="button" class="btn btn-ghost" (click)="revokeCodes()">Revocar todos</button> }
+    </div>
+  }
+</section>
+
+<app-modal [open]="askingRecoveryPassword()" title="Confirma tu contraseña" (closed)="closeRecoveryPassword()">
+  <p class="helper">Generar códigos nuevos invalida los anteriores. Para hacerlo, escribe tu contraseña actual.</p>
+  <label class="form-label">Contraseña actual
+    <div class="field-icon"><app-icon name="lock" [size]="16"/><input class="field" type="password" [(ngModel)]="recoveryPassword" name="recoveryCurrentPassword" autocomplete="current-password"></div>
+  </label>
+  @if (recoveryError()) { <p class="notice notice-error" role="alert">{{ recoveryError() }}</p> }
+  <div modal-actions>
+    <button type="button" class="btn btn-ghost" (click)="closeRecoveryPassword()">Cancelar</button>
+    <button type="button" class="btn btn-brand" [disabled]="generatingCodes()" (click)="confirmGenerate()">
+      @if (generatingCodes()) { <span class="btn-spinner"></span> }Generar
+    </button>
+  </div>
+</app-modal>
+
+<section class="settings-card library-export surface-card">
+  <div class="settings-head">
+    <span class="settings-icon"><app-icon name="download" [size]="18"/></span>
+    <div>
+      <h2>Exportar mi biblioteca</h2>
+      <p>Una copia de tus datos de AlbumFP en un ZIP: cada foto y video original una sola vez, y un archivo con tus álbumes, a qué álbumes pertenece cada recuerdo, títulos, fechas, favoritos, archivados, etiquetas, álbumes inteligentes y los comentarios de tus recuerdos. La papelera no se incluye.</p>
+    </div>
+  </div>
+  <p class="helper">La copia se genera mientras se descarga y no se guarda en el servidor. Con muchas fotos puede tardar: no cierres la pestaña hasta que el navegador termine.</p>
+
+  <div class="pref-list">
+    @for (option of exportOptionList; track option.key) {
+      <label class="favorite-control pref-row">
+        <input type="checkbox" [attr.name]="'export-' + option.key" [(ngModel)]="exportOptions[option.key]">
+        <span class="pref-row__copy"><b>Incluir {{ option.label }}</b><small>{{ option.hint }}</small></span>
+      </label>
+    }
+  </div>
+
+  @if (exportSummary(); as s) {
+    <p class="helper">{{ s.assets }} recuerdos · {{ s.albums }} álbumes · {{ formatBytes(s.total_bytes) }} en originales</p>
+  }
+  @if (exportError()) { <p class="notice notice-error" role="alert">{{ exportError() }}</p> }
+
+  <button type="button" class="btn btn-brand" [disabled]="exportChecking()" (click)="startExport()">
+    @if (exportChecking()) { <span class="btn-spinner"></span> } @else { <app-icon name="download" [size]="16"/> }
+    Descargar mi copia
+  </button>
+</section>
+
+<section class="settings-card danger-zone">
+  <div class="settings-head">
+    <span class="settings-icon danger"><app-icon name="trash" [size]="18"/></span>
+    <div><h2>Eliminar mi cuenta</h2><p>Se borrarán tu cuenta, tus álbumes y todo tu contenido de forma permanente.</p></div>
+  </div>
+  <button type="button" class="btn btn-danger" (click)="deleteAccount()">Eliminar mi cuenta</button>
+</section>
+
+<app-modal [open]="editing()" title="Editar cuenta" (closed)="closeEdit()">
+  <div class="avatar-field">
+    <div class="avatar-preview">
+      @if (avatarPreview()) {
+        <img [src]="avatarPreview()" alt="Vista previa de la foto elegida">
+      } @else if (auth.user()?.has_avatar) {
+        <img [src]="auth.myAvatarUrl()" alt="Tu foto de perfil actual">
+      } @else {
+        <span>{{ initials() }}</span>
+      }
+    </div>
+    <label class="avatar-picker">
+      <span class="btn btn-secondary">Cambiar foto</span>
+      <input type="file" name="avatar" accept="image/*" (change)="pickAvatar($event)" hidden>
+      <small>JPG, PNG, WEBP o GIF. Hasta 5 MB.</small>
+    </label>
+  </div>
+
+  <label class="form-label">Nombre completo
+    <div class="field-icon"><app-icon name="user" [size]="16"/><input class="field" [(ngModel)]="editFullName" name="fullName" maxlength="120"></div>
+  </label>
+  <label class="form-label">Nombre de usuario
+    <div class="field-icon"><app-icon name="user" [size]="16"/><input class="field" [(ngModel)]="editUsername" name="username" maxlength="50"></div>
+  </label>
+
+  <div modal-actions>
+    <button type="button" class="btn btn-ghost" (click)="closeEdit()">Cancelar</button>
+    <button type="button" class="btn btn-brand" [disabled]="saving()" (click)="saveAccount()">
+      @if (saving()) { <span class="btn-spinner"></span> }{{ saving() ? 'Guardando…' : 'Guardar' }}
+    </button>
+  </div>
+</app-modal>
+
+<app-modal [open]="changingPassword()" title="Cambiar contraseña" (closed)="closePassword()">
+  <label class="form-label">Contraseña actual
+    <div class="field-icon"><app-icon name="lock" [size]="16"/><input class="field" type="password" [(ngModel)]="currentPassword" name="currentPassword" autocomplete="current-password"></div>
+  </label>
+  <label class="form-label">Contraseña nueva
+    <div class="field-icon"><app-icon name="lock" [size]="16"/><input class="field" type="password" [(ngModel)]="newPassword" name="newPassword" autocomplete="new-password"></div>
+    <span class="helper">Al menos {{ minPassword }} caracteres y que no sea solo números. La consulta de filtraciones está desactivada en esta edición local.</span>
+  </label>
+  <label class="form-label">Repite la contraseña nueva
+    <div class="field-icon"><app-icon name="lock" [size]="16"/><input class="field" type="password" [(ngModel)]="repeatPassword" name="repeatPassword" autocomplete="new-password"></div>
+  </label>
+
+  <div modal-actions>
+    <button type="button" class="btn btn-ghost" (click)="closePassword()">Cancelar</button>
+    <button type="button" class="btn btn-brand" [disabled]="saving()" (click)="savePassword()">
+      @if (saving()) { <span class="btn-spinner"></span> }{{ saving() ? 'Guardando…' : 'Actualizar' }}
+    </button>
+  </div>
+</app-modal>

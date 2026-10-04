@@ -1,0 +1,24 @@
+<app-modal [open]="open()" [title]="smart() ? 'Editar álbum inteligente' : 'Nuevo álbum inteligente'" size="lg"
+           [dismissable]="!saving()" (closed)="close()">
+  <p class="smart-editor__intro">Se llena solo con tus fotos y videos que cumplan estos filtros. No guarda copias ni se puede subir nada a él.</p>
+  <div class="smart-editor__grid">
+    <label class="form-label">Nombre
+      <input class="field" [(ngModel)]="title" name="smartTitle" maxlength="100" placeholder="Ej. Favoritos 2026">
+    </label>
+    <label class="form-label">Descripción <small>Opcional</small>
+      <input class="field" [(ngModel)]="description" name="smartDescription" maxlength="2000">
+    </label>
+    <label class="form-label smart-editor__wide" [formGroup]="form">Texto
+      <input class="field" formControlName="q" maxlength="200" placeholder="Título, texto, archivo, lugar, cámara o tag">
+    </label>
+  </div>
+  <app-search-filter-fields [form]="form" [albums]="albums()" [tags]="tags()" [showSort]="false"
+                            [divided]="false" panelId="smart-album-filters" />
+  @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
+  <div modal-actions>
+    <button type="button" class="btn btn-ghost" [disabled]="saving()" (click)="close()">Cancelar</button>
+    <button type="button" class="btn btn-brand" [disabled]="saving()" (click)="save()">
+      @if (saving()) { <span class="btn-spinner"></span> }{{ saving() ? 'Guardando…' : 'Guardar' }}
+    </button>
+  </div>
+</app-modal>

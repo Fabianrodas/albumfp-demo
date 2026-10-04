@@ -1,0 +1,87 @@
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 248px;
+  padding: 26px 16px 20px;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 8px 18px;
+  text-decoration: none;
+  font: 700 25px/1 var(--display);
+  letter-spacing: -.04em;
+  color: var(--sidebar-text);
+}
+.brand img { width: 34px; height: 34px; object-fit: contain; }
+
+.nav-label {
+  padding: 22px 12px 8px;
+  font-size: 9.5px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: .17em;
+  font-weight: 800;
+  color: var(--sidebar-muted);
+}
+
+nav { display: grid; gap: 4px; }
+
+nav a, .nav-button {
+  width: 100%;
+  min-height: 45px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13.5px;
+  font-weight: 650;
+  text-align: left;
+  transition: background-color var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
+}
+nav a app-icon, .nav-button app-icon { color: var(--sidebar-text); opacity: .82; }
+
+nav a:hover, .nav-button:hover { background: var(--sidebar-hover); transform: translateX(2px); }
+nav a:hover app-icon, .nav-button:hover app-icon { opacity: 1; }
+
+nav a.active { background: var(--sidebar-active); font-weight: 750; }
+nav a.active app-icon { opacity: 1; }
+
+.utility-nav {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--sidebar-border);
+}
+
+@media (max-width: 1050px) {
+  .sidebar { width: 76px; padding: 22px 10px; }
+  .brand { padding: 0 8px 17px; justify-content: center; }
+  .brand span, .nav-label, nav a span, .nav-button span { display: none; }
+  .brand img { width: 38px; height: 38px; }
+  nav a, .nav-button { justify-content: center; padding: 10px; }
+  .primary-nav { margin-top: 13px; }
+  nav a:hover, .nav-button:hover { transform: none; }
+}
+
+/* En móvil SIGUE siendo una barra lateral, no una de pestañas abajo. El carril
+   solo se estrecha. Con la barra inferior se perdían el interruptor de tema y
+   el cierre de sesión, que viven en `utility-nav`, y la marca desaparecía; el
+   carril los conserva los tres. */
+@media (max-width: 760px) {
+  .sidebar { width: 62px; padding: 16px 7px max(14px, env(safe-area-inset-bottom)); }
+  .brand img { width: 32px; height: 32px; }
+  nav a, .nav-button { min-height: 42px; }
+  .primary-nav { gap: 2px; }
+}

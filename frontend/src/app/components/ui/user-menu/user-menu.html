@@ -1,0 +1,29 @@
+<button
+  type="button"
+  class="user-menu__trigger"
+  [class.user-menu__trigger--named]="showName()"
+  (click)="toggle()"
+  [attr.aria-expanded]="open()"
+  aria-haspopup="menu"
+  aria-controls="user-menu-panel"
+  [attr.aria-label]="'Cuenta de ' + (auth.user()?.username || 'usuario')">
+  <span class="user-menu__avatar">
+    @if (auth.user()?.has_avatar) {
+      <img [src]="auth.myAvatarUrl()" alt="">
+    } @else {
+      <span>{{ initials() }}</span>
+    }
+  </span>
+  @if (showName()) { <span class="user-menu__name">{{ auth.user()?.full_name || auth.user()?.username }}</span> }
+</button>
+
+@if (open()) {
+  <div class="user-menu__panel" id="user-menu-panel" role="menu" aria-label="Cuenta" (keydown)="onMenuKeydown($event)">
+    @for (item of items(); track item.label) {
+      @if (item.separatorBefore) { <div class="user-menu__separator" role="separator"></div> }
+      <button type="button" role="menuitem" tabindex="-1" [class.is-danger]="item.danger" (click)="run(item)">
+        <app-icon [name]="item.icon" [size]="16"/>{{ item.label }}
+      </button>
+    }
+  </div>
+}

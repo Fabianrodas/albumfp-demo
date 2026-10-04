@@ -1,0 +1,51 @@
+@if (notFound()) {
+  <section class="empty-state profile-missing">
+    <div class="empty-state__copy">
+      <h2>No encontramos a esa persona.</h2>
+      <p>Puede que haya cambiado su nombre de usuario o que la cuenta ya no exista.</p>
+    </div>
+  </section>
+} @else if (profile(); as user) {
+  <header class="public-profile">
+    <div class="public-profile__avatar">
+      @if (user.has_avatar) {
+        <img [src]="avatarUrl()" [alt]="'Foto de perfil de ' + user.username">
+      } @else {
+        <span>{{ initials() }}</span>
+      }
+    </div>
+
+    <div class="public-profile__copy">
+      <h1>{{ user.full_name }}</h1>
+      <p class="public-profile__handle">&#64;{{ user.username }}</p>
+
+      <dl class="public-profile__stats">
+        <div><dt>Álbumes públicos</dt><dd>{{ user.public_albums }}</dd></div>
+        <div><dt>Publicaciones</dt><dd>{{ user.public_media }}</dd></div>
+        <div><dt>Miembro desde</dt><dd class="is-date">{{ memberSince() }}</dd></div>
+      </dl>
+    </div>
+  </header>
+
+  @if (albums().length) {
+    <section class="section-heading"><h2>Álbumes públicos</h2></section>
+    <div class="feed-grid" appScrollReveal="stagger">
+      @for (album of albums(); track album.id) { <app-public-album-card [album]="album" [showOwner]="false" [profileUsername]="user.username" /> }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Paginación de álbumes">
+        <button type="button" class="btn btn-secondary" [disabled]="page() === 1" (click)="goTo(page() - 1)">Anterior</button>
+        <span class="pager__status">Página {{ page() }} de {{ totalPages() }}</span>
+        <button type="button" class="btn btn-secondary" [disabled]="page() === totalPages()" (click)="goTo(page() + 1)">Siguiente</button>
+      </nav>
+    }
+  } @else if (loaded()) {
+    <section class="empty-state">
+      <div class="empty-state__copy">
+        <h2>Todavía no ha publicado nada.</h2>
+        <p>Cuando {{ user.username }} haga público un álbum, aparecerá aquí.</p>
+      </div>
+    </section>
+  }
+}

@@ -1,0 +1,198 @@
+.media-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.media-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-raised);
+  box-shadow: 0 1px 2px rgba(25, 34, 28, .03);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  animation: reveal-up .42s ease both;
+}
+.media-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: var(--border-strong); }
+.media-card.is-selected { border-color: var(--brand-700); box-shadow: inset 0 0 0 2px var(--brand-700); }
+
+.media-card__frame { position: relative; }
+
+.media-card__asset {
+  position: relative;
+  aspect-ratio: 1.18;
+  overflow: hidden;
+  background: var(--media-placeholder);
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: default;
+}
+.media-card__asset img, .media-card__asset video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  background: var(--stage-bg);
+  transition: transform .32s ease;
+}
+.media-card:hover .media-card__asset img { transform: scale(1.025); }
+.media-card__asset--openable { cursor: zoom-in; }
+.media-card__asset--openable:focus-visible { outline: 2px solid var(--sage-500); outline-offset: -3px; }
+
+.media-kind {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-coral) 78%, black 22%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  backdrop-filter: blur(8px);
+}
+
+/* Casilla de selección múltiple */
+.select-box {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 255, 255, .85);
+  background: rgba(20, 28, 22, .42);
+  color: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
+}
+.select-box input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.select-box.is-on { background: var(--brand-800); border-color: var(--brand-800); color: #fff; }
+.select-box:hover { background: rgba(20, 28, 22, .62); }
+.select-box.is-on:hover { background: var(--brand-900); }
+.select-box:focus-within { box-shadow: var(--focus-ring); }
+
+.media-card__footer {
+  min-height: 57px;
+  padding: 10px 10px 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.media-card__copy { min-width: 0; }
+.media-card__copy-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  display: block;
+  max-width: 100%;
+}
+.media-card__copy-link:hover > span { text-decoration: underline; text-underline-offset: 3px; }
+.media-card__copy > span {
+  display: block;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+.album-context { display: block; max-width: 180px; margin-top: 4px; overflow: hidden; color: var(--muted); font-size: 11px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.media-card:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.media-card__actions { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; }
+
+.icon-action, .mini-action {
+  border: 0;
+  background: transparent;
+  color: var(--text-soft);
+  border-radius: 9px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px;
+  transition: background-color .16s ease, color .16s ease, transform .16s ease;
+}
+.icon-action { width: 32px; }
+.icon-action:hover, .mini-action:hover { background: var(--surface-muted); color: var(--text); transform: translateY(-1px); }
+.icon-action.active { color: var(--favorite); background: var(--favorite-soft); }
+.icon-action.danger:hover { color: var(--danger); background: var(--danger-soft); }
+.favorite-mark { color: var(--favorite); display: grid; place-items: center; padding: 5px; }
+
+.mini-action { padding-inline: 11px; background: var(--surface-muted); font-size: 12px; font-weight: 800; }
+.mini-action--danger { color: var(--danger-text); background: var(--danger-soft); }
+.mini-action--danger:hover { color: var(--danger-text); background: var(--danger-soft); }
+.mini-action span { display: inline; }
+
+/* Papelera: título, tiempo restante y botones se apilan con aire. Antes los
+   tres bloques se tocaban en una sola fila apretada. */
+.media-card--trash .media-card__footer {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 11px;
+  padding: 13px;
+}
+.media-card--trash .media-card__copy { display: grid; gap: 7px; justify-items: start; }
+.media-card--trash .media-card__copy > span { max-width: 100%; font-size: 14px; color: var(--text); }
+.media-card--trash .media-card__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.media-card--trash .mini-action { min-height: 36px; justify-content: center; }
+
+.retention-badge {
+  display: inline-flex !important;
+  margin-top: 0 !important;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--accent-coral-soft);
+  color: var(--accent-coral-text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+@media (max-width: 620px) {
+  .media-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+  .media-card { border-radius: 13px; }
+  .media-card__asset { aspect-ratio: 1; }
+  .media-card__footer { min-height: 52px; padding: 9px; }
+  .media-card__copy > span { max-width: 100px; font-size: 12px; }
+  .media-card__actions { gap: 2px; }
+  /* 30px estaba muy por debajo del minimo tactil. Y de las cuatro acciones se
+     queda solo el favorito: etiquetar, portada y borrar viven en el detalle de
+     la foto, con botones de 44px, que es como funciona cualquier galeria de
+     movil. La papelera conserva las suyas: ahi no hay detalle al que ir. */
+  .icon-action { width: 40px; min-height: 40px; padding: 8px; }
+  .media-card:not(.media-card--trash) .icon-action:not(.icon-action--favorite) { display: none; }
+  .mini-action span { display: none; }
+  .media-card--trash .media-card__copy > span { max-width: 100%; }
+  .media-card--trash .mini-action span { display: inline; }
+}
+
+/* Una sola columna solo en pantallas de verdad estrechas: a 390px (iPhone) dos
+   columnas caben igual que en el muro de Explorar y la pagina no mide diez
+   pantallas (F06). */
+@media (max-width: 360px) {
+  .media-gallery { grid-template-columns: 1fr; }
+  .media-card__asset { aspect-ratio: 1.25; }
+  .media-card__copy > span { max-width: 180px; }
+}

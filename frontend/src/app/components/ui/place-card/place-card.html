@@ -1,0 +1,12 @@
+<button type="button" class="place-card" (click)="opened.emit(place())">
+  <div class="place-card__cover">
+    @if (coverUrl()) {<img [src]="coverUrl()" [alt]="'Portada de ' + title()" loading="lazy">}
+    @else if (place().cover_file_type === 'video') {<div class="place-card__placeholder place-card__video" aria-hidden="true"><app-icon name="video" [size]="28"/><span>Video</span></div>}
+    @else {<div class="place-card__placeholder" aria-hidden="true"><app-icon name="pin" [size]="26"/></div>}
+  </div>
+  <div class="place-card__body">
+    <h3>{{ title() }}</h3>
+    @if (subtitle()) {<p>{{ subtitle() }}</p>}
+    <span class="place-card__count">{{ place().media_count }} {{ place().media_count === 1 ? 'recuerdo' : 'recuerdos' }}</span>
+  </div>
+</button>

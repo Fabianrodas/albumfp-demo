@@ -2,7 +2,7 @@
   "product": "AlbumFP Demo",
   "target_version": "1.3.0",
   "current_version": null,
-  "stage": "v1.0.0-import",
+  "stage": "v1.0.0-certified-awaiting-tag",
   "source_tags_verified": [
     "v1.0.0",
     "v1.1.0",
@@ -17,7 +17,7 @@
   "real_source_repository_mutated": false,
   "milestones": {
     "foundation": "complete",
-    "v1.0.0": "in-progress",
+    "v1.0.0": "certified-awaiting-tag",
     "v1.1.0": "not-started",
     "v1.1.1": "not-started",
     "v1.2.0": "not-started",
@@ -27,12 +27,12 @@
   },
   "checks": {
     "database_safety_tests": "PASS (17 pytest cases, 13 subtests)",
-    "automated_tests": "in-progress",
-    "browser_qa": "not-run",
-    "publication_scan": "not-run",
-    "readme_screenshots": "not-captured",
-    "main_push": "PASS through commit 9952184"
+    "automated_tests": "PASS (backend 901 passed, 3 skipped; frontend 208 passed; production build passed)",
+    "browser_qa": "PASS (local-only flows, responsive widths, cookie-less guest share, no external requests)",
+    "publication_scan": "PASS (489 tracked files; Gitleaks unavailable)",
+    "readme_screenshots": "PASS (29 synthetic captures checked; final gallery refresh pending)",
+    "main_push": "PASS through commit 77f74cf"
   },
-  "last_pushed_commit": "9952184",
+  "last_pushed_commit": "77f74cf",
   "release_tags": {}
 }

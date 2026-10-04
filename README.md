@@ -1,0 +1,71 @@
+<p align="center">
+  <img src="frontend/public/logo.png" width="88" alt="AlbumFP logo">
+</p>
+
+<h1 align="center">AlbumFP Demo</h1>
+
+<p align="center"><strong>Tus fotos, tus videos y las historias que quieres volver a encontrar.</strong></p>
+
+<p align="center"><a href="https://albumfp.com">Conoce AlbumFP</a> · Demo local v1.0.0</p>
+
+AlbumFP reúne fotos y videos en una biblioteca personal. Ordénalos en álbumes, encuentra cada recuerdo por sus datos, guarda tus favoritos y comparte solo lo que elijas.
+
+Esta edición Demo reproduce la experiencia del producto hasta v1.0.0 y funciona solo en tu equipo. No es la infraestructura de producción de AlbumFP.
+
+## Lo que puedes hacer
+
+- Organizar fotos y videos en álbumes y una biblioteca con búsqueda y filtros.
+- Crear álbumes inteligentes que reúnen recuerdos según sus criterios.
+- Marcar favoritos, archivar recuerdos y restaurar archivos desde la papelera.
+- Compartir álbumes con enlaces de solo lectura o permisos de colaboración.
+- Añadir comentarios y consultar la actividad de tus álbumes.
+- Mantener los archivos y los datos en almacenamiento local.
+
+## Un vistazo
+
+### Escritorio
+
+![Tus álbumes](frontend/public/capturas/paso-albumes.webp)
+
+![Fotos, videos y filtros dentro de un álbum](frontend/public/capturas/paso-album-detalle.webp)
+
+### Tema claro y teléfono
+
+![AlbumFP en tema claro](frontend/public/capturas/tema-claro.webp)
+
+![Un álbum abierto en una pantalla de teléfono](frontend/public/capturas/movil/album.webp)
+
+Las capturas se hicieron en esta Demo con una cuenta y contenido sintéticos.
+
+## Probarlo en Windows
+
+Necesitas Windows PowerShell, Python 3.12 o posterior, Node.js 22 o posterior, npm y PostgreSQL 14 o posterior.
+
+```powershell
+git clone https://github.com/Fabianrodas/albumfp-demo.git
+Set-Location albumfp-demo
+.\setup.ps1
+.\dev.ps1
+```
+
+`setup.ps1` prepara PostgreSQL, crea las bases separadas `albumfp_demo` y `albumfp_demo_test`, y genera `.env` desde `.env.example` con valores locales. La base de datos, las credenciales y los archivos cargados quedan fuera de Git, en `%LOCALAPPDATA%\AlbumFP-Demo`.
+
+La preparacion aplica las migraciones con `alembic upgrade head`; no reinicia ni elimina las bases existentes.
+
+El helper destructivo `python -m schemas.schema` es solo para bases Demo desechables. Al marcar un esquema historico usa `alembic stamp 0001_current_schema_baseline`; las actualizaciones normales usan `alembic upgrade head`.
+
+Abre [http://localhost:4200](http://localhost:4200). Los servicios se enlazan a loopback. Pulsa Ctrl+C en la ventana de `dev.ps1` para detener la Demo.
+
+## Pruebas
+
+```powershell
+Set-Location backend
+.\.venv\Scripts\python.exe -m pytest -q
+Set-Location ..\frontend
+npm.cmd test -- --watch=false
+npm.cmd run build
+```
+
+## Edición local
+
+La búsqueda en mapas, el clima, el OCR y las sugerencias automáticas están desactivados. La aplicación no envía fotos, metadatos, datos de cuenta ni telemetría a servicios externos. Usa contenido sintético en capturas y pruebas.

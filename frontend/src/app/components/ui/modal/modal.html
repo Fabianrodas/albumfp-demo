@@ -1,0 +1,23 @@
+@if (open()) {
+  <div class="modal-backdrop" (click)="onBackdrop()">
+    <section
+      class="modal-panel"
+      [class.modal-panel--sm]="size() === 'sm'"
+      [class.modal-panel--lg]="size() === 'lg'"
+      [class.modal-panel--xl]="size() === 'xl'"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="title()"
+      [appDialogTrap]="close"
+      (click)="$event.stopPropagation()">
+      <header class="modal-head">
+        <h2>{{ title() }}</h2>
+        <button type="button" class="icon-button" (click)="close()" aria-label="Cerrar">
+          <app-icon name="close" [size]="17"/>
+        </button>
+      </header>
+      <div class="modal-body"><ng-content /></div>
+      <footer class="modal-foot"><ng-content select="[modal-actions]" /></footer>
+    </section>
+  </div>
+}

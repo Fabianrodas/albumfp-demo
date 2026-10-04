@@ -1,0 +1,36 @@
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 3px 8px 3px 3px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--text-soft);
+  transition: background-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
+}
+.user-chip:hover { background: var(--surface-muted); color: var(--text); }
+
+.user-chip__avatar {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--brand-900);
+  color: var(--on-brand);
+  display: grid;
+  place-items: center;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+.user-chip__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.user-chip__copy { min-width: 0; display: grid; }
+.user-chip__copy b { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-chip__copy small { color: var(--muted); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.user-chip--md .user-chip__avatar { width: 38px; height: 38px; font-size: 12.5px; }
+.user-chip--md .user-chip__copy b { font-size: 14.5px; }
+.user-chip--md .user-chip__copy small { font-size: 12.5px; }

@@ -1,0 +1,54 @@
+<div class="media-gallery">
+  @for (item of items(); track item.id) {
+    <article class="media-card" [id]="'media-' + item.id" tabindex="-1" [class.media-card--video]="item.file_type === 'video'" [class.media-card--trash]="mode() === 'trash'" [class.is-selected]="isSelected(item)">
+      <div class="media-card__frame">
+        <button type="button" class="media-card__asset" [class.media-card__asset--openable]="mode() !== 'trash'" [disabled]="mode() === 'trash'" [attr.aria-label]="mode() !== 'trash' ? 'Abrir ' + (item.title || 'detalle del archivo') : null" (click)="activate(item)">
+          <app-media-asset [item]="item" [shareToken]="shareToken()" [allowOriginalDownload]="allowOriginalDownload()" />
+          @if (item.file_type === 'video') { <span class="media-kind"><app-icon name="video" [size]="13"/>Video</span> }
+        </button>
+
+        @if (selectable()) {
+          <label class="select-box" [class.is-on]="isSelected(item)" [attr.title]="isSelected(item) ? 'Quitar de la selección' : 'Seleccionar'">
+            <input type="checkbox" [checked]="isSelected(item)" (change)="selectionToggled.emit(item)" [attr.aria-label]="'Seleccionar ' + (item.title || 'archivo')">
+            <app-icon name="check" [size]="14"/>
+          </label>
+        }
+      </div>
+
+      <div class="media-card__footer">
+        @if (mode() !== 'trash') {
+          <button type="button" class="media-card__copy media-card__copy-link" (click)="activate(item)">
+            <span>{{ item.title || 'Sin título' }}</span>
+            @if ((mode() === 'library' || mode() === 'archive') && item.album_titulo) { <small class="album-context">{{ item.album_titulo }}</small> }
+            @if (item.archived_at && mode() !== 'archive') { <small class="archived-badge">Archivado</small> }
+          </button>
+        } @else {
+          <div class="media-card__copy">
+            <span>{{ item.title || 'Sin título' }}</span>
+            @if (mode() === 'trash') { <small class="retention-badge">{{ retentionLabel(item) }}</small> }
+          </div>
+        }
+
+        <div class="media-card__actions">
+          @if (mode() === 'trash') {
+            <button type="button" class="mini-action" (click)="restore.emit(item)" title="Restaurar archivo"><app-icon name="restore" [size]="15"/><span>Restaurar</span></button>
+            <button type="button" class="mini-action mini-action--danger" (click)="permanentDelete.emit(item)" title="Eliminar permanentemente"><app-icon name="trash" [size]="15"/><span>Eliminar</span></button>
+          } @else if (mode() === 'favorites') {
+            <span class="favorite-mark" aria-label="Favorito"><app-icon name="heart" [size]="18" [filled]="true"/></span>
+          } @else if (mode() === 'album') {
+            @if (canOrganize()) {
+              <button type="button" class="icon-action icon-action--favorite" [class.active]="item.is_favorite" [attr.aria-pressed]="item.is_favorite" (click)="favoriteChanged.emit(item)" [attr.aria-label]="item.is_favorite ? 'Quitar de favoritos' : 'Marcar como favorito'" [title]="item.is_favorite ? 'Quitar de favoritos' : 'Marcar como favorito'"><app-icon name="heart" [size]="16" [filled]="!!item.is_favorite"/></button>
+              <button type="button" class="icon-action" (click)="tagRequested.emit(item)" aria-label="Gestionar tags" title="Gestionar tags"><app-icon name="tag" [size]="16"/></button>
+            }
+            @if (canSetCover()) {
+              <button type="button" class="icon-action" (click)="coverRequested.emit(item)" aria-label="Usar como portada" title="Usar como portada"><app-icon name="image" [size]="16"/></button>
+            }
+            @if (canDelete()) {
+              <button type="button" class="icon-action danger" (click)="deleteRequested.emit(item)" aria-label="Enviar a papelera" title="Enviar a papelera"><app-icon name="trash" [size]="16"/></button>
+            }
+          }
+        </div>
+      </div>
+    </article>
+  }
+</div>

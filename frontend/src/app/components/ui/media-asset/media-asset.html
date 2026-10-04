@@ -1,0 +1,16 @@
+@if (videoPlaceholder()) {
+  <div class="asset-video-placeholder" role="img" [attr.aria-label]="'Video: ' + (item().title || 'sin título')">
+    <app-icon name="video" [size]="28"/>
+    <span>Video</span>
+  </div>
+} @else if (failed()) {
+  <div class="asset-unavailable">Archivo no disponible</div>
+} @else if (url()) {
+  @if (item().file_type === 'video') {
+    <video [src]="url()" controls preload="metadata" playsinline></video>
+  } @else {
+    <img [src]="url()" [alt]="item().title || 'Archivo multimedia'">
+  }
+} @else {
+  <div class="asset-loading" aria-label="Cargando archivo"></div>
+}

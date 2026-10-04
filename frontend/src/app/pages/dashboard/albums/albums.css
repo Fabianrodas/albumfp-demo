@@ -1,0 +1,110 @@
+.error-banner { margin-top: 18px; }
+
+/* Casilla de privacidad, compartida con los ajustes del álbum. El texto va
+   centrado con su casilla: antes quedaba pegado al borde superior. */
+.privacy-option {
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  cursor: pointer;
+}
+.privacy-option input { width: 17px; height: 17px; flex: 0 0 auto; accent-color: var(--brand-800); }
+.privacy-option span { display: grid; gap: 3px; }
+.privacy-option b { font-size: 13.5px; }
+.privacy-option small { font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+
+/* Solo aparece al buscar, para separar los álbumes de las fotos. */
+.results-title {
+  margin: 4px 0 14px;
+  font: 500 21px/1.15 var(--display);
+  letter-spacing: -.015em;
+}
+.results-title span { color: var(--text-soft); font: 700 13px/1 var(--body); }
+
+.search-workspace {
+  margin: 0 0 28px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.search-workspace__main { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; }
+.search-input {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text-soft);
+}
+.search-input:focus-within { border-color: var(--sage-500); box-shadow: var(--focus-ring); }
+.search-input input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text); font: inherit; }
+.search-input input::placeholder { color: var(--input-placeholder); }
+.filter-toggle { min-height: 46px; }
+.filter-count {
+  min-width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--brand-900);
+  color: var(--on-brand);
+  font-size: 12px;
+}
+.search-submit { min-height: 46px; padding-inline: 22px; }
+.active-search { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 13px; }
+.filter-chip,
+.clear-all {
+  min-height: 44px;
+  border: 1px solid var(--accent-violet-border);
+  border-radius: 999px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--accent-violet-soft);
+  color: var(--accent-violet-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+.filter-chip:hover { filter: brightness(.97); }
+.clear-all { margin-left: auto; border-color: transparent; background: transparent; color: var(--text-soft); }
+.clear-all:hover { background: var(--surface-muted); color: var(--text); }
+
+@media (max-width: 700px) {
+  .search-workspace { padding: 12px; }
+  .search-workspace__main { grid-template-columns: minmax(0, 1fr) auto; }
+  .search-submit { grid-column: 1 / -1; }
+  .clear-all { margin-left: 0; }
+}
+@media (max-width: 460px) {
+  .search-workspace__main { grid-template-columns: 1fr; }
+  .filter-toggle, .search-submit { width: 100%; }
+}
+
+
+/* L11: álbumes inteligentes. Sección aparte y distinción sutil, sin tono de aviso. */
+.smart-section { margin-top: 34px; }
+.smart-section__hint { margin: -6px 0 16px; color: var(--text-soft); font-size: 13px; }
+.save-search {
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+.save-search:hover { border-color: var(--sage-500); }

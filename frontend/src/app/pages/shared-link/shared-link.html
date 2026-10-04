@@ -1,0 +1,39 @@
+<main class="shared-shell">
+  <header class="shared-topbar">
+    <a class="brand" href="/"><img [src]="theme.logo()" alt=""><span>AlbumFP</span></a>
+    <button type="button" class="tema" (click)="theme.toggle()" [attr.aria-pressed]="theme.isDark()"
+      [attr.aria-label]="theme.isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+      [title]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'">
+      <app-icon [name]="theme.isDark() ? 'sun' : 'moon'" [size]="19"/>
+    </button>
+  </header>
+
+  @if (locked()) {
+    <section class="link-state">
+      <h1>Este álbum tiene contraseña.</h1>
+      <p>Escríbela para verlo.</p>
+      <form class="unlock-form" (ngSubmit)="unlock()">
+        <input class="field" type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" autocomplete="current-password">
+        <button class="btn btn-brand" type="submit" [disabled]="!password || unlocking()">
+          @if (unlocking()) { <span class="btn-spinner"></span> }
+          {{ unlocking() ? 'Comprobando…' : 'Ver álbum' }}
+        </button>
+      </form>
+      @if (unlockError()) { <p class="form-error shake-in">{{ unlockError() }}</p> }
+    </section>
+  } @else if (error()) {
+    <section class="link-state error-state"><h1>Este enlace no está disponible.</h1><p>{{ error() }}</p><a class="btn btn-secondary" href="/">Ir a AlbumFP</a></section>
+  } @else {
+    <section class="shared-hero">
+      <div><span class="chip">Solo lectura · enlace público</span><h1>{{ title() }}</h1>@if(description()){<p>{{ description() }}</p>}</div>
+    </section>
+
+    @if (media().length) {
+      <app-media-grid [items]="media()" mode="album" [shareToken]="token" role="read"
+        [allowOriginalDownload]="!!share()?.allow_original_download" (itemOpened)="openMedia($event)" />
+    } @else {
+      <section class="empty-state shared-empty"><div class="empty-state__copy"><h2>No hay archivos.</h2></div></section>
+    }
+  }
+
+</main>

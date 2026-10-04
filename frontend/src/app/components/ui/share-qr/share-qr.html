@@ -1,0 +1,11 @@
+<div class="qr-block">
+  @if (dataUrl(); as imagen) {
+    <div class="qr-frame"><img [src]="imagen" alt="Código QR del enlace compartido" width="220" height="220"></div>
+    <p class="qr-hint">Quien escanee este código abrirá el mismo enlace compartido.</p>
+    <a class="text-action qr-download" [href]="imagen" [download]="downloadName()">Descargar QR</a>
+  } @else if (error()) {
+    <p class="qr-hint">{{ error() }}</p>
+  } @else {
+    <p class="qr-hint">Generando código…</p>
+  }
+</div>

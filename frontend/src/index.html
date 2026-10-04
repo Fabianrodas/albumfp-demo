@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <title>AlbumFP</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <!-- `frame-ancestors` NO va aquí: la especificación dice que se ignora cuando
+       la política llega por `<meta>`, y el navegador avisaba por consola en cada
+       carga. No se pierde nada quitándola: el backend ya manda de verdad
+       `frame-ancestors 'none'` y `X-Frame-Options: DENY` como cabeceras HTTP
+       (`backend/app.py`, el `after_request`), que es donde sí surten efecto. -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- L16: instalable como app. El manifest y los iconos son estáticos de la
+       marca; ninguna foto de nadie. -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#123426">
+  <!-- Fraunces e Inter ya no se piden a Google: viajan self-hosted desde
+       `styles.css` (ver el @import de @fontsource al principio del archivo), asi
+       que aqui no queda ningun origen externo y la CSP se queda en 'self'. -->
+  <script src="theme-init.js"></script>
+</head>
+
+<body>
+  <app-root></app-root>
+</body>
+
+</html>

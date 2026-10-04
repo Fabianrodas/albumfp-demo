@@ -1,0 +1,66 @@
+@if (selected(); as place) {
+  <a class="back-link" routerLink="/lugares">Todos los lugares</a>
+  <section class="page-header">
+    <div class="page-header__copy">
+      <h1 class="page-title">{{ selectedLabel() }}</h1>
+      @if (loaded() && selectedSubtitle()) { <p class="page-subtitle">{{ selectedSubtitle() }}</p> }
+    </div>
+  </section>
+
+  @if (error()) { <p class="notice notice-error error-banner">{{ error() }}</p> }
+
+  @if (placeMedia().length) {
+    <app-media-grid [items]="placeMedia()" mode="places" appScrollReveal />
+    @if (hasMore()) {
+      <div class="load-more">
+        <button type="button" class="btn btn-ghost" (click)="loadMore()" [disabled]="loadingMore()">
+          {{ loadingMore() ? 'Cargando...' : 'Cargar más' }}
+        </button>
+        <p class="load-more__count">{{ placeMedia().length }} de {{ totalPlaceMedia() }}</p>
+      </div>
+    }
+  } @else if (loaded() && !error()) {
+    <section class="empty-state">
+      <div class="empty-state__copy"><h2>No hay recuerdos aquí todavía.</h2></div>
+    </section>
+  }
+} @else {
+  <section class="page-header">
+    <div class="page-header__copy">
+      <h1 class="page-title">Lugares</h1>
+      <p class="page-subtitle">
+        @if (places().length) { {{ summary() }} }
+        @else { Tus recuerdos, agrupados por donde ocurrieron. }
+      </p>
+    </div>
+  </section>
+
+  @if (error()) { <p class="notice notice-error error-banner">{{ error() }}</p> }
+
+  @if (places().length) {
+    @for (group of byCountry(); track group.key) {
+      <section class="country">
+        <header class="country__head">
+          <h2>{{ group.name }}</h2>
+          <span>
+            {{ group.places.length }} {{ group.places.length === 1 ? 'lugar' : 'lugares' }}
+            &middot; {{ group.count }} {{ group.count === 1 ? 'recuerdo' : 'recuerdos' }}
+          </span>
+        </header>
+        <div class="place-grid" appScrollReveal="stagger">
+          @for (place of group.places; track place.country_code + '|' + place.locality + '|' + place.region) {
+            <app-place-card [place]="place" (opened)="open($event)" />
+          }
+        </div>
+      </section>
+    }
+  } @else if (loaded() && !error()) {
+    <section class="empty-state">
+      <div class="empty-state__copy">
+        <h2>Todavía no hay recuerdos con ubicación.</h2>
+        <p>Las fotos con GPS pueden identificar su lugar desde el detalle del recuerdo.</p>
+        <a class="btn btn-brand" routerLink="/albumes">Ir a mis álbumes</a>
+      </div>
+    </section>
+  }
+}

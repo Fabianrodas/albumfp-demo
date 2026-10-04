@@ -1,6 +1,7 @@
 """Fail-closed parsing for the Demo's local PostgreSQL URLs."""
 
 import os
+import re
 from collections.abc import Mapping
 from urllib.parse import unquote, urlsplit
 
@@ -11,6 +12,8 @@ _DATABASES = {
 }
 _LOOPBACK_HOSTS = {"localhost", "127.0.0.1", "::1"}
 _POSTGRES_SCHEMES = {"postgresql", "postgresql+psycopg2"}
+_DISPOSABLE_DATABASE = re.compile(r"^albumfp_disposable_[a-z0-9_]+$")
+_ENABLED = {"1", "true", "yes", "on"}
 
 
 def validate_loopback_host(host: str) -> str:
@@ -36,12 +39,37 @@ def database_url_from_environment(
     if not url:
         raise RuntimeError(f"{variable} must be set for the {purpose} database")
     try:
-        return parse_demo_database_url(url, purpose=purpose)
+        allow_disposable = _is_explicit_test_scratch(url, purpose=purpose, environ=values)
+        return parse_demo_database_url(
+            url, purpose=purpose, _allow_disposable_test_database=allow_disposable
+        )
     except ValueError as exc:
         raise RuntimeError(f"{variable} is not a safe local Demo database URL") from exc
 
 
-def parse_demo_database_url(url: str, *, purpose: str = "development") -> str:
+def _is_explicit_test_scratch(
+    url: str, *, purpose: str, environ: Mapping[str, str]
+) -> bool:
+    if purpose != "test" or (environ.get("ALBUMFP_DEMO_TEST_MODE") or "").strip().lower() not in _ENABLED:
+        return False
+    template = (environ.get("ALBUMFP_L10A_TEMPLATE_DB") or "").strip()
+    target = (environ.get("ALBUMFP_DEMO_SCRATCH_DATABASE") or "").strip()
+    if not _DISPOSABLE_DATABASE.fullmatch(template) or not _DISPOSABLE_DATABASE.fullmatch(target):
+        return False
+    try:
+        parts = urlsplit(url)
+        database = unquote(parts.path[1:]) if parts.path.startswith("/") else ""
+    except ValueError:
+        return False
+    return database == target
+
+
+def parse_demo_database_url(
+    url: str,
+    *,
+    purpose: str = "development",
+    _allow_disposable_test_database: bool = False,
+) -> str:
     """Validate and return a URL for the requested local Demo database."""
     if purpose not in _DATABASES:
         raise ValueError("database purpose must be development or test")
@@ -66,7 +94,10 @@ def parse_demo_database_url(url: str, *, purpose: str = "development") -> str:
         raise ValueError("the Demo database must use its dedicated PostgreSQL port 55432")
     if parts.query or parts.fragment:
         raise ValueError("query parameters and fragments are not allowed")
-    if parts.path.count("/") != 1 or database != _DATABASES[purpose]:
+    database_allowed = database == _DATABASES[purpose]
+    if purpose == "test" and _allow_disposable_test_database:
+        database_allowed = database_allowed or bool(_DISPOSABLE_DATABASE.fullmatch(database))
+    if parts.path.count("/") != 1 or not database_allowed:
         raise ValueError(f"the {purpose} database name is not allowlisted")
 
     return url

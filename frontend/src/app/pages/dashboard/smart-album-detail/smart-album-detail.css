@@ -1,0 +1,21 @@
+.back-link {
+  display: inline-block;
+  margin-top: 25px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 800;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-strong);
+  padding-bottom: 2px;
+}
+.back-link:hover { color: var(--text); }
+.danger-action { color: var(--danger); }
+.smart-summary { margin: 12px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.smart-summary li {
+  padding: 5px 10px; border-radius: 999px; background: var(--surface-muted);
+  color: var(--text-soft); font-size: 13px; font-weight: 600;
+}
+.smart-broken .btn { margin-top: 6px; }
+
+/* F06: el enlace de volver, tocable en movil (>=40px). */
+@media (max-width: 560px) { .back-link { min-height: 40px; display: inline-flex; align-items: center; } }

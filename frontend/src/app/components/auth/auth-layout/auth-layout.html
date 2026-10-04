@@ -1,0 +1,28 @@
+<app-public-backdrop />
+
+<main class="auth-shell">
+  <section class="auth-form">
+    <div class="auth-top">
+      <a class="brand" routerLink="/" aria-label="Volver al inicio de AlbumFP">
+        <img [src]="theme.logo()" alt="" width="38" height="38"><span>AlbumFP</span>
+      </a>
+
+      <button type="button" class="tema" (click)="theme.toggle()" [attr.aria-pressed]="theme.isDark()"
+        [attr.aria-label]="theme.isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+        [title]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'">
+        <app-icon [name]="theme.isDark() ? 'sun' : 'moon'" [size]="19"/>
+      </button>
+    </div>
+
+    <div class="auth-content"><router-outlet (activate)="alActivar()" /></div>
+  </section>
+
+  <aside class="auth-visual">
+    <div class="auth-visual__shots" aria-hidden="true" appScrollReveal="stagger">
+      <app-shot-frame class="shot-main" [src]="panel().principal.src" [zoom]="panel().principal.zoom" [priority]="true" alt="" />
+      <app-shot-frame class="shot-a" [src]="panel().apoyo.src" [zoom]="panel().apoyo.zoom" alt="" />
+    </div>
+
+    <p class="auth-visual__claim">{{ panel().frase }}</p>
+  </aside>
+</main>

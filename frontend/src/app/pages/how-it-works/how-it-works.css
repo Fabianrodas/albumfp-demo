@@ -1,0 +1,248 @@
+/* El recorrido se lee en dos niveles: tres capítulos, y dentro de cada uno una
+   captura que lo explica y tres que lo completan. Las doce siguen estando; lo
+   que cambia es que ya no pesan lo mismo. */
+
+:host { display: block; --pad: clamp(16px, 3vw, 40px); }
+
+h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.028em; margin: 0; text-wrap: balance; }
+
+/* ---------- Cabecera ---------- */
+
+.works__head {
+  max-width: var(--public-max);
+  margin: 0 auto;
+  padding: clamp(48px, 6vw, 88px) var(--pad) clamp(40px, 5vw, 68px);
+  display: grid;
+  gap: clamp(18px, 2.5vw, 40px);
+}
+.works__head h1 { font-size: clamp(2.2rem, 4.4vw, 3.7rem); line-height: 1.06; max-width: 18ch; }
+/* Este parrafo cae en la columna derecha de la cabecera, que es justo por donde
+   barre el campo mas tenido del fondo. Con `--text-soft` medía 3,38:1 en las
+   fases mas verdes, por debajo del 4,5:1 que pide AA, y el fallo dependia del
+   instante. `--text` lo sube a 6,8:1 y a simple vista son el mismo gris oscuro:
+   el fondo aqui no es predecible, asi que el texto no puede ir al limite. */
+.works__head p {
+  margin: 0;
+  max-width: 44ch;
+  font-size: clamp(15.5px, 1.3vw, 17.5px);
+  line-height: 1.65;
+  color: var(--text);
+}
+.works__head .works__local-note {
+  max-width: 52ch;
+  padding: 12px 16px;
+  border-left: 3px solid var(--brand-700);
+  border-radius: 0 10px 10px 0;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  font-size: 14px;
+}
+
+/* ---------- Recorrido ---------- */
+
+.tour {
+  max-width: var(--public-max);
+  margin: 0 auto;
+  padding: 0 var(--pad);
+  display: grid;
+  gap: clamp(20px, 2.5vw, 40px);
+}
+
+/* El carril solo existe donde hay una columna que dedicarle; por debajo, el
+   título de cada capítulo ya cumple ese papel. */
+.rail { display: none; }
+
+.stages { display: grid; gap: clamp(72px, 9vw, 132px); padding-bottom: clamp(64px, 8vw, 104px); }
+.stage { display: grid; gap: clamp(28px, 3.5vw, 48px); }
+
+/* El número manda sobre la etiqueta: es lo que hace reconocibles los tres
+   capítulos de un vistazo, antes de leer nada. */
+.stage__title {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(12px, 1.4vw, 20px);
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  line-height: 1.15;
+  padding-bottom: clamp(14px, 1.8vw, 22px);
+  border-bottom: 1px solid var(--border);
+}
+.stage__title b {
+  font-weight: 500;
+  font-size: 1.45em;
+  line-height: 1;
+  color: var(--brand-700);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- La captura protagonista ---------- */
+
+.stage__feature { display: grid; gap: clamp(20px, 2.5vw, 36px); }
+.feature__copy h3 { font-size: clamp(1.3rem, 2vw, 1.75rem); line-height: 1.18; }
+.feature__copy p {
+  margin: 14px 0 0;
+  max-width: 40ch;
+  font-size: clamp(15px, 1.25vw, 16.5px);
+  line-height: 1.7;
+  color: var(--text-soft);
+}
+
+/* ---------- Las tres de apoyo ---------- */
+
+/* El navegador no maqueta ni pinta lo que queda fuera de pantalla. La altura
+   declarada evita que la barra de scroll salte; solo la altura, porque
+   `contain-intrinsic-size` la aplica también al ancho y en móvil desbordaba. */
+.stage__supporting {
+  display: grid;
+  gap: clamp(20px, 2.4vw, 32px);
+  content-visibility: auto;
+  contain-intrinsic-height: auto 380px;
+}
+
+.support__copy {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.support__copy h3 { font-size: clamp(1rem, 1.2vw, 1.1rem); line-height: 1.25; }
+.support__copy p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.62;
+  color: var(--text-soft);
+}
+/* Hover como propina: nada de lo que se lee depende de él. */
+.support app-shot-frame { display: block; transition: translate var(--motion-base) var(--ease-out); }
+@media (hover: hover) {
+  .support:hover app-shot-frame { translate: 0 -3px; }
+}
+
+/* ---------- Preguntas ---------- */
+
+.faq {
+  max-width: var(--public-max);
+  margin: 0 auto;
+  padding: clamp(48px, 6vw, 88px) var(--pad) clamp(88px, 11vw, 148px);
+  border-top: 1px solid var(--border);
+}
+.faq h2 { max-width: 960px; margin: 0 auto; font-size: clamp(1.7rem, 2.8vw, 2.4rem); line-height: 1.1; }
+.faq__list { max-width: 960px; margin: clamp(24px, 3vw, 40px) auto 0; }
+
+/* Filas, no tarjetas: la página cierra en calma. */
+.faq-row { border-top: 1px solid var(--border); }
+.faq-row:last-child { border-bottom: 1px solid var(--border); }
+.faq-row summary {
+  list-style: none;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 20px 48px 20px 0;
+  font-size: clamp(15.5px, 1.3vw, 17px);
+  font-weight: 550;
+  line-height: 1.4;
+  transition: color var(--motion-fast) var(--ease-out);
+}
+.faq-row summary::-webkit-details-marker { display: none; }
+.faq-row summary:hover { color: var(--brand-700); }
+.faq-row summary:focus-visible {
+  border-radius: 6px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-700) 42%, transparent);
+}
+/* El signo gira; la altura no se anima. `rotate` y `translate` son propiedades
+   distintas, así que se componen sin pisarse. */
+.faq-row summary::after {
+  content: "+";
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  translate: 0 -50%;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text-soft);
+  transition: rotate var(--motion-base) var(--ease-out), color var(--motion-fast) var(--ease-out);
+}
+.faq-row[open] summary { color: var(--brand-700); }
+.faq-row[open] summary::after { rotate: 45deg; color: var(--brand-700); }
+.faq-row p {
+  margin: 0;
+  padding: 0 48px 26px 0;
+  max-width: 68ch;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-soft);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (min-width: 700px) {
+  .stage__supporting { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 900px) {
+  /* La captura ocupa dos tercios largos; el texto acompaña. */
+  .stage__feature {
+    grid-template-columns: minmax(0, 67fr) minmax(0, 30fr);
+    gap: clamp(28px, 3.5vw, 52px);
+    /* El texto se apoya en el filo inferior de la captura. Centrado dejaba
+       doscientos píxeles de vacío arriba y otros tantos abajo, que es
+       exactamente lo que se pedía quitar. */
+    align-items: end;
+  }
+  .feature__copy { padding-bottom: clamp(6px, 1vw, 16px); }
+  /* Los capítulos alternan el lado para que el ritmo no se vuelva mecánico.
+     Al alternar hay que dar la vuelta también al reparto de columnas: con solo
+     `order`, la captura cae en la columna estrecha y se encoge a un tercio. */
+  .stage:nth-of-type(even) .stage__feature {
+    grid-template-columns: minmax(0, 30fr) minmax(0, 67fr);
+  }
+  .stage:nth-of-type(even) .feature__copy { order: -1; }
+}
+
+@media (min-width: 960px) {
+  /* El lead sube a la fila del titular, en las cuatro últimas columnas. */
+  .works__head { grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: end; }
+  .works__head h1 { grid-column: 1 / 8; }
+  .works__head p { grid-column: 9 / -1; }
+}
+
+@media (min-width: 1180px) {
+  /* El carril se pega a la izquierda y le cede a las capturas todo lo demás. */
+  .tour { grid-template-columns: minmax(0, 180px) minmax(0, 1fr); gap: clamp(32px, 3.4vw, 64px); align-items: start; }
+
+  .rail {
+    display: block;
+    position: sticky;
+    /* Debajo del nav pegajoso, no encima. */
+    top: 104px;
+  }
+  .rail__cuenta {
+    margin: 0 0 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+  .rail ol { margin: 0; padding: 0; list-style: none; }
+  .rail li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 11px;
+    align-items: baseline;
+    padding: 13px 0;
+    border-top: 1px solid var(--border);
+    color: var(--text-soft);
+    font-size: 13px;
+    line-height: 1.35;
+    transition: color var(--motion-base) var(--ease-out);
+  }
+  .rail li:last-child { border-bottom: 1px solid var(--border); }
+  .rail li b { font-family: var(--display); font-size: 15px; font-weight: 500; }
+  .rail li.is-active { color: var(--text); }
+  .rail li.is-active b { color: var(--brand-700); }
+
+  .stage__supporting { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Por encima de app-public-backdrop, que vive en la capa posicionada. */
+.works { position: relative; z-index: 1; }

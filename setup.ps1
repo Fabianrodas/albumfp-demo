@@ -23,7 +23,7 @@ function Invoke-CheckedProgram([string]$Path, [string[]]$Arguments) {
 
 function Read-DemoEnvironment([string]$Path) {
     $entries = Get-Content -LiteralPath $Path | Where-Object { $_ -match '^\s*[^#\s][^=]*=' }
-    return $entries | ConvertFrom-StringData
+    return ConvertFrom-StringData -StringData ($entries -join [Environment]::NewLine)
 }
 
 function Assert-DemoUrl([string]$Value, [string]$ExpectedDatabase) {
@@ -38,6 +38,44 @@ function Assert-DemoUrl([string]$Value, [string]$ExpectedDatabase) {
         $uri.Query -or $uri.Fragment -or $username -ne 'albumfp_demo' -or
         $password -ne $settings.POSTGRES_PASSWORD) {
         throw "The $ExpectedDatabase URL must target the local Demo PostgreSQL cluster on port $postgresPort."
+    }
+}
+
+function Initialize-DemoDatabase([string]$DatabaseName, [string]$Purpose) {
+    $env:DATABASE_URL = $settings.DATABASE_URL
+    $env:TEST_DATABASE_URL = $settings.TEST_DATABASE_URL
+    if ($Purpose -eq 'test') {
+        $env:APP_ENV = 'test'
+        $env:ALBUMFP_DEMO_TEST_MODE = '1'
+    } else {
+        $env:APP_ENV = 'development'
+        $env:ALBUMFP_DEMO_TEST_MODE = '0'
+    }
+
+    $versionOutput = & $psql -X -A -t -d $DatabaseName -v ON_ERROR_STOP=1 -c "SELECT COALESCE(to_regclass('public.alembic_version')::text, '')"
+    if ($LASTEXITCODE -ne 0) { throw "Could not inspect the $DatabaseName migration marker." }
+    $version = ($versionOutput -join '').Trim()
+    $objectOutput = & $psql -X -A -t -d $DatabaseName -v ON_ERROR_STOP=1 -c "SELECT ((SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relkind IN ('r','p','v','m','S','f')) + (SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = 'public') + (SELECT count(*) FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace WHERE n.nspname = 'public' AND t.typtype = 'e'))"
+    if ($LASTEXITCODE -ne 0) { throw "Could not inspect the $DatabaseName schema objects." }
+    $schemaObjectCount = [int](($objectOutput -join '').Trim())
+    $applicationTableOutput = & $psql -X -A -t -d $DatabaseName -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relkind IN ('r','p') AND c.relname <> 'alembic_version'"
+    if ($LASTEXITCODE -ne 0) { throw "Could not inspect the $DatabaseName application tables." }
+    $applicationTableCount = [int](($applicationTableOutput -join '').Trim())
+
+    Push-Location $backendDir
+    try {
+        if (-not $version) {
+            if ($schemaObjectCount -ne 0) {
+                throw "Refusing to initialize a non-empty unversioned $DatabaseName database."
+            }
+            Invoke-CheckedProgram $python @('-c', 'from schemas.schema import run_schema; run_schema(reset=False)')
+            Invoke-CheckedProgram $python @('-m', 'alembic', 'stamp', 'head')
+        } elseif ($applicationTableCount -eq 0) {
+            throw "Refusing to migrate a versioned $DatabaseName database with no application tables."
+        }
+        Invoke-CheckedProgram $python @('-m', 'alembic', 'upgrade', 'head')
+    } finally {
+        Pop-Location
     }
 }
 
@@ -196,13 +234,10 @@ try {
     $python = Join-Path $backendDir '.venv\Scripts\python.exe'
     $alembicIni = Join-Path $backendDir 'alembic.ini'
     if ((Test-Path -LiteralPath $python) -and (Test-Path -LiteralPath $alembicIni)) {
-        Push-Location $backendDir
-        try {
-            & $python -m alembic upgrade head
-            if ($LASTEXITCODE -ne 0) {
-                throw 'Database migrations failed. The Demo databases were not reset.'
-            }
-        } finally { Pop-Location }
+        # Both dedicated databases are bootstrapped only while truly empty.
+        # Existing versioned databases are advanced through Alembic normally.
+        Initialize-DemoDatabase 'albumfp_demo' 'development'
+        Initialize-DemoDatabase 'albumfp_demo_test' 'test'
     }
 } finally {
     $env:PGPASSWORD = $oldPgPassword

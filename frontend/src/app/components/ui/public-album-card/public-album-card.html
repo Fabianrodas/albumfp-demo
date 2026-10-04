@@ -1,0 +1,16 @@
+<article class="public-card">
+  <a class="public-card__cover" [routerLink]="['/albumes', album().id]" [queryParams]="backParams()" [attr.aria-label]="'Abrir ' + album().titulo">
+    @if (coverUrl() && album().cover_file_type === 'image') {
+      <img [src]="coverUrl()" [alt]="'Portada de ' + album().titulo">
+    } @else if (album().cover_file_type === 'video') {
+      <div class="public-card__placeholder public-card__video" aria-hidden="true"><app-icon name="video" [size]="28"/><span>Video</span></div>
+    } @else {
+      <div class="public-card__placeholder" aria-hidden="true"><span>{{ album().titulo.slice(0, 1) }}</span></div>
+    }
+  </a>
+
+  <div class="public-card__body">
+    <a class="public-card__title" [routerLink]="['/albumes', album().id]" [queryParams]="backParams()">{{ album().titulo }}</a>
+    @if (showOwner()) { <app-user-chip [user]="album().owner" /> }
+  </div>
+</article>

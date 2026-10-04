@@ -1,0 +1,25 @@
+.page-kicker { margin: 0 0 8px; color: var(--accent-coral-text); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.error-banner { margin: 0 0 18px; }
+.feed-toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin: 0 0 18px; }
+.feed-heading { display: grid; gap: 4px; }
+.feed-heading p:not(.page-kicker) { margin: 0; color: var(--text-soft); font-size: 14px; }
+.page-kicker { margin: 0; }
+.feed-toolbar h2 { margin: 0; font: 500 27px/1.1 var(--display); letter-spacing: -.02em; }
+.sort-fields { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sort-field { display: flex; align-items: center; gap: 9px; }
+.sort-field > span { color: var(--muted); font-size: 13px; font-weight: 700; }
+.sort-field select { min-height: 40px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-raised); color: var(--text); font-size: 14px; font-weight: 650; }
+.sort-field select:hover { border-color: var(--border-strong); }
+.feed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+.pager { margin: 32px 0 0; display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.pager__status { color: var(--muted); font-size: 13px; font-weight: 650; }
+@media (max-width: 560px) {
+  /* Explicito y no `auto-fill`: con 296px utiles a 390px, un minimo de 160px
+     daba UNA sola columna. mobile_layout_smoke.py fija las dos columnas. */
+  .feed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .feed-toolbar { align-items: flex-start; }
+  .feed-toolbar h2 { font-size: 23px; }
+  .sort-fields { width: 100%; align-items: stretch; }
+  .sort-field { flex: 1 1 140px; flex-direction: column; align-items: stretch; gap: 5px; }
+}
+@media (max-width: 360px) { .feed-grid { grid-template-columns: 1fr; } }

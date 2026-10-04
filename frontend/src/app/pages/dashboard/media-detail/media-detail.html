@@ -1,0 +1,350 @@
+<section class="media-detail-page" [class.media-detail-page--public]="isPublic">
+  <button type="button" class="back-link" (click)="back()">{{ backLabel }}</button>
+
+  @if (loading()) {
+    <div class="viewer-shell viewer-shell--loading" aria-live="polite"><div class="viewer-skeleton skeleton-shape"></div><aside class="detail-skeleton"><span class="skeleton-shape"></span><span class="skeleton-shape"></span><span class="skeleton-shape"></span></aside></div>
+  } @else if (error()) {
+    <section class="empty-state detail-error"><div class="empty-state__copy"><h2>No pudimos abrir este archivo.</h2><p>{{ error() }}</p><button type="button" class="btn btn-secondary" (click)="back()">{{ backLabel }}</button></div></section>
+  } @else if (media(); as item) {
+    <header class="detail-header">
+      <div class="detail-header__copy">
+        <h1>{{ item.title || 'Sin título' }}</h1>
+        @if (item.archived_at) { <span class="archived-badge">Archivado</span> }
+        @if (previousMediaId() || nextMediaId()) {
+          <nav class="detail-navigation" aria-label="Navegar por los archivos del álbum">
+            <button type="button" class="text-action" [disabled]="hasOpenDialog() || !previousMediaId()" (click)="navigateMedia('previous')">Anterior</button>
+            <button type="button" class="text-action" [disabled]="hasOpenDialog() || !nextMediaId()" (click)="navigateMedia('next')">Siguiente</button>
+          </nav>
+        }
+      </div>
+      <div class="detail-actions">
+        @if (isPublic) {<button type="button" class="tema" (click)="theme.toggle()" [attr.aria-pressed]="theme.isDark()" [attr.aria-label]="theme.isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'" [title]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'"><app-icon [name]="theme.isDark() ? 'sun' : 'moon'" [size]="16"/></button>}
+        @if (allowDownload() && (assetUrl() || isPublic)) {<button type="button" class="btn btn-secondary" (click)="downloadMedia()"><app-icon name="download" [size]="16"/><span class="btn-label">Descargar</span></button>}
+        @if (canEdit()) {<button type="button" class="btn btn-secondary" (click)="openEdit()"><app-icon name="edit" [size]="16"/><span class="btn-label">Editar</span></button>}
+        @if (canManage()) {<button type="button" class="btn btn-secondary" [class.detail-action-active]="item.is_favorite" (click)="toggleFavorite()"><app-icon name="heart" [size]="16"/><span class="btn-label">{{ item.is_favorite ? 'Quitar favorito' : 'Favorito' }}</span></button>}
+        @if (canManage()) {<button type="button" class="btn btn-secondary" (click)="toggleArchive()"><app-icon name="archive" [size]="16"/><span class="btn-label">{{ item.archived_at ? 'Desarchivar' : 'Archivar' }}</span></button>}
+        @if (canSetCover()) {<button type="button" class="btn btn-secondary" (click)="setCover()"><app-icon name="image" [size]="16"/><span class="btn-label">Portada</span></button>}
+        @if (canDelete()) {<button type="button" class="btn btn-ghost danger-action" (click)="deleteMedia()"><app-icon name="trash" [size]="16"/><span class="btn-label">Enviar a papelera</span></button>}
+      </div>
+    </header>
+
+
+    <div class="viewer-shell">
+      <section class="media-stage">
+        @if (assetLoading()) {<div class="viewer-skeleton skeleton-shape" aria-label="Cargando archivo"></div>}
+        @else if (assetUrl()) {@if (item.file_type === 'video') {<video [src]="assetUrl()" controls preload="metadata" playsinline></video>} @else {<button type="button" class="stage-open" (click)="zoomOpen.set(true)" aria-label="Ver la foto completa"><img [src]="assetUrl()" [alt]="item.title || 'Foto del álbum'"></button>}}
+        @else {<div class="asset-error"><strong>Archivo no disponible</strong><span>No se pudo cargar desde el almacenamiento.</span></div>}
+      </section>
+
+      <aside class="media-info">
+        <div class="info-tabs" role="tablist" aria-label="Datos de este recuerdo">
+          <button type="button" role="tab" id="tab-story" aria-controls="info-panel" [attr.aria-selected]="tab() === 'story'" [class.is-on]="tab() === 'story'" (click)="tab.set('story')">Recuerdo</button>
+          @if (!isPublic || showMetadata()) {
+            <button type="button" role="tab" id="tab-file" aria-controls="info-panel" [attr.aria-selected]="tab() === 'file'" [class.is-on]="tab() === 'file'" (click)="tab.set('file')">Ficha</button>
+            <button type="button" role="tab" id="tab-tags" aria-controls="info-panel" [attr.aria-selected]="tab() === 'tags'" [class.is-on]="tab() === 'tags'" (click)="tab.set('tags')">Tags</button>
+          }
+          @if (showTextTab()) {
+            <button type="button" role="tab" id="tab-text" aria-controls="info-panel" [attr.aria-selected]="tab() === 'text'" [class.is-on]="tab() === 'text'" (click)="tab.set('text')">Texto</button>
+          }
+        </div>
+
+        <div class="info-body" id="info-panel" role="tabpanel" [attr.aria-labelledby]="'tab-' + tab()">
+          @switch (tab()) {
+
+            @case ('story') {
+              @if (item.caption) { <p class="post-description">{{ item.caption }}</p> }
+
+              <div class="ctx">
+                @if (placeLabel()) {
+                  <section class="ctx__row">
+                    <span class="ctx__icon"><app-icon name="pin" [size]="15"/></span>
+                    <div>
+                      <p class="ctx__label">Dónde</p>
+                      <p class="ctx__value">{{ placeName() }}</p>
+                      @if (placeArea()) { <p class="ctx__extra">{{ placeArea() }}</p> }
+                      @if (context()?.place_display_name && context()!.place_display_name !== placeLabel()) {
+                        <details class="context-full"><summary>Ver dirección completa</summary><p>{{ context()!.place_display_name }}</p></details>
+                      }
+                    </div>
+                  </section>
+                }
+
+                @if (item.taken_at) {
+                  <section class="ctx__row">
+                    <span class="ctx__icon"><app-icon name="calendar" [size]="15"/></span>
+                    <div>
+                      <p class="ctx__label">Cuándo</p>
+                      <p class="ctx__value">{{ formatDate(item.taken_at) }}</p>
+                      @if (context()?.holiday_name; as holiday) {
+                        <p class="ctx__extra"><span class="context-holiday__label">Fecha especial</span>{{ holiday }}</p>
+                      }
+                    </div>
+                  </section>
+                }
+
+                @if (hasSolar() || weatherLabel()) {
+                  <section class="ctx__row">
+                    <span class="ctx__icon"><app-icon name="sun" [size]="15"/></span>
+                    <div>
+                      <p class="ctx__label">Ese día</p>
+                      @if (hasSolar()) {
+                        <p class="ctx__value ctx__value--num">
+                          @if (sunriseLabel()) { <span>Amanecer {{ sunriseLabel() }}</span> }
+                          @if (sunriseLabel() && sunsetLabel()) { <span class="context-solar__sep">·</span> }
+                          @if (sunsetLabel()) { <span>Atardecer {{ sunsetLabel() }}</span> }
+                        </p>
+                      }
+                      @if (weatherLabel(); as weather) {
+                        <p class="ctx__extra">{{ weather }}@if (weatherDetail(); as d) { · {{ d }} }</p>
+                      }
+                      @if (solarMoment(); as moment) { <p class="context-moment">{{ moment }}</p> }
+                    </div>
+                  </section>
+                }
+              </div>
+
+              @if (showContext() && !placeLabel()) {
+                <p class="context-hint">Esta foto guarda una ubicación.</p>
+              }
+
+              @if (canEdit() && showContext() && (!placeLabel() || contextIncomplete())) {
+                <button type="button" class="btn btn-secondary btn-compact story-action" [disabled]="enrichingContext()" (click)="completeContext()">
+                  @if (enrichingContext()) { <span class="btn-spinner"></span> }<app-icon name="sparkle" [size]="14"/>{{ enrichingContext() ? 'Completando…' : 'Completar contexto' }}
+                </button>
+              }
+              @if (contextError()) { <p class="notice notice-error story-action">{{ contextError() }}</p> }
+
+              @if (!hasStory()) {
+                <div class="story-empty">
+                  <p>Este recuerdo todavía no cuenta dónde ni cuándo pasó.</p>
+                  @if (canEdit()) {
+                    <button type="button" class="btn btn-secondary btn-compact" (click)="openEdit()"><app-icon name="edit" [size]="14"/>Añadir fecha y lugar</button>
+                  }
+                </div>
+              }
+
+              @if (memberAlbums(); as albums) {
+                <section class="album-membership" aria-labelledby="album-membership-title">
+                  <p class="suggest-label" id="album-membership-title">Álbumes</p>
+                  @if (albums.length) {
+                    <ul class="tag-chips album-membership__list">
+                      @for (album of albums; track album.id) {
+                        <li class="tag-chip album-chip">
+                          <a [routerLink]="['/albumes', album.id]">{{ album.titulo }}</a>
+                          <button type="button" [disabled]="membershipBusy()" (click)="removeFromAlbum(album)" [attr.aria-label]="'Quitar del álbum ' + album.titulo" [title]="'Quitar del álbum ' + album.titulo"><app-icon name="close" [size]="11"/></button>
+                        </li>
+                      }
+                    </ul>
+                  } @else {
+                    <p class="album-membership__empty">No está en ningún álbum. Sigue en tu biblioteca.</p>
+                  }
+                  @if (addableAlbums().length) {
+                    <div class="tag-manager album-membership__add">
+                      <label class="form-label">Añadir a álbum<select class="field" [(ngModel)]="selectedAlbumToAdd" name="addToAlbum"><option value="">Elige un álbum</option>@for (album of addableAlbums(); track album.id) { <option [value]="album.id">{{ album.titulo }}</option> }</select></label>
+                      <button type="button" class="btn btn-secondary" [disabled]="!selectedAlbumToAdd || membershipBusy()" (click)="addToAlbum()">Añadir</button>
+                    </div>
+                  }
+                </section>
+              }
+
+              @if (placeLabel()) {
+                <p class="context-attribution">La ubicación se guarda localmente.@if (hasSolar()) { La hora solar se calcula en este equipo. }</p>
+              }
+            }
+
+            @case ('file') {
+              <div class="facts-group">
+                <p class="ctx__label">Archivo</p>
+                <dl class="facts">
+                  <div><dt>Archivo</dt><dd>{{ metadata()?.original_filename || 'No disponible' }}</dd></div>
+                  <div><dt>Formato</dt><dd>{{ (metadata()?.format || 'No disponible').toUpperCase() }}</dd></div>
+                  <div><dt>Tamaño</dt><dd>{{ formatBytes(metadata()?.file_size) }}</dd></div>
+                  @if (resolution()) { <div><dt>Resolución</dt><dd>{{ resolution() }}</dd></div> }
+                  @if (item.file_type === 'video' && metadata()?.duration != null) {
+                    <div><dt>Duración</dt><dd>{{ formatDuration(metadata()?.duration) }}</dd></div>
+                  }
+                </dl>
+              </div>
+
+              @if (camera() || coordinates() || altitude()) {
+                <div class="facts-group">
+                  <p class="ctx__label">Captura</p>
+                  <dl class="facts">
+                    @if (camera()) { <div><dt>Cámara</dt><dd>{{ camera() }}</dd></div> }
+                    @if (altitude()) { <div><dt>Altitud</dt><dd>{{ altitude() }}</dd></div> }
+                    @if (coordinates()) { <div class="facts__wide"><dt>Coordenadas</dt><dd>{{ coordinates() }}</dd></div> }
+                  </dl>
+                </div>
+              }
+
+              <div class="facts-group">
+                <p class="ctx__label">Subida</p>
+                <dl class="facts">
+                  <div><dt>Subido</dt><dd>{{ formatDateShort(item.created_at) }}</dd></div>
+                  <div><dt>Subido por</dt><dd>{{ item.created_by_username || (item.created_by ? 'Usuario #' + item.created_by : 'No disponible') }}</dd></div>
+                </dl>
+              </div>
+            }
+
+            @case ('tags') {
+              <div class="tag-chips">@for (tag of tags(); track tag.id) {<span class="tag-chip">{{ tag.name }} @if (canManage()) { <button type="button" (click)="removeTag(tag)" [attr.aria-label]="'Quitar tag ' + tag.name"><app-icon name="close" [size]="11"/></button> }</span>} @empty { <span class="tag-empty">Sin tags.</span> }</div>
+              @if (canManage()) {
+                <div class="tag-manager">
+                  <label class="form-label">Asignar<select class="field" name="selectedTagId" [(ngModel)]="selectedTagId"><option value="">Selecciona un tag</option>@for (tag of allTags(); track tag.id) { @if (!tags().some(current => current.id === tag.id)) { <option [value]="tag.id">{{ tag.name }}</option> } }</select></label>
+                  <button type="button" class="btn btn-secondary" [disabled]="!selectedTagId" (click)="assignTag()">Asignar</button>
+                  <label class="form-label">Nuevo tag<input class="field" name="newTagName" [ngModel]="newTagName()" (ngModelChange)="newTagName.set($event)" maxlength="50" placeholder="Ej. familia"></label>
+                  <button type="button" class="btn btn-secondary" [disabled]="!newTagName().trim()" (click)="createTag()">Crear</button>
+                </div>
+              }
+
+              @if (canSendImageOut() && canManage()) {
+                <div class="suggest-block">
+                  @if (!suggestions().length) {
+                    <p class="ocr-notice">Se enviará una copia temporal de esta imagen a Imagga para sugerir etiquetas. Nada se añadirá hasta que tú lo confirmes.</p>
+                  }
+                  <button type="button" class="btn btn-secondary btn-compact" [disabled]="suggesting()" (click)="suggestTags()">
+                    @if (suggesting()) { <span class="btn-spinner"></span> }<app-icon name="sparkle" [size]="14"/>{{ suggesting() ? 'Buscando…' : 'Sugerir automáticamente' }}
+                  </button>
+
+                  @if (suggestions().length) {
+                    @if (knownSuggestions().length) {
+                      <p class="suggest-label">Etiquetas que ya usas</p>
+                      <div class="suggest-chips">
+                        @for (suggestion of knownSuggestions(); track suggestion.name) {
+                          <button
+                            type="button"
+                            class="suggest-chip suggest-chip--known"
+                            [class.suggest-chip--on]="chosenSuggestions().has(suggestion.name)"
+                            [attr.aria-pressed]="chosenSuggestions().has(suggestion.name)"
+                            [title]="suggestion.confidence + '% de confianza · ya existe en tu biblioteca'"
+                            (click)="toggleSuggestion(suggestion.name)">
+                            {{ suggestion.name }}
+                          </button>
+                        }
+                      </div>
+                    }
+                    @if (newSuggestions().length) {
+                      <p class="suggest-label">Nuevas</p>
+                      <div class="suggest-chips">
+                        @for (suggestion of newSuggestions(); track suggestion.name) {
+                          <button
+                            type="button"
+                            class="suggest-chip"
+                            [class.suggest-chip--on]="chosenSuggestions().has(suggestion.name)"
+                            [attr.aria-pressed]="chosenSuggestions().has(suggestion.name)"
+                            [title]="suggestion.confidence + '% de confianza · se creará al añadirla'"
+                            (click)="toggleSuggestion(suggestion.name)">
+                            {{ suggestion.name }}
+                          </button>
+                        }
+                      </div>
+                    }
+                    <button type="button" class="btn btn-primary btn-compact" [disabled]="!chosenSuggestions().size || addingSuggestions()" (click)="addChosenSuggestions()">
+                      @if (addingSuggestions()) { <span class="btn-spinner"></span> }Añadir seleccionadas
+                    </button>
+                    <p class="context-attribution">Las sugerencias en línea están desactivadas; puedes añadir etiquetas manualmente.</p>
+                  }
+                  @if (suggestError()) { <p class="notice notice-error">{{ suggestError() }}</p> }
+                </div>
+              }
+            }
+
+            @case ('text') {
+              @if (ocr(); as detected) {
+                <p class="ocr-text">{{ ocrPreview() || detected.extracted_text }}</p>
+                <div class="ocr-actions">
+                  <button type="button" class="btn btn-secondary btn-compact" (click)="ocrOpen.set(true)"><app-icon name="eye" [size]="14"/>Ver todo</button>
+                  @if (canSendImageOut()) {
+                    <button type="button" class="btn btn-secondary btn-compact" [disabled]="ocrRunning()" (click)="detectText()">
+                      @if (ocrRunning()) { <span class="btn-spinner"></span> }<app-icon name="restore" [size]="14"/>Volver a analizar
+                    </button>
+                    <button type="button" class="ocr-remove" (click)="removeText()">Eliminar texto</button>
+                  }
+                </div>
+                <p class="context-attribution">El análisis en línea está desactivado en la edición local.</p>
+              } @else if (canSendImageOut()) {
+                <p class="ocr-notice">El análisis de texto en línea está desactivado en la edición local.</p>
+                <button type="button" class="btn btn-secondary" [disabled]="ocrRunning()" (click)="detectText()">
+                  @if (ocrRunning()) { <span class="btn-spinner"></span> }<app-icon name="search" [size]="14"/>{{ ocrRunning() ? 'Analizando…' : 'Detectar texto' }}
+                </button>
+              } @else {
+                <p class="ocr-notice">La extracción de texto está desactivada en esta edición local. Tus fotos no se envían a un servicio OCR.</p>
+              }
+              @if (ocrError()) { <p class="notice notice-error">{{ ocrError() }}</p> }
+            }
+          }
+        </div>
+      </aside>
+    </div>
+
+    <!-- Solo se instancia si esta cuenta puede editar de verdad. `app-modal`
+         proyecta su contenido aunque este cerrado, asi que sin este @if el
+         <app-location-picker> de dentro se creaba SIEMPRE y pedia el mapa
+         estatico -- un endpoint autenticado que en un enlace publico responde
+         401 y mandaba al visitante al login. -->
+    @if (canEdit()) {
+    <app-modal title="Editar foto" [open]="editOpen()" [dismissable]="!editSaving()" (closed)="closeEdit()">
+      <div class="form-grid">
+        <label class="form-label field-wide">Título
+          <input class="field" [(ngModel)]="editTitle" name="editTitle" maxlength="120" placeholder="Título del post">
+        </label>
+        <label class="form-label field-wide">Descripción
+          <textarea class="field textarea" [(ngModel)]="editCaption" name="editCaption" maxlength="2000" rows="3" placeholder="Añade una descripción breve (opcional)"></textarea>
+        </label>
+        <label class="form-label">Fecha de captura
+          <input class="field" [(ngModel)]="editDate" name="editDate" type="date">
+        </label>
+        <label class="form-label"><span>Hora <span class="label-optional">(opcional)</span></span>
+          <input class="field" [(ngModel)]="editTime" name="editTime" type="time" [disabled]="!editDate">
+        </label>
+        <p class="field-wide revert-hint">
+          @if (editDate) { La fecha que escribas manda sobre la de la foto. }
+          @else { Sin fecha aquí, se usa la que trae la foto. }
+        </p>
+      </div>
+
+      <div class="location-heading">
+        <p class="location-hint">
+          @if (editClearLocation()) { El lugar volverá al que trae la foto. Elige coordenadas abajo para cambiarlo. }
+          @else { Para corregir el lugar, introduce coordenadas GPS. Si no las tocas, se conserva el valor actual. }
+        </p>
+        @if (canRemoveLocation()) {
+          <button type="button" class="text-action danger-text" (click)="toggleClearLocation()">
+            {{ editClearLocation() ? 'Deshacer' : 'Quitar lugar' }}
+          </button>
+        }
+      </div>
+      <!-- El control solo se instancia después de abrir el editor. -->
+      @if (editOpen() && !editClearLocation()) {
+        <app-location-picker [initial]="editInitialLocation()" (picked)="onEditLocationPicked($event)" />
+      }
+
+      @if (editError()) { <p class="form-error shake-in">{{ editError() }}</p> }
+
+      <div modal-actions>
+        <button type="button" class="btn btn-secondary" [disabled]="editSaving()" (click)="closeEdit()">Cancelar</button>
+        <button type="button" class="btn btn-primary" [disabled]="editSaving()" (click)="saveEdit()">
+          @if (editSaving()) { <span class="btn-spinner"></span> }{{ editSaving() ? 'Guardando…' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </app-modal>
+    }
+
+    <app-modal [open]="ocrOpen()" title="Texto detectado" size="lg" (closed)="ocrOpen.set(false)">
+      <p class="ocr-full">{{ ocr()?.extracted_text }}</p>
+    </app-modal>
+
+    <app-modal [open]="zoomOpen()" [title]="item.title || 'Foto'" size="xl" (closed)="zoomOpen.set(false)">
+      @if (assetUrl()) { <img class="zoom-image" [src]="assetUrl()" [alt]="item.title || 'Foto del álbum'"> }
+    </app-modal>
+  }
+</section>
+
+<!-- F05: los comentarios van DEBAJO del contenedor del detalle, que sigue
+     midiendo una pantalla: el visor no cambia y la página se desliza para
+     leerlos. Solo con el recuerdo cargado; el servidor decide quién comenta. -->
+@if (!loading() && !error() && media(); as current) {
+  <div class="detail-comments" [class.detail-comments--public]="isPublic">
+    <app-media-comments [mediaId]="current.id" [shareToken]="shareToken" />
+  </div>
+}

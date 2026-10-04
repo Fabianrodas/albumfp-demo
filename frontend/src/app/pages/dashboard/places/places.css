@@ -1,0 +1,26 @@
+.back-link{appearance:none;border:0;background:transparent;color:var(--muted);padding:4px 0;margin-bottom:6px;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;cursor:pointer;text-decoration:none}
+.back-link:hover{color:var(--text)}
+.error-banner{margin-top:18px}
+
+/* Una seccion por pais, con UNA linea fina y el recuento a la derecha. Aqui
+   habia antes tres tarjetas-contador iguales (Pais / Ciudad / Recuerdos
+   ubicados) que con una sola ciudad decian "1 / 1 / 1": el layout mas generico
+   que existe, ocupando un tercio de la pantalla sin informar de nada. Los
+   numeros viven ahora en el subtitulo, en una frase. */
+.country{margin-bottom:34px}
+.country:last-of-type{margin-bottom:0}
+.country__head{margin:0 0 16px;padding-bottom:9px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.country__head h2{margin:0;font:500 22px/1.15 var(--display);letter-spacing:-.02em}
+/* --text-soft y no --muted: medido, --muted da 4.04:1 sobre el papel claro y
+   no llega al 4.5:1 de AA para texto pequeno. --text-soft da 6.95:1 y a simple
+   vista es el mismo gris. */
+.country__head span{flex:none;color:var(--text-soft);font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
+
+.place-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:24px 18px}
+@media(max-width:560px){.country{margin-bottom:26px}.country__head h2{font-size:20px}.place-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 10px}}
+/* 360 y no 390: un iPhone de 390 de ancho caia justo en el limite y se
+   quedaba con una tarjeta por fila teniendo sitio para dos. */
+@media(max-width:360px){.place-grid{grid-template-columns:1fr}}
+
+/* F06: el enlace de volver, tocable en movil (>=40px). */
+@media (max-width: 560px) { .back-link { min-height: 40px; display: inline-flex; align-items: center; } }

@@ -1,0 +1,2 @@
+.shared-group{margin-top:26px}.shared-group>header{display:flex;align-items:center;gap:8px;margin-bottom:14px}.shared-group h2{margin:0;font:500 24px/1.1 var(--display)}.shared-group__count{min-width:24px;height:24px;padding:0 7px;border-radius:999px;display:grid;place-items:center;font-size:10px;font-weight:800}.shared-group__count--violet{background:var(--accent-violet-soft);color:var(--accent-violet-text)}.shared-group__count--brand{background:var(--accent-soft);color:var(--accent-text)}
+.shared-group+.shared-group{padding-top:28px;border-top:1px solid var(--border)}

@@ -1,0 +1,145 @@
+/* La pagina mide exactamente una pantalla: la ventana menos la topbar. El
+   margen negativo cancela el hueco inferior que dashboard-main deja bajo
+   TODAS las paginas; aqui sobraria y obligaria a scrollear. Se usa svh y no
+   vh porque es el viewport pequeno (con la barra del navegador visible), asi
+   que al aparecer esa barra el layout no desborda.
+   Es flex y no grid a proposito: los tres app-modal cuelgan de aqui como
+   hijos directos, y con un grid-template-rows fijo cada uno reclamaria su
+   propia fila. Como flex items vacios miden 0 y no estorban. */
+.media-detail-page{height:calc(100svh - var(--topbar-h));margin-bottom:calc(-1 * var(--page-pad-b));padding:12px 0 16px;display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0}
+/* Abierta desde un enlace publico no hay cascara de dashboard: ni topbar que
+   restar ni hueco inferior que cancelar, asi que la pagina vale la ventana
+   entera y se le devuelve su propio margen lateral. */
+.media-detail-page--public{height:100svh;margin-bottom:0;padding:14px clamp(14px,3vw,28px) 18px}
+.back-link{flex:none;align-self:flex-start;appearance:none;border:0;background:transparent;color:var(--muted);padding:0;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;cursor:pointer}.back-link:hover{color:var(--text)}
+.detail-header{flex:none;padding:0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.detail-header__copy{min-width:0;flex:1 1 240px}.detail-header h1{margin:0;font:500 clamp(21px,2.2vw,29px)/1.12 var(--display);letter-spacing:-.03em;overflow-wrap:anywhere}.detail-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.detail-actions .btn{min-height:38px;padding:9px 14px;font-size:12.5px}.detail-action-active{background:var(--favorite-soft);border-color:color-mix(in srgb,var(--favorite) 24%,var(--border));color:var(--favorite)}.danger-action{color:var(--danger)}
+.detail-navigation{display:flex;gap:12px;margin-top:7px}.detail-navigation .text-action{padding:0;border:0;background:transparent;color:var(--text-soft);font-size:11px;font-weight:800;cursor:pointer}.detail-navigation .text-action:hover{color:var(--text);text-decoration:underline}.detail-navigation .text-action:disabled{cursor:default;opacity:.45;text-decoration:none}
+/* Solo aparece en `isPublic` (ver media-detail.ts): esta página no tiene la
+   cáscara del dashboard, así que no hay carril lateral que ya traiga el
+   interruptor de tema. Mismo tamaño que los botones vecinos en cada ancho. */
+.detail-actions .tema{width:38px;height:38px;flex:0 0 auto;display:grid;place-items:center;padding:0;border:1px solid var(--border);border-radius:10px;background:var(--surface-raised);color:var(--text)}
+.detail-actions .tema:hover{border-color:var(--text-soft)}
+.viewer-shell{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,380px);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface-raised);box-shadow:var(--shadow-sm)}.media-stage{min-width:0;min-height:0;padding:clamp(10px,1.2vw,20px);background:var(--stage-bg);display:grid;place-items:center;position:relative}/* min-width/min-height a 0 no son decorativos: la foto es un grid item, y un
+   grid item hereda min-height:auto, que en un elemento reemplazado vale su
+   tamano intrinseco y GANA al max-height:100%. Sin esto, una foto mas alta
+   que el marco lo desborda; una mas ancha no, porque su alto ya cabia. */
+.media-stage img,.media-stage video{display:block;min-width:0;min-height:0;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:var(--radius-sm)}.viewer-skeleton{width:100%;height:100%;min-height:0;border-radius:12px}.asset-error{max-width:320px;color:#d8ddd8;text-align:center;display:grid;justify-items:center;gap:8px}.asset-error strong{font-size:13px}.asset-error span{font-size:11px;line-height:1.55;color:#aeb7b0}
+/* El panel es barra fija mas cuerpo con scroll propio. Antes eran cinco
+   bloques apilados con un unico scroll para todos, asi que para llegar a los
+   tags habia que pasar por la ficha tecnica y por el contexto entero. */
+.media-info{min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);background:var(--surface);border-left:1px solid var(--border)}
+/* .info-tabs/.info-body viven en styles.css: el diálogo "Compartir álbum"
+   (album-detail) también los usa desde que Colaboradores y Enlaces se
+   fusionaron ahí como pestañas -- mismo criterio que Theme.logo() o
+   .form-grid, una clase que usan DOS sitios no puede vivir en el CSS de
+   solo uno de ellos. */
+.post-description{margin:0 0 16px;padding:0 0 15px;border-bottom:1px solid var(--border);font-size:13px;line-height:1.65;color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere}
+/* Los siete datos tecnicos en dos columnas y SIN una linea por fila: eran
+   ocho filas con `border-bottom` cada una, la ficha tecnica mas perezosa que
+   hay. En dos columnas ocupan cuatro filas y caben sin scroll. */
+.facts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 14px}
+.facts>div{min-width:0}
+.facts__wide{grid-column:1 / -1}
+.facts dt{font-size:9px;line-height:1.4;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--muted)}
+.facts dd{margin:4px 0 0;font-size:12px;line-height:1.45;font-weight:650;color:var(--text);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.story-action{margin-top:14px}
+.story-empty p{margin:0 0 13px;color:var(--muted);font-size:12.5px;line-height:1.55}.context-full{margin-top:6px}.context-full summary{font-size:10px;color:var(--muted);cursor:pointer}.context-full p{margin:6px 0 0;font-size:10px;line-height:1.5;color:var(--muted)}.context-attribution{margin:10px 0 0;font-size:9px;color:var(--muted)}.context-attribution a{color:inherit}.context-hint{margin:10px 0 0;font-size:11.5px;color:var(--muted)}
+.context-solar__sep{color:var(--muted)}
+/* Bloque con ancho de contenido: el chip es un estado y el boton de debajo
+   una accion, y en linea se leian como una sola cosa. */
+.context-moment{margin:8px 0 0;display:block;width:fit-content;padding:3px 9px;border-radius:999px;background:var(--accent-sun-soft);color:var(--accent-sun-text);font-size:10px;font-weight:800}
+/* Tres bloques (Donde / Cuando / Ese dia) en vez de ocho lineas seguidas del
+   mismo peso. Dos lineas finas para tres bloques, no una por dato: agrupar es
+   lo que deja leer la pestana de un vistazo. */
+.facts-group + .facts-group{margin-top:16px;padding-top:15px;border-top:1px solid var(--border)}
+.facts-group > .ctx__label{margin:0 0 10px}
+.ctx{margin:0}
+.ctx__row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:11px;padding:14px 0}
+.ctx__row + .ctx__row{border-top:1px solid var(--border)}
+.ctx__row:first-child{padding-top:0}
+.ctx__row:last-child{padding-bottom:0}
+.ctx__icon{width:26px;height:26px;border-radius:9px;background:var(--surface-muted);color:var(--brand-800);display:grid;place-items:center}
+.ctx__label{margin:0;font-size:9px;line-height:1.4;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--muted)}
+.ctx__value{margin:4px 0 0;font-size:13.5px;line-height:1.35;font-weight:650;color:var(--text);overflow-wrap:anywhere}
+.ctx__value--num{font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ctx__extra{margin:5px 0 0;display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11.5px;line-height:1.45;color:var(--text-soft)}
+.context-solar__sep{color:var(--muted)}
+.context-holiday__label{padding:2px 7px;border-radius:999px;background:var(--accent-coral-soft);color:var(--accent-coral-text);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+/* Editar foto: fecha y lugar comparten la regla de "vacío = lo que trae la foto". */
+/* Fecha y hora van una al lado de la otra: si la etiqueta de una ocupa dos
+   líneas, los campos se descuadran. Alinearlos por abajo los deja a la misma
+   altura sin depender del alto de la etiqueta. */
+.form-grid > .form-label{align-self:end}
+.label-optional{font-weight:500;color:var(--muted)}
+.revert-hint{margin:0;font-size:11px;line-height:1.45;color:var(--muted)}
+.location-heading{margin-top:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.location-heading .location-hint{margin:0}
+.location-heading .text-action{flex:none;padding:0;border:0;background:transparent;font-size:11px;font-weight:800;cursor:pointer}
+.tag-chips{margin:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}.tag-chip{min-height:28px;padding:4px 6px 4px 9px;border:1px solid var(--accent-violet-border);border-radius:999px;background:var(--accent-violet-soft);color:var(--accent-violet-text);display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700}.tag-chip button{width:19px;height:19px;border:0;border-radius:50%;padding:0;background:rgba(0,0,0,.08);color:inherit;display:grid;place-items:center}.tag-empty{color:var(--muted);font-size:10px}.tag-manager{margin-top:15px;padding-top:15px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}.tag-manager .form-label{font-size:9px}.tag-manager .field{min-height:39px;padding:8px 10px;font-size:11px}.tag-manager .btn{min-height:39px;padding:8px 12px;font-size:11px}
+.viewer-shell--loading{grid-template-columns:minmax(0,1fr) minmax(320px,380px)}.detail-skeleton{padding:24px;display:grid;align-content:start;gap:14px;border-left:1px solid var(--border);background:var(--surface)}.detail-skeleton span{display:block;height:22px;border-radius:8px}.detail-skeleton span:first-child{height:70px}.detail-error{margin-top:20px}
+@media(max-width:1100px){.viewer-shell,.viewer-shell--loading{grid-template-columns:minmax(0,1fr) minmax(292px,332px)}}
+/* Una columna, pero el alto sigue siendo el de la pantalla: la foto arriba y
+   el panel debajo, cada uno con su parte. Cero scroll tambien en movil. */
+@media(max-width:820px){.viewer-shell,.viewer-shell--loading{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,45fr) minmax(0,55fr)}.media-info,.detail-skeleton{border-left:0;border-top:1px solid var(--border)}.detail-actions{width:100%}.detail-actions .btn{flex:1}}
+@media(max-width:560px){.media-detail-page{padding:8px 0 12px;gap:9px}.detail-header{gap:10px}.detail-header h1{font-size:22px}.detail-actions{width:auto;flex:none;gap:6px}.detail-actions .btn{flex:0 0 auto;min-width:44px;min-height:44px;padding:8px}.detail-actions .btn-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.detail-actions .tema{width:44px;height:44px}.viewer-shell{margin-inline:-6px;border-radius:16px}.media-stage{padding:8px}.media-info{padding:20px 16px}.tag-manager{grid-template-columns:1fr}}
+@media(max-width:360px){.viewer-shell{margin-inline:0}}
+
+.ocr-notice{margin:0 0 12px;font-size:11px;color:var(--muted);line-height:1.5}
+.ocr-text{margin:0;font-size:12px;line-height:1.55;color:var(--text-soft);white-space:pre-wrap;overflow-wrap:anywhere}
+.ocr-actions{margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* Toda la foto es un boton: abre el visor grande. Se estira al 100% del
+   escenario a proposito. Con alto auto (como estaba), el max-height:100% de
+   la imagen de dentro resuelve contra un alto indefinido y se comporta como
+   none: eso era lo que dejaba la foto salirse del marco.
+   El foco va con offset negativo porque el boton llena el escenario y un
+   anillo por fuera quedaria tapado por el recorte del visor. */
+.stage-open{appearance:none;border:0;padding:0;background:transparent;cursor:zoom-in;display:grid;place-items:center;width:100%;height:100%;min-width:0;min-height:0;line-height:0}
+.stage-open:focus-visible{outline:2px solid var(--sage-500);outline-offset:-3px;border-radius:var(--radius-sm)}
+
+.ocr-remove{appearance:none;border:0;background:transparent;padding:0;color:var(--danger);font-size:11.5px;font-weight:750;cursor:pointer}
+.ocr-remove:hover{text-decoration:underline}
+
+/* Texto completo del OCR: el diálogo ya trae su propio scroll. */
+.ocr-full{margin:0;font-size:13px;line-height:1.65;color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* El alto maximo es `--modal-media-max-h` (variable de modal.css, en
+   unidades de viewport), no un `%`: así el panel puede encogerse al tamano
+   real de la foto en vez de reclamar la pantalla entera aunque la foto no
+   la necesite. `min-height:0` porque es un grid item y heredaria su tamano
+   intrinseco, que ganaria al max-height. */
+.zoom-image{display:block;max-width:100%;max-height:var(--modal-media-max-h, 70vh);min-width:0;min-height:0;width:auto;height:auto;object-fit:contain;border-radius:10px}
+
+/* Botones de una fila estrecha (el panel lateral mide ~330px). */
+.btn-compact{min-height:34px;padding:7px 13px;font-size:12px;gap:6px}
+
+.suggest-block{margin-top:14px;display:grid;gap:10px;justify-items:start}
+.suggest-chips{display:flex;flex-wrap:wrap;gap:7px}
+.suggest-chip{appearance:none;padding:5px 11px;border:1px dashed var(--border-strong);border-radius:999px;background:var(--surface);color:var(--text-soft);font-size:12px;font-weight:650;cursor:pointer;transition:background-color .18s ease,color .18s ease,border-color .18s ease}
+.suggest-chip:hover{border-color:var(--brand-700);color:var(--text)}
+.suggest-chip--on{border-style:solid;border-color:var(--brand-700);background:var(--surface-sage);color:var(--brand-800)}
+
+.suggest-label{margin:2px 0 -2px;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+/* Ya existe en la biblioteca: se pinta como una etiqueta de verdad (borde
+   continuo), no como una propuesta a estrenar. */
+.suggest-chip--known{border-style:solid;border-color:var(--border-strong);color:var(--text)}
+
+/* En movil la version del dashboard saca el visor 6px por cada lado porque la
+   cascara le pone su propio relleno lateral. Abierta desde un enlace publico
+   no hay tal cascara, asi que ese margen negativo se salia de la pantalla y
+   provocaba scroll horizontal. Va al final para ganar por orden a la media
+   query de 560px, que tiene la misma especificidad. */
+@media(max-width:560px){
+  .media-detail-page--public{padding:8px 12px 12px}
+  .media-detail-page--public .viewer-shell{margin-inline:0}
+}
+
+/* L10B: los álbumes del recuerdo (solo el dueño). Reutiliza chips y fila de tags. */
+.album-membership{margin-top:16px;padding-top:15px;border-top:1px solid var(--border);display:grid;gap:8px}.album-membership__list{padding:0;list-style:none}.album-chip{border-color:var(--border-strong);background:var(--surface-sage);color:var(--text)}.album-chip a{color:inherit;text-decoration:none}.album-chip a:hover{text-decoration:underline}.album-membership__empty{margin:0;font-size:11.5px;color:var(--text-soft)}.album-membership__add{margin-top:0;padding-top:0;border-top:0}
+/* F05: los comentarios, debajo del contenedor de una pantalla. */
+.detail-comments{padding-top:4px}
+.detail-comments--public{padding:4px clamp(14px,3vw,28px) 0}
+
+/* F06: el enlace de volver, tocable en movil (>=40px). */
+@media (max-width: 560px) { .back-link { min-height: 40px; display: inline-flex; align-items: center; } }
+@media (max-width: 560px) { .info-body .btn { min-height: 40px; } }

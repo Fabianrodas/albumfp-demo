@@ -1,0 +1,12 @@
+<a class="smart-card" [routerLink]="['/albumes/inteligentes', smart().id]">
+  <div class="smart-card__head">
+    <span class="smart-card__icon" aria-hidden="true"><app-icon name="sparkle" [size]="18"/></span>
+    <span class="smart-badge">Inteligente</span>
+  </div>
+  <h3>{{ smart().titulo }}</h3>
+  @if (smart().descripcion) { <p class="smart-card__description">{{ smart().descripcion }}</p> }
+  <ul class="smart-card__filters" aria-label="Filtros">
+    @for (part of summary(); track part) { <li>{{ part }}</li> }
+  </ul>
+  @if (broken()) { <p class="smart-card__warning">Revisa sus filtros: uno ya no existe.</p> }
+</a>

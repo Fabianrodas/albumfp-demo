@@ -1,0 +1,498 @@
+/* Tipografias self-hosted (S11): el navegador no pide nada a fonts.googleapis.com
+   ni a fonts.gstatic.com, asi que la CSP puede quedarse en 'self'. Son los
+   paquetes OFL de @fontsource (su LICENSE viaja dentro de node_modules); las
+   variantes `opsz` traen el eje de tamano optico que servia el enlace de Google,
+   y `wght-italic` no hace falta porque la unica cursiva del sitio es Fraunces.
+   Cada @font-face lleva su unicode-range, asi que el navegador solo descarga el
+   subconjunto que el texto necesita. */
+@import '@fontsource-variable/fraunces/opsz.css';
+@import '@fontsource-variable/fraunces/opsz-italic.css';
+@import '@fontsource-variable/inter/wght.css';
+
+:root {
+  --brand-950: #0d291e;
+  --brand-900: #123426;
+  --brand-800: #1d4935;
+  --brand-700: #315f49;
+  --sage-500: #879c7b;
+  --accent-lime: #d7e565;
+  --accent-soft: #edf3c7;
+  --accent-coral: #d97a4d;
+  --accent-coral-soft: #fbe9dd;
+  --accent-coral-text: #8a4423;
+  --accent-violet: #7c6fd1;
+  --accent-violet-soft: #ece9fa;
+  --accent-violet-text: #473c93;
+  --accent-violet-border: #d7d1f3;
+  --accent-sun: #d9a331;
+  --accent-sun-soft: #faf0d7;
+  --accent-sun-text: #7c5c10;
+  /* Rojo fuerte: es el corazón relleno de un favorito, tiene que leerse como rojo. */
+  --favorite: #d32036;
+  --favorite-soft: #fbe1e4;
+  --paper: #f4f1ea;
+  --surface: #f8f7f2;
+  --surface-raised: #fffefb;
+  --surface-muted: #eeece4;
+  --surface-sage: #eef1e6;
+  --text: #20221f;
+  --text-soft: #4f534d;
+  --muted: #74776f;
+  --border: #dedbd1;
+  --border-strong: #c9c5b9;
+  --danger: #7b3838;
+  --danger-soft: #f3e4e1;
+  --success: #35613c;
+  --success-soft: #e3eee0;
+  --on-brand: #ffffff;
+  --accent-text: #46522d;
+  --accent-border: #dce6a2;
+  --danger-text: #6f2c2c;
+  --danger-border: #e6cbc6;
+  --success-text: #2e5735;
+  --success-border: #c9dcc4;
+  --glass-surface: rgba(255,255,255,.72);
+  --chip-bg: rgba(255,255,255,.62);
+  /* El sidebar es verde oscuro en los dos temas, así que sus tokens son
+     literales: no puede apoyarse en --brand-*, cuyo significado se invierte
+     entre claro y oscuro. */
+  --sidebar-bg: #123426;
+  --sidebar-text: #ffffff;
+  --sidebar-muted: rgba(255,255,255,.58);
+  --sidebar-hover: rgba(255,255,255,.10);
+  --sidebar-active: rgba(255,255,255,.17);
+  --sidebar-border: rgba(255,255,255,.14);
+  --topbar-bg: rgba(244,241,234,.88);
+  --topbar-border: rgba(222,219,209,.9);
+  --panel-sticky: rgba(250,249,244,.96);
+  --overlay-bg: rgba(27,34,24,.44);
+  --input-placeholder: #95988f;
+  --media-placeholder: #d9d8d2;
+  --stage-bg: #111512;
+  --skeleton-base: #e8e5dc;
+  --skeleton-shine: #f4f2eb;
+  --photo-paper: #fffef9;
+  --photo-text: #20221f;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --shadow-sm: 0 1px 2px rgba(25, 34, 28, .05), 0 8px 24px rgba(25, 34, 28, .06);
+  --shadow-md: 0 18px 48px rgba(25, 34, 28, .11);
+  --focus-ring: 0 0 0 3px rgba(135, 156, 123, .28);
+  --display: 'Fraunces Variable', 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter Variable', Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  /* Verde profundo con el que cierra el sitio público (footer y panel de
+     acceso). Literal en los dos temas por el mismo motivo que --sidebar-*: es
+     una superficie oscura siempre, y el significado de --brand-* se invierte.
+     Es el mismo verde del sidebar, así que el marketing y la aplicación cierran
+     con el mismo color. */
+  --forest-bg: #0d291e;
+  --forest-text: #ffffff;
+  --forest-muted: rgba(255,255,255,.66);
+  /* Ritmo del sitio público. Vive aquí y no repetido en ocho hojas porque las
+     cinco páginas comparten la misma medida y la misma respiración. */
+  --public-max: 1440px;
+  /* Alto de la cáscara del panel. Estaban escritos a mano en topbar.css y en
+     dashboard-layout.css; viven aquí porque el detalle de una foto necesita
+     restarlos para medir su alto exacto y no scrollear nunca. */
+  --topbar-h: 76px;
+  --page-pad-b: 64px;
+  --ease-out: cubic-bezier(.16,1,.3,1);
+  --ease-in-out: cubic-bezier(.65,0,.35,1);
+  --motion-fast: 150ms;
+  --motion-base: 250ms;
+  --motion-slow: 450ms;
+  font-family: var(--sans);
+  color: var(--text);
+  background: var(--paper);
+}
+
+:root[data-theme="dark"] {
+  --brand-950: #dce9df;
+  --brand-900: #17412f;
+  --brand-800: #4f8b6c;
+  --brand-700: #7cab8e;
+  --sage-500: #86a58f;
+  --accent-lime: #c9da5d;
+  --accent-soft: #30391f;
+  --accent-coral: #e59169;
+  --accent-coral-soft: #3a2618;
+  --accent-coral-text: #f0b593;
+  --accent-violet: #a89bf0;
+  --accent-violet-soft: #29253f;
+  --accent-violet-text: #c9c0f7;
+  --accent-violet-border: #443c69;
+  --accent-sun: #e6bc5c;
+  --accent-sun-soft: #362c14;
+  --accent-sun-text: #f0d18f;
+  --favorite: #f0576c;
+  --favorite-soft: #3a2024;
+  --paper: #101511;
+  --surface: #151c17;
+  --surface-raised: #1a221c;
+  --surface-muted: #222b24;
+  --surface-sage: #1b2920;
+  --text: #edf2ed;
+  --text-soft: #c7cfc8;
+  --muted: #9ca69e;
+  --border: #303a32;
+  --border-strong: #465248;
+  --danger: #e09a92;
+  --danger-soft: #382321;
+  --success: #8bc793;
+  --success-soft: #1d3223;
+  --on-brand: #ffffff;
+  --accent-text: #d8e68c;
+  --accent-border: #4d5a31;
+  --danger-text: #efb3ad;
+  --danger-border: #5a3733;
+  --success-text: #a4d8aa;
+  --success-border: #35523b;
+  --glass-surface: rgba(27,34,29,.88);
+  --chip-bg: rgba(27,34,29,.84);
+  /* En modo oscuro sube a un verde más claro, apagado, para separarse del
+     fondo casi negro sin gritar. */
+  --sidebar-bg: #1d4a37;
+  --sidebar-text: #f2f8f3;
+  --sidebar-muted: rgba(242,248,243,.60);
+  --sidebar-hover: rgba(255,255,255,.09);
+  --sidebar-active: rgba(255,255,255,.16);
+  --sidebar-border: rgba(255,255,255,.13);
+  --topbar-bg: rgba(15,20,16,.91);
+  --topbar-border: rgba(49,59,51,.92);
+  --panel-sticky: rgba(21,28,23,.96);
+  --overlay-bg: rgba(0,0,0,.62);
+  --input-placeholder: #7f8a81;
+  --media-placeholder: #252d27;
+  --stage-bg: #080b09;
+  --skeleton-base: #242d26;
+  --skeleton-shine: #303a32;
+  --photo-paper: #fffef9;
+  --photo-text: #20221f;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.18), 0 10px 28px rgba(0,0,0,.18);
+  --shadow-md: 0 20px 56px rgba(0,0,0,.32);
+  --focus-ring: 0 0 0 3px rgba(134,165,143,.3);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; background: var(--paper); color: var(--text); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+a { color: inherit; }
+img, video { max-width: 100%; }
+
+::selection { background: var(--accent-lime); color: var(--brand-950); }
+/* En oscuro `--brand-950` se invierte a casi blanco, asi que la pareja de
+   arriba deja texto claro sobre lima clara y no se lee nada. Se fija la
+   pareja entera, no solo el fondo. */
+:root[data-theme="dark"] ::selection { background: #2f6b4c; color: #f2f7f2; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) ::selection { background: #2f6b4c; color: #f2f7f2; }
+}
+
+:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  text-decoration: none;
+  transition: transform .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-primary { background: var(--text); color: var(--paper); }
+.btn-primary:hover { filter: brightness(.92); box-shadow: var(--shadow-sm); }
+.btn-brand { background: var(--brand-900); color: var(--on-brand); }
+.btn-brand:hover { background: var(--brand-800); box-shadow: var(--shadow-sm); }
+.btn-secondary { background: var(--surface-raised); color: var(--text); border-color: var(--border); }
+.btn-secondary:hover { border-color: var(--border-strong); }
+.btn-ghost { background: transparent; color: var(--text-soft); border-color: transparent; }
+.btn-ghost:hover { background: var(--surface-muted); color: var(--text); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { filter: brightness(.88); }
+.btn:disabled { cursor: not-allowed; opacity: .52; transform: none; }
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface-raised);
+  color: var(--text);
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  transition: background-color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.icon-button:hover { background: var(--surface-muted); border-color: var(--border-strong); transform: translateY(-1px); }
+
+.field, input.field, select.field, textarea.field {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  color: var(--text);
+  padding: 11px 13px;
+  outline: none;
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+.field:hover { border-color: var(--border-strong); }
+.field:focus { border-color: var(--sage-500); box-shadow: var(--focus-ring); }
+
+.field-icon { position: relative; display: flex; align-items: center; }
+.field-icon > app-icon { position: absolute; left: 13px; color: var(--muted); pointer-events: none; display: inline-flex; }
+.field-icon > .field { padding-left: 38px; }
+.field-icon:has(.field-icon__toggle) > .field { padding-right: 40px; }
+.field-icon__toggle { position: absolute; right: 6px; width: 30px; height: 30px; border: 0; background: transparent; color: var(--muted); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; padding: 0; transition: background-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+.field-icon__toggle:hover { background: var(--surface-muted); color: var(--text); }
+
+.btn-spinner { width: 15px; height: 15px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: spin .7s linear infinite; }
+.btn-secondary .btn-spinner, .btn-ghost .btn-spinner { border-color: var(--border-strong); border-top-color: var(--text); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shake { 10%,90% { transform: translateX(-1px); } 20%,80% { transform: translateX(2px); } 30%,50%,70% { transform: translateX(-4px); } 40%,60% { transform: translateX(4px); } }
+.shake-in { animation: shake .4s var(--ease-in-out); }
+
+.page-header {
+  padding: 30px 0 22px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  animation: reveal-up .45s ease both;
+}
+.page-header__copy { max-width: 720px; }
+.page-title {
+  margin: 0;
+  font: 500 clamp(34px, 4vw, 48px)/1.04 var(--display);
+  letter-spacing: -.035em;
+}
+.page-subtitle { margin: 11px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.page-actions { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; justify-content: flex-end; }
+
+.chip-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: 700;
+}
+.chip-accent { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent-text); }
+
+/* Cuadricula de albumes. Vive aqui y no en albums.css porque la usan DOS
+   paginas: "Mis albumes" y "Compartido conmigo". Con encapsulacion de vista la
+   regla no cruzaba de componente, asi que en Compartido la clase no tenia ni
+   una declaracion: la cuadricula era un `display:block` y cada tarjeta ocupaba
+   el ancho entero. Mismo criterio que .form-grid y Theme.logo(). */
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 24px 18px;
+  padding-bottom: 16px;
+}
+@media (max-width: 560px) {
+  .album-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 10px; }
+}
+@media (max-width: 360px) {
+  .album-grid { grid-template-columns: 1fr; }
+}
+
+.surface-card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 0 18px;
+}
+.section-heading h2 { margin: 0; font: 500 27px/1.1 var(--display); letter-spacing: -.02em; }
+.section-heading p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+
+.empty-state {
+  padding: clamp(24px, 4vw, 36px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  display: block;
+  animation: reveal-up .35s ease both;
+}
+.empty-state__copy { max-width: 640px; }
+.empty-state h2 { margin: 0; font: 500 clamp(23px, 2.6vw, 31px)/1.15 var(--display); letter-spacing: -.022em; }
+.empty-state p { margin: 10px 0 18px; color: var(--muted); font-size: 14px; line-height: 1.62; }
+
+/* Solo para lectores de pantalla. Global a proposito: definida en el CSS de un
+   componente no alcanzaba a los demas y el texto "oculto" se veia. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+/* Insignia de media archivada: la usan la cuadricula y el detalle (P09). */
+.archived-badge { display: inline-flex; align-items: center; width: fit-content; margin-top: 4px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--chip-bg); color: var(--text-soft); font-size: 10.5px; font-weight: 800; letter-spacing: .02em; }
+
+.notice {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.notice-error { background: var(--danger-soft); border-color: var(--danger-border); color: var(--danger-text); }
+
+.form-label { display: flex; flex-direction: column; gap: 7px; font-size: 11px; font-weight: 800; letter-spacing: .02em; color: var(--text-soft); }
+.helper { font-size: 12px; line-height: 1.5; color: var(--muted); }
+
+/* Grid de formulario compartido por el panel de subida y el modal de editar
+   foto: dos columnas, un campo puede pedir el ancho completo con .field-wide. */
+.form-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 14px; margin-top: 17px; }
+.field-wide { grid-column: 1 / -1; }
+.textarea { min-height: 76px; resize: vertical; padding-top: 10px; }
+.form-error { margin: 14px 0 0; padding: 9px 11px; border-radius: 10px; background: var(--danger-soft); color: var(--danger); font-size: 10px; font-weight: 700; }
+.location-hint { margin: 8px 0 0; font-size: 10px; line-height: 1.5; color: var(--muted); }
+@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .field-wide { grid-column: auto; } }
+
+/* Fila de checkbox estilo tarjeta y desplegable con borde superior: nacieron
+   en upload-panel, y S08 los necesita también en el diálogo de compartir de
+   album-detail -- mismo criterio que .form-grid, se suben aquí en vez de
+   duplicarlos. */
+.favorite-control { min-height: 64px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface-muted); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.favorite-control input { width: 17px; height: 17px; accent-color: var(--brand-800); }
+.favorite-control span { display: flex; align-items: center; gap: 6px; }
+.favorite-control b { font-size: 11px; }
+.location-disclosure { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.location-disclosure summary { font-size: 11px; font-weight: 800; color: var(--text); cursor: pointer; }
+.location-disclosure app-location-picker { display: block; margin-top: 12px; }
+/* El contenido del diálogo de compartir (S08) queda pegado al summary sin
+   esto -- solo se apunta a esas dos clases, no a `> *`, para no mover
+   `app-location-picker`/`.location-hint` de upload-panel un pelo. */
+.location-disclosure summary ~ .form-label,
+.location-disclosure summary ~ .favorite-control { margin-top: 12px; }
+
+/* Pestañas dentro de un panel: barra fija + cuerpo con su propio scroll.
+   Nació en MediaDetail (Recuerdo/Ficha/Tags/Texto, para no apilar cinco
+   bloques bajo un único scroll) y "Compartir álbum" la reutiliza tal cual
+   para Nuevo acceso/Colaboradores/Enlaces -- mismo problema, misma solución,
+   por eso vive aquí y no en el CSS de un solo componente. */
+.info-tabs{display:flex;gap:2px;padding:9px 10px 0;border-bottom:1px solid var(--border)}
+.info-tabs button{flex:1 1 0;min-width:0;appearance:none;border:0;background:transparent;padding:8px 4px 9px;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--muted);font:inherit;font-size:11.5px;font-weight:800;cursor:pointer;transition:color var(--motion-fast) var(--ease-out),border-color var(--motion-fast) var(--ease-out)}
+.info-tabs button:hover{color:var(--text-soft)}
+.info-tabs button.is-on{color:var(--text);border-bottom-color:var(--brand-800)}
+.info-tabs button:focus-visible{outline:2px solid var(--sage-500);outline-offset:-2px;border-radius:6px}
+.info-body{min-height:0;overflow:auto;padding:17px 18px 20px}
+
+/* Validación de formularios de cuenta: el campo se tiñe y el motivo va debajo,
+   enlazado con aria-describedby desde el propio input. */
+.form-label.is-invalid > .field-icon > .field { border-color: var(--danger-border); background: var(--danger-soft); }
+.form-label.is-invalid > .field-icon > .field:focus { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(123, 56, 56, .18); }
+.form-label.is-invalid > .field-icon > app-icon { color: var(--danger); }
+.field-error { font-size: 11.5px; font-weight: 600; line-height: 1.45; letter-spacing: 0; text-transform: none; color: var(--danger-text); }
+
+.skeleton-shape { background: linear-gradient(110deg, var(--skeleton-base) 8%, var(--skeleton-shine) 18%, var(--skeleton-base) 33%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+
+@keyframes reveal-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shimmer { to { background-position-x: -200%; } }
+
+/* Scroll-reveal: toggled by the ScrollReveal directive (core/directives/scroll-reveal.ts). */
+[data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity var(--motion-slow) var(--ease-out), transform var(--motion-slow) var(--ease-out); }
+[data-reveal].is-visible { opacity: 1; transform: translateY(0); }
+[data-reveal-stagger] > * { opacity: 0; transform: translateY(18px); transition: opacity var(--motion-base) var(--ease-out), transform var(--motion-base) var(--ease-out); }
+[data-reveal-stagger].is-visible > * { opacity: 1; transform: translateY(0); }
+[data-reveal-stagger].is-visible > *:nth-child(1) { transition-delay: 0ms; }
+[data-reveal-stagger].is-visible > *:nth-child(2) { transition-delay: 60ms; }
+[data-reveal-stagger].is-visible > *:nth-child(3) { transition-delay: 120ms; }
+[data-reveal-stagger].is-visible > *:nth-child(4) { transition-delay: 180ms; }
+[data-reveal-stagger].is-visible > *:nth-child(5) { transition-delay: 240ms; }
+[data-reveal-stagger].is-visible > *:nth-child(6) { transition-delay: 300ms; }
+[data-reveal-stagger].is-visible > *:nth-child(n+7) { transition-delay: 340ms; }
+
+/* Angular view-transitions between routes (withViewTransitions() in app.config.ts). */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--motion-base); animation-timing-function: var(--ease-in-out); }
+
+@media (max-width: 760px) {
+  :root { --topbar-h: 70px; --page-pad-b: 48px; }
+  /* La cabecera se comia media pantalla de un telefono antes de la primera
+     foto. El titulo sigue siendo el elemento mas grande de la pagina. */
+  .page-header { align-items: flex-start; flex-direction: column; padding: 20px 0 16px; gap: 14px; }
+  .page-title { font-size: 28px; }
+  .page-subtitle { margin-top: 8px; font-size: 13px; }
+  .page-actions { width: 100%; justify-content: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  [data-reveal], [data-reveal-stagger] > * { opacity: 1 !important; transform: none !important; }
+  ::view-transition-group(*) { animation: none !important; }
+}
+
+/* "Cargar mas" (P01). Vive aqui y no en el CSS de una pagina porque lo usan
+   album-detail, albumes, lugares, compartido e inicio -- y una clase que usan
+   dos paginas no puede vivir en la hoja de una de ellas: con encapsulacion de
+   vista, la regla no cruza de componente y la otra pagina se queda sin estilo.
+   Ya paso con `.album-grid`. */
+.load-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 0 8px;
+}
+.load-more__count {
+  margin: 0;
+  font-size: 13px;
+  /* --text-soft y no --muted: --muted da 4.04:1 sobre el papel y no llega al
+     4.5:1 de AA para texto pequeno. */
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cabecera de un álbum y de un álbum inteligente (L11): la comparten dos
+   páginas, así que no puede vivir en la hoja de una de ellas. */
+.album-hero {
+  padding: 24px 0 26px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.album-hero__copy { max-width: 760px; }
+.album-hero h1 { margin: 13px 0 0; font: 500 clamp(36px, 4.6vw, 52px)/1 var(--display); letter-spacing: -.045em; }
+.album-hero p { margin: 12px 0 0; max-width: 620px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.album-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 900px) {
+  .album-hero { align-items: flex-start; flex-direction: column; }
+  .album-actions { justify-content: flex-start; }
+}
+@media (max-width: 640px) {
+  .album-hero { padding-top: 20px; }
+  .album-actions { width: 100%; }
+  .album-actions .btn { flex: 1; }
+}
+
+/* F06: objetivos tactiles de 44px en movil para las pestanas del detalle. */
+@media (max-width: 560px) {
+  .info-tabs button { min-height: 44px; }
+}

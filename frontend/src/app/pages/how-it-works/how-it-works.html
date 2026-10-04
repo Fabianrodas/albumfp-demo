@@ -1,0 +1,84 @@
+<app-public-backdrop />
+
+<app-public-nav />
+
+<main class="works">
+  <header class="works__head" appScrollReveal>
+    <h1>De una carpeta vacía a un álbum compartido, sin complicaciones.</h1>
+    <p>
+      Las pantallas de AlbumFP, capturadas de la aplicación en marcha con una cuenta de demostración.
+      Ninguna es un montaje: son las mismas que verás al entrar.
+    </p>
+    <p class="works__local-note">
+      Esta edición funciona solo en tu equipo. No consulta mapas, clima, OCR ni servicios de sugerencias automáticas.
+    </p>
+  </header>
+
+  <div class="tour">
+    <!-- Índice del recorrido: dice en qué capítulo va la lectura. Los títulos
+         de capítulo ya lo dicen en el documento, así que aquí sobra para quien
+         escucha la página. -->
+    <div class="rail" aria-hidden="true">
+      <p class="rail__cuenta">{{ totalPantallas }} pantallas</p>
+      <ol>
+        @for (stage of stages; track stage.number) {
+          <li [class.is-active]="active() === $index">
+            <b>{{ stage.number }}</b><span>{{ stage.label }}</span>
+          </li>
+        }
+      </ol>
+    </div>
+
+    <div class="stages">
+      @for (stage of stages; track stage.number) {
+        <section class="stage" #stage [attr.aria-labelledby]="'etapa-' + stage.number">
+          <h2 class="stage__title" [id]="'etapa-' + stage.number" appScrollReveal>
+            <b>{{ stage.number }}</b><span>{{ stage.label }}</span>
+          </h2>
+
+          <!-- La captura que explica el capítulo. Una por capítulo, grande. -->
+          <article class="stage__feature">
+            <div class="feature__shot" appScrollReveal>
+              <!-- La primera captura destacada es el elemento LCP de la pagina, y
+                   cargarla en `lazy` lo retrasa (Angular avisa con NG0913). Solo
+                   la primera: las demas si entran cuando toca. -->
+              <app-shot-frame [src]="stage.featured.src" [alt]="stage.featured.alt"
+                [zoom]="stage.featured.zoom" [priority]="$first" />
+            </div>
+            <div class="feature__copy" appScrollReveal>
+              <h3>{{ stage.featured.titulo }}</h3>
+              <p>{{ stage.featured.texto }}</p>
+            </div>
+          </article>
+
+          <!-- Las otras tres del capítulo, compactas y legibles sin hover. -->
+          <div class="stage__supporting">
+            @for (pantalla of stage.supporting; track pantalla.src) {
+              <article class="support">
+                <app-shot-frame [src]="pantalla.src" [alt]="pantalla.alt" [zoom]="pantalla.zoom" />
+                <div class="support__copy">
+                  <h3>{{ pantalla.titulo }}</h3>
+                  <p>{{ pantalla.texto }}</p>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  </div>
+
+  <section class="faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">Preguntas frecuentes</h2>
+    <div class="faq__list" appScrollReveal>
+      @for (item of faq; track item.p) {
+        <details class="faq-row">
+          <summary>{{ item.p }}</summary>
+          <p>{{ item.r }}</p>
+        </details>
+      }
+    </div>
+  </section>
+</main>
+
+<app-public-footer />

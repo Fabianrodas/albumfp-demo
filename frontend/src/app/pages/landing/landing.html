@@ -1,0 +1,46 @@
+<app-public-backdrop />
+
+<app-public-nav />
+
+<main class="landing">
+  <section class="hero">
+    <div class="hero__copy" appScrollReveal="stagger">
+      <h1>Guarda tus recuerdos. Comparte solo lo que elijas.</h1>
+      <p class="hero__lead">
+        Crea álbumes para tus fotos y videos, organízalos con etiquetas y favoritos,
+        y comparte con permisos claros cuando quieras.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn-brand cta" routerLink="/registro">Crear cuenta</a>
+        <a class="btn btn-secondary cta" routerLink="/como-funciona">Ver cómo funciona</a>
+      </div>
+    </div>
+
+    <div class="hero__shot" appScrollReveal>
+      <app-shot-frame src="capturas/paso-albumes.webp" [priority]="true"
+        alt="La pantalla Mis álbumes de AlbumFP, con sus álbumes y sus portadas" />
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block__shot" appScrollReveal>
+      <app-shot-frame src="capturas/paso-album-detalle.webp"
+        alt="Un álbum abierto en AlbumFP, con sus fotos, sus filtros y sus acciones" />
+    </div>
+
+    <div class="block__copy" appScrollReveal="stagger">
+      <h2>Un lugar para cada historia.</h2>
+      <p>
+        Un álbum para la boda, otro para el verano, otro para las rutas del domingo.
+        Eliges la portada, le pones nombre y decides si alguien más puede verlo.
+      </p>
+      <p>
+        Dentro filtras por tipo, por etiqueta o por favoritos, y compartes el álbum
+        entero con el permiso que tú quieras.
+      </p>
+      <a class="btn btn-brand cta" routerLink="/registro">Crear cuenta</a>
+    </div>
+  </section>
+</main>
+
+<app-public-footer />

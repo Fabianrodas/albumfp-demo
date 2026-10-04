@@ -1,0 +1,184 @@
+<div class="dialog-backdrop" (click)="requestClose()">
+  <section class="upload-dialog" role="dialog" aria-modal="true" aria-labelledby="upload-title"
+           [appDialogTrap]="close" (click)="$event.stopPropagation()">
+    <header class="dialog-header">
+      <div>
+        <h2 id="upload-title">Subir varios archivos</h2>
+        <p>Hasta 3 subidas simultáneas; cada archivo conserva su resultado.</p>
+      </div>
+      <button type="button" class="icon-button" (click)="requestClose()" aria-label="Cerrar">
+        <app-icon name="close" [size]="17"/>
+      </button>
+    </header>
+
+    <form (ngSubmit)="startUploads()">
+      @if (!albumId()) {
+        <label class="form-label album-field">Álbum
+          <select class="field" [(ngModel)]="selectedAlbumId" name="album" required [disabled]="queue.hasActive()">
+            @for (album of albums(); track album.id) { <option [ngValue]="album.id">{{ album.titulo }}</option> }
+          </select>
+        </label>
+      }
+
+      <div class="drop-zone" [class.is-dragging]="dragging()" [class.is-disabled]="queue.hasActive()"
+           (dragover)="$event.preventDefault(); !queue.hasActive() && dragging.set(true)"
+           (dragleave)="dragging.set(false)" (drop)="onDrop($event)">
+        <app-icon name="upload" [size]="25"/>
+        <strong>Arrastra fotos y videos aquí</strong>
+        <span>Cada archivo se valida y sube por separado.</span>
+        <label class="btn btn-secondary file-picker" [class.is-disabled]="queue.hasActive()">
+          Seleccionar archivos
+          <input type="file" name="files" multiple
+                 accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/heic,image/heif,.heic,.heif,video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/x-m4v"
+                 [disabled]="queue.hasActive()" (change)="onFileInput($event)">
+        </label>
+      </div>
+
+      @if (queue.items().length) {
+        <section class="queue-section" aria-labelledby="queue-title">
+          <div class="section-heading">
+            <div>
+              <h3 id="queue-title">Cola de archivos</h3>
+              <p aria-live="polite">{{ completedCount() }} de {{ queue.items().length }} finalizados · {{ queue.successCount() }} correctos</p>
+            </div>
+            @if (failedCount()) { <span class="summary-error">{{ failedCount() }} con error</span> }
+          </div>
+
+          <div class="queue-list">
+            @for (item of queue.items(); track item.id) {
+              <article class="queue-item" [class]="'queue-item state-' + item.state">
+                <div class="file-icon" aria-hidden="true">
+                  <app-icon [name]="item.file.type.startsWith('video/') ? 'video' : 'image'" [size]="19"/>
+                </div>
+                <div class="item-body">
+                  <div class="item-heading">
+                    <div class="filename-block">
+                      <strong [title]="item.file.name">{{ item.file.name }}</strong>
+                      <span>{{ fileSizeLabel(item.file.size) }}</span>
+                    </div>
+                    <span class="state-label">{{ stateLabel(item.state) }}</span>
+                  </div>
+
+                  <label class="title-field">Título
+                    <input class="field" [ngModel]="item.title" (ngModelChange)="updateTitle(item, $event)"
+                           [name]="'title-' + item.id" maxlength="120" [disabled]="item.state !== 'queued'">
+                  </label>
+
+                  @if (item.state === 'uploading' || item.state === 'processing') {
+                    <div class="progress-row">
+                      <div class="progress-track" role="progressbar" [attr.aria-label]="'Progreso de ' + item.file.name"
+                           aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="item.progress">
+                        <span [style.width.%]="item.progress"></span>
+                      </div>
+                      <span>{{ item.state === 'processing' ? 'Procesando en el servidor' : item.progress + '%' }}</span>
+                    </div>
+                  }
+
+                  @if (duplicateInfo(item); as duplicate) {
+                    <aside class="duplicate-conflict" role="alert" aria-label="Archivo duplicado exacto">
+                      <p>{{ item.error }}</p>
+                      <div class="duplicate-actions">
+                        <a class="btn btn-secondary" data-testid="view-existing"
+                           [routerLink]="detailLink(duplicate.albumId, duplicate.mediaId)"
+                           target="_blank" rel="noopener">Ver existente</a>
+                        @if (canAddExisting() && !duplicate.inTarget) {
+                          <button type="button" class="btn btn-brand" data-testid="add-existing"
+                                  (click)="addExisting(item)">Añadir a este álbum</button>
+                        }
+                        <button type="button" class="btn btn-secondary" data-testid="force-duplicate"
+                                (click)="forceDuplicate(item)">Subir de todos modos</button>
+                      </div>
+                    </aside>
+                  } @else if (item.error) {
+                    <p class="item-error" role="alert">{{ item.error }}</p>
+                  } @else if (reused().has(item.id)) {
+                    <p class="item-note" data-testid="reused-existing">Añadido desde tu biblioteca, sin volver a subirlo.</p>
+                  }
+                </div>
+                <div class="item-actions">
+                  @if (item.state === 'queued' || item.state === 'uploading') {
+                    <button type="button" class="text-action" (click)="cancel(item)">Cancelar</button>
+                  }
+                  @if (item.state === 'failed' && item.retryable && item.errorCode !== 'exact_duplicate') {
+                    <button type="button" class="btn btn-secondary retry-button" (click)="retry(item)">Reintentar</button>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+
+      <details class="shared-fields">
+        <summary>Aplicar datos compartidos (opcional)</summary>
+        <p>Solo se aplican los campos que actives y quedan fijados al iniciar la cola.</p>
+        <div class="shared-grid">
+          <label class="shared-toggle field-wide">
+            <span><input type="checkbox" [(ngModel)]="applyCaption" name="applyCaption" [disabled]="queue.hasActive()"> Misma descripción</span>
+            @if (applyCaption) {
+              <textarea class="field textarea" [(ngModel)]="sharedCaption" name="caption" maxlength="500" rows="2"
+                        [disabled]="queue.hasActive()" placeholder="Descripción para los archivos pendientes"></textarea>
+            }
+          </label>
+          <label class="shared-toggle">
+            <span><input type="checkbox" [(ngModel)]="applyTakenAt" name="applyTakenAt" [disabled]="queue.hasActive()"> Misma fecha de captura</span>
+            @if (applyTakenAt) {
+              <input class="field" [(ngModel)]="sharedTakenAt" name="takenAt" type="datetime-local" [disabled]="queue.hasActive()">
+            }
+          </label>
+          @if (allowFavorite()) {
+            <div class="shared-toggle">
+              <label><input type="checkbox" [(ngModel)]="applyFavorite" name="applyFavorite" [disabled]="queue.hasActive()"> Definir favorito</label>
+              @if (applyFavorite) {
+                <label class="favorite-control"><input [(ngModel)]="sharedFavorite" name="favorite" type="checkbox" [disabled]="queue.hasActive()"><span><app-icon name="heart" [size]="16"/> Marcar como favorito</span></label>
+              }
+            </div>
+          }
+          <div class="shared-toggle field-wide">
+            <label><input type="checkbox" [(ngModel)]="applyLocation" name="applyLocation" [disabled]="queue.hasActive()"> Mismo lugar manual</label>
+            @if (applyLocation) {
+              <button type="button" class="text-action location-action" (click)="locationOpen.set(!locationOpen())" [disabled]="queue.hasActive()">
+                {{ manualLatitude == null ? 'Elegir en el mapa' : 'Cambiar punto elegido' }}
+              </button>
+              @if (locationOpen()) { <app-location-picker (picked)="onLocationPicked($event)" /> }
+            }
+          </div>
+        </div>
+      </details>
+
+      @if (error()) { <p class="form-error shake-in" role="alert">{{ error() }}</p> }
+
+      @if (closeWarning()) {
+        <aside class="close-warning" role="alert" aria-labelledby="close-warning-title">
+          <div>
+            <strong id="close-warning-title">Hay archivos pendientes</strong>
+            <p>Al cerrar se cancelarán los que aún puedan detenerse. Los ya procesados permanecen guardados.</p>
+          </div>
+          <div class="warning-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeWarning.set(false)">Continuar aquí</button>
+            <button type="button" class="btn btn-danger" (click)="cancelAndClose()">Cancelar pendientes y cerrar</button>
+          </div>
+        </aside>
+      }
+
+      <footer class="dialog-footer">
+        <div class="footer-summary" aria-live="polite">
+          @if (queue.items().length) {
+            <span>{{ queuedCount() }} en espera</span>
+            @if (cancelledCount()) { <span>· {{ cancelledCount() }} cancelados</span> }
+          }
+        </div>
+        <button type="button" class="btn btn-secondary" (click)="requestClose()">Cerrar</button>
+        @if (queuedCount()) {
+          <button class="btn btn-brand" type="submit" [disabled]="queue.hasActive() || metadataPendingCount() > 0">
+            @if (metadataPendingCount()) {
+              <span class="btn-spinner"></span> Leyendo metadatos…
+            } @else {
+              <app-icon name="upload" [size]="16"/> Subir {{ queuedCount() }} archivo{{ queuedCount() === 1 ? '' : 's' }}
+            }
+          </button>
+        }
+      </footer>
+    </form>
+  </section>
+</div>

@@ -1,0 +1,37 @@
+:host { display: block; }
+.smart-card {
+  height: 100%;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out);
+}
+.smart-card:hover { border-color: var(--sage-500); box-shadow: var(--shadow-sm); }
+.smart-card:focus-visible { outline: 0; box-shadow: var(--focus-ring); }
+.smart-card__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.smart-card__icon {
+  width: 36px; height: 36px; display: grid; place-items: center;
+  border-radius: 10px; background: var(--surface-muted); color: var(--text-soft);
+}
+.smart-badge {
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+.smart-card h3 { margin: 0; font: 500 19px/1.2 var(--display); letter-spacing: -.01em; }
+.smart-card__description { margin: 0; color: var(--text-soft); font-size: 13.5px; line-height: 1.45; }
+.smart-card__filters { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.smart-card__filters li {
+  padding: 4px 9px; border-radius: 999px; background: var(--surface-muted);
+  color: var(--text-soft); font-size: 12.5px; font-weight: 600;
+}
+.smart-card__warning { margin: 0; color: var(--text-soft); font-size: 12.5px; }

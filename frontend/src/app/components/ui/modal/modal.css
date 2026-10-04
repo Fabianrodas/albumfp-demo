@@ -1,0 +1,103 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(3px);
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  overflow-y: auto;
+  animation: modal-fade var(--motion-fast) var(--ease-out) both;
+}
+
+.modal-panel {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 44px);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  animation: modal-rise var(--motion-base) var(--ease-out) both;
+}
+.modal-panel--sm { width: min(440px, 100%); }
+.modal-panel--lg { width: min(720px, 100%); }
+
+/* Ver una foto en grande: el panel se ajusta a la FOTO, no al reves.
+   Antes tenia `height` fijo a pantalla completa (para arreglar que el
+   `max-height:100%` de la imagen no limitara nada contra un alto
+   indeterminado, y la foto saliera MAS PEQUENA que la propia pagina de
+   detalle: 332x249 medidos en un iPhone 13). Esa solucion resolvia el
+   porcentaje, pero de rebote dejaba el panel siempre a pantalla completa
+   aunque la foto no la necesitara -- una foto que no es extremadamente
+   panoramica queda pequena, flotando en medio de mucho hueco vacio.
+   Ahora `--modal-media-max-h` fija el alto MAXIMO de la imagen en unidades
+   de viewport (nunca en %, así no depende de que el panel tenga un alto
+   definido) y el panel usa `max-height`, no `height`: se encoge al tamano
+   real de cabecera+foto en vez de reclamar la pantalla entera siempre. */
+.modal-panel--xl {
+  width: min(1280px, 100%);
+  max-height: calc(100svh - 44px);
+  --modal-media-max-h: calc(100svh - 44px - 147px);
+}
+.modal-panel--xl .modal-body { min-height: 0; overflow: hidden; display: grid; place-items: center; }
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-head h2 {
+  margin: 0;
+  font: 500 23px/1.2 var(--display);
+  letter-spacing: -.02em;
+}
+
+.modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal-body p { margin: 0; color: var(--text-soft); }
+
+.modal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding: 0 22px 20px;
+}
+.modal-foot:empty { display: none; }
+
+@keyframes modal-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-rise { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 560px) {
+  .modal-backdrop { padding: 12px; align-items: flex-end; }
+  /* La hoja inferior esta bien para un formulario, pero el visor de una foto se
+     quedaba con 480px de hueco arriba y 12 abajo. Solo se centra el visor. */
+  .modal-backdrop:has(> .modal-panel--xl) { align-items: center; padding: 8px; }
+  .modal-panel--xl { max-height: calc(100svh - 16px); --modal-media-max-h: calc(100svh - 16px - 76px); }
+  /* En un telefono vertical una foto apaisada esta limitada por el ANCHO, no
+     por el alto, asi que lo unico que le da tamano es quitarle cromo al visor. */
+  .modal-panel--xl .modal-head { padding: 12px 14px 10px; }
+  .modal-panel--xl .modal-head h2 { font-size: 17px; }
+  .modal-panel--xl .modal-body { padding: 8px; }
+  .modal-panel { width: 100%; }
+  .modal-head { padding: 16px 16px 12px; }
+  .modal-head h2 { font-size: 20px; }
+  .modal-body { padding: 16px; }
+  .modal-foot { padding: 0 16px 16px; }
+  .modal-foot > * { flex: 1 1 auto; }
+}

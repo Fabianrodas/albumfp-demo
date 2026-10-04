@@ -1,0 +1,25 @@
+:host { position: relative; display: inline-flex; }
+
+.user-menu__trigger { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--text); cursor: pointer; }
+.user-menu__trigger--named { padding: 0 10px 0 0; }
+.user-menu__trigger:focus-visible { outline: 2px solid var(--sage-500); outline-offset: 3px; border-radius: 999px; }
+
+.user-menu__avatar { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; background: var(--brand-900); color: var(--on-brand); font-size: 11px; font-weight: 800; letter-spacing: .05em; overflow: hidden; }
+.user-menu__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.user-menu__name { font-size: 14px; font-weight: 650; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.user-menu__panel { position: absolute; top: calc(100% + 8px); right: 0; z-index: 50; min-width: 210px; padding: 6px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-raised); box-shadow: var(--shadow-md); display: grid; gap: 2px; }
+.user-menu__panel button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 42px; padding: 0 10px; border: 0; border-radius: 9px; background: transparent; color: var(--text); font: inherit; font-size: 13.5px; font-weight: 650; text-align: left; cursor: pointer; }
+.user-menu__panel button:hover { background: var(--surface-muted); }
+.user-menu__panel button.is-danger { color: var(--danger-text); }
+.user-menu__panel button.is-danger:hover { background: var(--danger-soft); }
+.user-menu__separator { height: 1px; margin: 4px 6px; background: var(--border); }
+/* En un movil estrecho el panel no puede salirse por la izquierda. */
+@media (max-width: 420px) { .user-menu__panel { min-width: min(240px, calc(100vw - 24px)); } }
+.user-menu__panel button:focus-visible { outline: 2px solid var(--sage-500); outline-offset: -2px; }
+
+/* El nombre no cabe por debajo de 900px. La regla va AQUI y no en
+   `public-nav.css`: `.user-menu__name` vive en esta plantilla y con
+   encapsulacion de vista el padre no la alcanza. Es el mismo fallo que dejo
+   `.album-grid` sin reglas en /compartido. */
+@media (max-width: 900px) { .user-menu__name { display: none; } }

@@ -1,0 +1,46 @@
+<div class="filter-panel" [class.filter-panel--divided]="divided()" [id]="panelId()" [formGroup]="form()">
+  <label>Tipo
+    <select formControlName="mediaType" name="mediaType">
+      <option value="">Todos</option><option value="image">Fotos</option><option value="video">Videos</option>
+    </select>
+  </label>
+  <label>Desde<input type="date" formControlName="dateFrom" name="dateFrom"></label>
+  <label>Hasta<input type="date" formControlName="dateTo" name="dateTo" max="9998-12-31"></label>
+  <label>Año<input type="number" formControlName="year" name="year" min="1" max="9998" inputmode="numeric" placeholder="2024"></label>
+  <label>Álbum
+    <select formControlName="albumId" name="albumId">
+      <option value="">Todos</option>
+      @for (album of albums(); track album.id) { <option [value]="album.id">{{ album.titulo }}</option> }
+    </select>
+  </label>
+  <label>Favorito
+    <select formControlName="favorite" name="favorite">
+      <option value="">Todos</option><option value="true">Solo favoritos</option><option value="false">No favoritos</option>
+    </select>
+  </label>
+  <label>Archivo
+    <select formControlName="archived" name="archived">
+      <option value="">Todos</option><option value="only">Solo archivados</option><option value="exclude">Sin archivados</option>
+    </select>
+  </label>
+  <label>Tag
+    <select formControlName="tagId" name="tagId">
+      <option value="">Todos</option>
+      @for (tag of tags(); track tag.id) { <option [value]="tag.id">{{ tag.name }}</option> }
+    </select>
+  </label>
+  <label>Lugar<input type="search" formControlName="place" name="place" maxlength="120" placeholder="Ciudad, región o país"></label>
+  @if (showSort()) {
+    <label>Orden
+      <select formControlName="sort" name="sort">
+        <option value="relevance">Relevancia</option><option value="taken_at">Fecha de captura</option>
+        <option value="created_at">Fecha de subida</option><option value="title">Título</option>
+      </select>
+    </label>
+    @if (form().controls.sort.value !== 'relevance') {
+      <label>Dirección
+        <select formControlName="direction" name="direction"><option value="desc">Descendente</option><option value="asc">Ascendente</option></select>
+      </label>
+    }
+  }
+</div>

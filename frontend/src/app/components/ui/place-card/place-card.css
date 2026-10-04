@@ -1,0 +1,22 @@
+:host{display:block;min-width:0}
+.place-card{display:block;width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;min-width:0;animation:reveal-up .4s ease both}
+/* El fondo mientras carga era un degradado con dos hex fijos, o sea el mismo
+   verde claro en modo oscuro. --media-placeholder es el token que ya usan las
+   demas cuadriculas y si se invierte. El radio ad-hoc de 18px pasa a la escala
+   de la aplicacion. */
+.place-card__cover{position:relative;aspect-ratio:1.18;overflow:hidden;border-radius:var(--radius-md);background:var(--media-placeholder);box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.place-card__cover img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .35s ease}
+.place-card:hover .place-card__cover img{transform:scale(1.035)}
+.place-card:hover .place-card__cover{box-shadow:var(--shadow-md)}
+.place-card:focus-visible{outline:2px solid var(--sage-500);outline-offset:3px;border-radius:var(--radius-lg)}
+.place-card__placeholder{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(135deg,var(--brand-800),var(--sage-500));color:var(--on-brand)}
+.place-card__video{align-content:center;gap:7px;background:var(--surface-muted);color:var(--muted)}
+.place-card__video span{font-size:11px;font-weight:650;letter-spacing:.02em}
+.place-card__body{padding:12px 3px 0}
+h3{margin:0;font:500 18px/1.2 var(--display);letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+p{margin:5px 0 0;color:var(--text-soft);font-size:11px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* El recuento estaba en una pildora encima de la foto. Una etiqueta superpuesta
+   a una imagen tapa parte de lo que se viene a ver y no gana nada: como texto
+   debajo se lee igual y la portada se ve entera. */
+.place-card__count{display:block;margin-top:6px;color:var(--text-soft);font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+@media(max-width:560px){h3{font-size:17px}}

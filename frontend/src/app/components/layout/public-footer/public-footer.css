@@ -1,0 +1,60 @@
+/* Footer corto: una sola fila en escritorio. Antes ocupaba una pantalla entera
+   para tres columnas de enlaces que caben en una línea. */
+.public-footer {
+  position: relative;
+  z-index: 1;
+  background: var(--forest-bg);
+  color: var(--forest-text);
+  padding: 26px clamp(16px, 3vw, 40px);
+}
+
+.public-footer__inner {
+  max-width: var(--public-max);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 32px;
+}
+
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--forest-text);
+  font: 500 21px/1 var(--display);
+  letter-spacing: -.02em;
+}
+.footer-brand img { width: 30px; height: 30px; object-fit: contain; }
+
+.footer-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.footer-links a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 9px;
+  color: var(--forest-text);
+  text-decoration: none;
+  font-size: 14px;
+  opacity: .8;
+}
+.footer-links a:hover { opacity: 1; background: rgba(255, 255, 255, .08); }
+
+.public-footer small { color: var(--forest-muted); font-size: 12.5px; }
+
+@media (max-width: 720px) {
+  /* Marca y copyright, nada mas: los cinco enlaces ya estan en el menu de
+     arriba (el panel del hamburguesa) y aqui solo alargaban el pie -- 4
+     filas de min-height:44px para un punado de palabras. */
+  .public-footer { padding: 20px clamp(16px, 3vw, 40px); }
+  .footer-links { display: none; }
+}
+
+/* Las transiciones de `.btn` y `.field` vienen de styles.css, que comparte el
+   dashboard. No se tocan ahí: se anulan solo aquí, porque las vistas públicas
+   van sin movimiento de ningún tipo. */
+.public-footer a { transition: none; }

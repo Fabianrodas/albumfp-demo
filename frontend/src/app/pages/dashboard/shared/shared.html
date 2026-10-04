@@ -1,0 +1,36 @@
+<section class="page-header"><div class="page-header__copy"><h1 class="page-title">Compartido conmigo</h1></div></section>
+
+@if (error()) { <p class="notice notice-error">{{ error() }}</p> }
+
+@if (!loading() && !readAlbums().length && !writeAlbums().length) {
+  <section class="empty-state"><div class="empty-state__copy"><h2>No tienes álbumes compartidos.</h2><p>Los álbumes que aceptes desde una invitación aparecerán aquí.</p></div></section>
+} @else {
+  @if (writeAlbums().length) {
+    <section class="shared-group">
+      <header><h2>Colaborador</h2><span class="shared-group__count shared-group__count--violet">{{ totalWrite() ?? writeAlbums().length }}</span></header>
+      <div class="album-grid" appScrollReveal="stagger">@for(album of writeAlbums();track album.id){<app-album-card [album]="album" origin="shared"/>}</div>
+      @if (hasMoreWrite()) {
+        <div class="load-more">
+          <button type="button" class="btn btn-ghost" (click)="loadMoreWrite()" [disabled]="loadingWrite()">
+            {{ loadingWrite() ? 'Cargando...' : 'Cargar más' }}
+          </button>
+          <p class="load-more__count">{{ writeAlbums().length }} de {{ totalWrite() }}</p>
+        </div>
+      }
+    </section>
+  }
+  @if (readAlbums().length) {
+    <section class="shared-group">
+      <header><h2>Solo lectura</h2><span class="shared-group__count shared-group__count--brand">{{ totalRead() ?? readAlbums().length }}</span></header>
+      <div class="album-grid" appScrollReveal="stagger">@for(album of readAlbums();track album.id){<app-album-card [album]="album" origin="shared"/>}</div>
+      @if (hasMoreRead()) {
+        <div class="load-more">
+          <button type="button" class="btn btn-ghost" (click)="loadMoreRead()" [disabled]="loadingRead()">
+            {{ loadingRead() ? 'Cargando...' : 'Cargar más' }}
+          </button>
+          <p class="load-more__count">{{ readAlbums().length }} de {{ totalRead() }}</p>
+        </div>
+      }
+    </section>
+  }
+}

@@ -1,0 +1,8 @@
+<main class="claim-shell">
+  <a class="brand" routerLink="/"><img [src]="theme.logo()" alt=""><span>AlbumFP</span></a>
+  @if (state() === 'loading') {
+    <section class="claim-card" aria-live="polite"><span class="claim-loader"></span><h1>Guardando álbum en tu cuenta…</h1><p>Estamos validando la invitación.</p></section>
+  } @else {
+    <section class="claim-card"><h1>No se pudo aceptar la invitación</h1><p>{{ error() }}</p><a class="btn btn-secondary" routerLink="/compartido">Ir a Compartido conmigo</a></section>
+  }
+</main>

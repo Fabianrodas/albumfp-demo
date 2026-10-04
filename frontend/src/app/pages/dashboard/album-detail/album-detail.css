@@ -1,0 +1,356 @@
+.back-link {
+  display: inline-block;
+  margin-top: 25px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 800;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-strong);
+  padding-bottom: 2px;
+}
+.back-link:hover { color: var(--text); }
+.error-banner { margin-top: 18px; }
+
+/* Barra de herramientas y filtros. Los filtros son grandes a propósito: los
+   anteriores estaban en 9-10px y no se alcanzaban a leer. */
+.library-toolbar {
+  padding: 26px 0 16px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 22px;
+}
+.library-toolbar h2 { margin: 0; font: 500 27px/1.1 var(--display); letter-spacing: -.02em; }
+
+.filters { display: flex; gap: 9px; flex-wrap: wrap; justify-content: flex-end; }
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 7px 5px 13px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  transition: border-color var(--motion-fast) var(--ease-out);
+}
+.filters label:hover { border-color: var(--border-strong); }
+.filters label:focus-within { border-color: var(--sage-500); box-shadow: var(--focus-ring); }
+.filters label span { font-size: 12.5px; font-weight: 800; color: var(--muted); }
+.filters select, .filters input[type="text"] {
+  min-height: 32px;
+  border: 0;
+  background: transparent;
+  outline: 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 3px 4px;
+}
+.filters select { cursor: pointer; }
+.filters input[type="text"] { width: 120px; }
+.filters input[type="text"]::placeholder { color: var(--muted); font-weight: 500; }
+
+/* Barra de selección múltiple */
+.selection-bar {
+  position: sticky;
+  top: 84px;
+  z-index: 20;
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--brand-700);
+  border-radius: var(--radius-md);
+  background: var(--surface-sage);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+  animation: reveal-up var(--motion-fast) var(--ease-out) both;
+}
+.selection-bar strong { font-size: 14.5px; color: var(--brand-800); }
+.selection-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Ajustes del álbum, dentro del modal */
+.privacy-setting {
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  cursor: pointer;
+}
+.privacy-setting input { width: 17px; height: 17px; flex: 0 0 auto; accent-color: var(--brand-800); }
+.privacy-setting span { display: grid; gap: 3px; }
+.privacy-setting b { font-size: 13.5px; }
+.privacy-setting small { font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+
+.danger-note {
+  margin-top: 4px;
+  padding: 15px;
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-md);
+  background: var(--danger-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.danger-note > div { display: grid; gap: 4px; min-width: 220px; }
+.danger-note strong { font-size: 14px; color: var(--danger-text); }
+.danger-note span { font-size: 12.5px; line-height: 1.5; color: var(--danger-text); opacity: .85; }
+
+/* Compartir. Los tamaños suben de 9-11px a 13-15px: el diálogo tenía el
+   tamaño correcto, pero su texto era ilegible. */
+/* margin-bottom: sin esto, las tarjetas tocan directamente el primer
+   .share-option de abajo (0px real, medido) -- dos bordes de 1px pegados,
+   que en modo oscuro se lee como una costura apretada en vez de dos grupos
+   separados. Mismo 10px que ya usan .permission-choice y .share-link-options
+   como gap interno, para no introducir un valor nuevo. */
+.permission-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+
+/* Permisos del colaborador: una lista de casillas, no una rejilla de
+   tarjetas. Se leen de arriba abajo y el ojo compara etiquetas alineadas. */
+.permission-intro { margin: 0 0 14px; font-size: 13px; line-height: 1.5; color: var(--text-soft); }
+.capability-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.capability-row {
+  min-height: 52px;
+  padding: 11px 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+.capability-row:hover { background: var(--surface-muted); }
+.capability-row input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: var(--brand-800); cursor: pointer; }
+.capability-row:has(input:focus-visible) { outline: 2px solid var(--brand-700); outline-offset: 1px; }
+.capability-copy { display: grid; gap: 3px; }
+.capability-copy b { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.capability-copy small { font-size: 12px; line-height: 1.4; color: var(--muted); }
+/* Lo que no se puede quitar se muestra igual, pero apagado: comunica que
+   está incluido sin invitar a hacer clic. */
+.capability-row--locked { cursor: default; background: var(--surface-sage); }
+.capability-row--locked:hover { background: var(--surface-sage); }
+.capability-check {
+  width: 18px; height: 18px; flex: 0 0 auto;
+  display: grid; place-items: center;
+  border-radius: 5px;
+  background: var(--brand-800);
+  color: #fff;
+}
+.permission-note { margin: 14px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted); }
+
+/* Contador de colaboradores en el botón de la cabecera. */
+.count-pill {
+  min-width: 19px; height: 19px; padding: 0 5px;
+  display: inline-grid; place-items: center;
+  border-radius: 999px;
+  background: var(--brand-800);
+  color: #fff;
+  font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.permission-choice button {
+  min-height: 78px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface-muted);
+  color: var(--muted);
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  text-align: left;
+  cursor: pointer;
+  transition: .15s ease;
+}
+.permission-choice button:hover { border-color: var(--border-strong); background: var(--surface-sage); }
+.permission-choice button.active {
+  border-color: var(--brand-700);
+  background: var(--surface-sage);
+  color: var(--brand-800);
+  box-shadow: inset 0 0 0 1px var(--brand-700);
+}
+.permission-choice span { display: grid; gap: 4px; }
+.permission-choice b { font-size: 14px; color: var(--text); }
+.permission-choice small { font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+
+.share-link-options { display: grid; gap: 10px; }
+.share-option {
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface-raised);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+}
+.share-option > div { display: grid; gap: 5px; }
+.share-option strong { font-size: 14px; }
+.share-option span { max-width: 480px; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+.share-option--single { background: var(--surface-sage); }
+
+.expiry-row {
+  padding: 14px 0;
+  display: grid;
+  grid-template-columns: 1fr minmax(220px, 280px);
+  align-items: center;
+  gap: 18px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.expiry-row > span { display: grid; gap: 4px; }
+.expiry-row b { font-size: 14px; }
+.expiry-row small { font-size: 12.5px; line-height: 1.4; color: var(--muted); }
+
+.copied-link {
+  padding: 11px 13px;
+  border-radius: 10px;
+  background: var(--success-soft);
+  color: var(--success-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.copied-link button {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--success-text);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: underline;
+}
+.share-list { display: grid; }
+.share-row {
+  min-height: 58px;
+  padding: 9px 2px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-bottom: 1px solid var(--border);
+}
+.share-row:last-child { border-bottom: 0; }
+.share-avatar {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--surface-sage);
+  color: var(--brand-700);
+  display: grid;
+  place-items: center;
+}
+.share-copy { min-width: 0; margin-right: auto; }
+.share-copy b { display: block; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.share-copy em { display: block; margin-top: 1px; font-style: normal; font-size: 12.5px; color: var(--text-soft); }
+.share-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
+.text-action { border: 0; background: transparent; color: var(--brand-700); padding: 6px; font-size: 13px; font-weight: 800; }
+.text-action:hover { text-decoration: underline; }
+.danger-text { color: var(--danger); }
+
+/* Enlaces públicos: cada tarjeta lleva más datos que una fila de
+   colaborador (última vez abierto, contraseña, descarga), así que apila en
+   vez de forzarlos en una sola línea como .share-row. */
+.link-list { display: grid; gap: 12px; }
+.link-card { padding: 12px; border: 1px solid var(--border); border-radius: 12px; display: grid; gap: 8px; }
+.link-card__head { display: flex; align-items: center; gap: 11px; }
+.link-card__meta { min-width: 0; margin-right: auto; }
+.link-card__meta b { display: block; font-size: 13.5px; }
+.link-card__meta small { display: block; margin-top: 1px; color: var(--muted); font-size: 12px; }
+.link-card__row { margin: 0; color: var(--text-soft); font-size: 12.5px; }
+/* Enlace creado antes de esta fase (o sin SHARE_TOKEN_ENCRYPTION_KEY en ese
+   momento): no hay nada que descifrar, y "Regenerar" ya está al lado. */
+.link-card__hint { color: var(--muted); font-size: 12.5px; }
+.link-card__password { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.link-card__password .field { flex: 1; min-width: 160px; }
+.link-toggle { display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer; }
+.link-toggle input { width: 16px; height: 16px; accent-color: var(--brand-800); }
+.share-empty { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+
+/* Tags */
+.tag-list { min-height: 32px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.tag-list > span {
+  padding: 6px 7px 6px 11px;
+  border: 1px solid var(--accent-violet-border);
+  border-radius: 999px;
+  background: var(--accent-violet-soft);
+  color: var(--accent-violet-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.tag-list span button {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .08);
+  color: inherit;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.tag-list small { color: var(--muted); font-size: 13px; }
+.tag-actions { display: grid; grid-template-columns: minmax(150px, 1fr) auto minmax(150px, 1fr) auto; gap: 9px; }
+
+.album-empty { margin-top: 2px; }
+
+@media (max-width: 900px) {
+  .library-toolbar { align-items: flex-start; flex-direction: column; }
+  .filters { justify-content: flex-start; }
+  .tag-actions { grid-template-columns: 1fr auto; }
+}
+
+@media (max-width: 640px) {
+  .permission-choice { grid-template-columns: 1fr; }
+  .share-option { grid-template-columns: 1fr; }
+  .share-option .btn { width: 100%; }
+  .expiry-row { grid-template-columns: 1fr; }
+  .tag-actions { grid-template-columns: 1fr; }
+  /* La barra entera se aprieta: con los filtros ya en una fila, lo que queda
+     de los 348px originales es su propio relleno. 26+22 de hueco entre el
+     titulo y los filtros no se justifican en un telefono. */
+  .library-toolbar { padding: 14px 0 12px; gap: 12px; }
+  .library-toolbar h2 { font-size: 22px; }
+  /* Una sola fila que se desliza, en vez de cinco filtros apilados que se
+     comian 348px antes de la primera foto (medido en un iPhone 13). El
+     desbordamiento va DENTRO del contenedor: la pagina nunca scrollea en
+     horizontal. */
+  .filters {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .filters label { flex: 0 0 auto; min-width: 0; scroll-snap-align: start; }
+  .filters input[type="text"] { width: 130px; }
+  .selection-bar { top: 76px; }
+  .selection-actions { width: 100%; }
+  .selection-actions .btn { flex: 1; }
+  .danger-note { flex-direction: column; align-items: stretch; }
+}
+
+.link-card__actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+
+/* F06: en movil la fila del colaborador no cabe en una linea: el texto ocupa
+   el ancho entero y las acciones bajan a la siguiente, con objetivo tactil. */
+@media (max-width: 560px) {
+  .share-row { flex-wrap: wrap; row-gap: 4px; }
+  .share-copy { flex: 1 1 calc(100% - 45px); }
+  .share-row .text-action { min-height: 44px; padding: 6px 8px; }
+}
+
+/* F06: el enlace de volver, tocable en movil (>=40px). */
+@media (max-width: 560px) { .back-link { min-height: 40px; display: inline-flex; align-items: center; } }

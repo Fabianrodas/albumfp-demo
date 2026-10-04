@@ -1,0 +1,74 @@
+.public-profile {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 48px);
+  padding: 34px 0 30px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  animation: reveal-up .45s var(--ease-out) both;
+}
+
+.public-profile__avatar {
+  width: clamp(96px, 12vw, 138px);
+  height: clamp(96px, 12vw, 138px);
+  flex: 0 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(145deg, var(--brand-900), var(--sage-500));
+  color: var(--on-brand);
+  display: grid;
+  place-items: center;
+  font: 500 clamp(32px, 4vw, 46px)/1 var(--display);
+  box-shadow: 0 16px 34px rgba(18, 52, 38, .18);
+}
+.public-profile__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.public-profile__copy { min-width: 0; }
+.public-profile__copy h1 {
+  margin: 0;
+  font: 500 clamp(30px, 3.6vw, 42px)/1.08 var(--display);
+  letter-spacing: -.035em;
+}
+.public-profile__handle { margin: 6px 0 0; color: var(--muted); font-size: 15px; font-weight: 650; }
+
+.public-profile__stats {
+  display: flex;
+  gap: clamp(20px, 3vw, 44px);
+  flex-wrap: wrap;
+  margin: 22px 0 0;
+}
+.public-profile__stats dt { color: var(--muted); font-size: 12.5px; font-weight: 700; }
+.public-profile__stats dd { margin: 4px 0 0; font: 500 26px/1 var(--display); letter-spacing: -.02em; }
+/* Solo la inicial: `capitalize` también ponía en mayúscula el "de" de
+   "agosto de 2026". */
+.public-profile__stats dd.is-date { font-size: 16px; font-family: var(--sans); font-weight: 700; }
+.public-profile__stats dd.is-date::first-letter { text-transform: uppercase; }
+
+.section-heading { margin: 28px 0 18px; }
+
+.feed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.pager {
+  margin: 30px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.pager__status { color: var(--muted); font-size: 13px; font-weight: 650; }
+
+.profile-missing { margin-top: 42px; }
+
+@media (max-width: 700px) {
+  .public-profile { flex-direction: column; align-items: flex-start; gap: 18px; padding-top: 26px; }
+  .public-profile__stats { gap: 24px; }
+}
+
+@media (max-width: 560px) {
+  .feed-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+}

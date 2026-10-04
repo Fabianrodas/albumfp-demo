@@ -1,0 +1,46 @@
+:host { display: block; min-width: 0; }
+
+.shot {
+  margin: 0;
+  position: relative;
+  aspect-ratio: var(--ratio, 4 / 3);
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  /* Sombra tintada en verde, no gris: la misma que llevan las portadas de álbum
+     del dashboard. Una sola capa. */
+  box-shadow: 0 14px 32px -18px rgba(18, 52, 38, .3);
+}
+
+.shot img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Microinteraccion: la captura se levanta un pelo al pasar por encima. Solo
+   `transform` y `box-shadow`, que es lo que el compositor mueve sin repintar, y
+   con final: es una transicion, no un bucle. `transform` y `transition` los
+   entiende cualquier navegador desde hace anos. */
+.shot {
+  transition: transform var(--motion-base) var(--ease-out),
+              box-shadow var(--motion-base) var(--ease-out);
+}
+.shot:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 46px -20px rgba(18, 52, 38, .38);
+}
+/* Con el puntero grueso (dedo) no hay hover que valga: no se anima nada. */
+@media (hover: none) {
+  .shot:hover { transform: none; box-shadow: 0 14px 32px -18px rgba(18, 52, 38, .3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shot { transition: none; }
+  .shot:hover { transform: none; }
+}
+
+@media (max-width: 640px) {
+  .shot { border-radius: 14px; }
+}

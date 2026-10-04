@@ -1,0 +1,47 @@
+<header class="public-nav">
+  <div class="public-nav__bar">
+    <a class="brand" routerLink="/" (click)="close()">
+      <img [src]="theme.logo()" alt="" width="34" height="34"><span>AlbumFP</span>
+    </a>
+
+    <nav class="links" aria-label="Navegación principal">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+      <a routerLink="/acerca-de" routerLinkActive="active">Acerca de</a>
+      <a routerLink="/como-funciona" routerLinkActive="active">Cómo funciona</a>
+    </nav>
+
+    <div class="account">
+      <button type="button" class="tema" (click)="theme.toggle()" [attr.aria-pressed]="theme.isDark()"
+        [attr.aria-label]="theme.isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+        [title]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'">
+        <app-icon [name]="theme.isDark() ? 'sun' : 'moon'" [size]="19"/>
+      </button>
+      @if (auth.user()) {
+        <app-user-menu [items]="menu" [showName]="true" />
+      } @else {
+        <a class="login-link" routerLink="/login">Iniciar sesión</a>
+        <a class="btn btn-brand" routerLink="/registro">Crear cuenta</a>
+      }
+    </div>
+
+    <button type="button" class="nav-toggle" (click)="toggle()" [attr.aria-expanded]="open()"
+      aria-controls="public-nav-panel" [attr.aria-label]="open() ? 'Cerrar menú' : 'Abrir menú'">
+      <app-icon [name]="open() ? 'close' : 'menu'" [size]="22"/>
+    </button>
+  </div>
+
+  @if (open()) {
+    <div class="panel" id="public-nav-panel">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="close()">Inicio</a>
+      <a routerLink="/acerca-de" routerLinkActive="active" (click)="close()">Acerca de</a>
+      <a routerLink="/como-funciona" routerLinkActive="active" (click)="close()">Cómo funciona</a>
+      @if (auth.user()) {
+        <a routerLink="/inicio" (click)="close()">Ir al panel</a>
+        <button type="button" class="panel__logout" (click)="auth.logout().subscribe(); close()">Cerrar sesión</button>
+      } @else {
+        <a routerLink="/login" (click)="close()">Iniciar sesión</a>
+        <a class="btn btn-brand panel__cta" routerLink="/registro" (click)="close()">Crear cuenta</a>
+      }
+    </div>
+  }
+</header>

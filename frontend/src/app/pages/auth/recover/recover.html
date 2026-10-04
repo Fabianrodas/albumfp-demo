@@ -1,0 +1,61 @@
+<div class="auth-heading">
+  <h1>Recupera tu cuenta.</h1>
+  <span>Con tu usuario y uno de tus códigos de recuperación eliges una contraseña nueva. Todas tus sesiones abiertas se cerrarán.</span>
+</div>
+
+@if (done()) {
+  <p class="notice" role="status">Contraseña restablecida. Tus códigos anteriores ya no sirven: genera unos nuevos desde Mi perfil al entrar.</p>
+  <a class="btn btn-brand submit" routerLink="/login">Iniciar sesión</a>
+} @else {
+  <form (ngSubmit)="submit()" [attr.aria-busy]="loading()">
+    <label class="form-label" [class.is-invalid]="!!usernameMsg()">Usuario
+      <div class="field-icon">
+        <app-icon name="user" [size]="16"/>
+        <input class="field" [ngModel]="username()" (ngModelChange)="username.set($event)" name="username"
+          placeholder="Nombre de usuario" autocomplete="username" maxlength="50" autofocus
+          [attr.aria-invalid]="usernameMsg() ? 'true' : null">
+      </div>
+      @if (usernameMsg(); as message) { <span class="field-error">{{ message }}</span> }
+    </label>
+
+    <label class="form-label" [class.is-invalid]="!!codeMsg()">Código de recuperación
+      <div class="field-icon">
+        <app-icon name="lock" [size]="16"/>
+        <input class="field" [ngModel]="code()" (ngModelChange)="code.set($event)" name="recovery-code"
+          placeholder="ABCDE-FGHIJ-KLMNO-PQRST-UVWXY-Z2345" autocomplete="off" autocapitalize="characters"
+          spellcheck="false" maxlength="60" [attr.aria-invalid]="codeMsg() ? 'true' : null">
+      </div>
+      @if (codeMsg(); as message) { <span class="field-error">{{ message }}</span> }
+    </label>
+
+    <label class="form-label" [class.is-invalid]="!!passwordMsg()">Contraseña nueva
+      <div class="field-icon">
+        <app-icon name="lock" [size]="16"/>
+        <input class="field" [ngModel]="password()" (ngModelChange)="password.set($event)" name="new-password"
+          [type]="showPassword() ? 'text' : 'password'" autocomplete="new-password"
+          [attr.aria-invalid]="passwordMsg() ? 'true' : null">
+        <button type="button" class="field-icon__toggle" (click)="showPassword.set(!showPassword())"
+          [attr.aria-pressed]="showPassword()" [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+          <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="16"/>
+        </button>
+      </div>
+      @if (passwordMsg(); as message) { <span class="field-error">{{ message }}</span> }
+    </label>
+
+    <label class="form-label" [class.is-invalid]="!!confirmMsg()">Repite la contraseña nueva
+      <div class="field-icon">
+        <app-icon name="lock" [size]="16"/>
+        <input class="field" [ngModel]="confirm()" (ngModelChange)="confirm.set($event)" name="confirm-password"
+          [type]="showPassword() ? 'text' : 'password'" autocomplete="new-password"
+          [attr.aria-invalid]="confirmMsg() ? 'true' : null">
+      </div>
+      @if (confirmMsg(); as message) { <span class="field-error">{{ message }}</span> }
+    </label>
+
+    @if (error()) { <p class="notice notice-error auth-error" role="alert">{{ error() }}</p> }
+    <button class="btn btn-brand submit" type="submit" [disabled]="loading()">
+      @if (loading()) { <span class="btn-spinner"></span> }{{ loading() ? 'Restableciendo…' : 'Restablecer contraseña' }}
+    </button>
+  </form>
+}
+<p class="switch"><a routerLink="/login">Volver a iniciar sesión</a></p>

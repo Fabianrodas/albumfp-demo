@@ -1,0 +1,48 @@
+<section class="page-header">
+  <div class="page-header__copy">
+    <p class="home-eyebrow">Tu comunidad, a tu ritmo</p>
+    <h1 class="page-title">{{ greeting() }}, {{ displayName() }}.</h1>
+    <p class="page-subtitle">Descubre lo que otras personas comparten y vuelve a lo que ocurrió un día como hoy.</p>
+  </div>
+  <div class="page-actions"><a class="btn btn-brand" routerLink="/albumes"><app-icon name="plus" [size]="16"/>Crear álbum</a></div>
+</section>
+
+<!-- «En este día» solo ocupa sitio cuando hay algo que recordar: casi todos los
+     días no lo hay, y entonces Explorar es lo primero y lo principal. -->
+@if (error()) {
+  <section class="notice notice-error home-error" role="alert"><span>{{ error() }}</span><button type="button" class="btn btn-secondary" (click)="load()">Reintentar</button></section>
+} @else if (loading()) {
+  <section class="home-skeleton" aria-label="Cargando tus recuerdos de hoy" aria-busy="true">
+    <div class="skeleton-shape skeleton-title"></div>
+  </section>
+} @else if (memoryGroups().length && data(); as home) {
+  <section class="home-section memories-section" aria-labelledby="memories-title" appScrollReveal>
+    <header class="section-heading">
+      <div><p class="section-kicker">Tus aniversarios</p><h2 id="memories-title">En este día</h2><p>Recuerdos capturados un {{ home.local_date.slice(5).split('-').reverse().join('/') }} de otros años.</p></div>
+      <span class="section-count">{{ home.on_this_day.total }} en total</span>
+    </header>
+    <div class="memory-years">
+      @for (group of memoryGroups(); track group.year) {
+        <section class="memory-year" [attr.aria-labelledby]="'memory-year-' + group.year">
+          <header class="memory-year__heading">
+            <div><h3 [id]="'memory-year-' + group.year">Hace {{ group.yearsAgo }} {{ group.yearsAgo === 1 ? 'año' : 'años' }}</h3><span>{{ group.year }}</span></div>
+            @if (group.total > group.items.length) { <small>Mostrando {{ group.items.length }} de {{ group.total }}</small> }
+          </header>
+          <app-media-grid [items]="group.items" mode="home" />
+        </section>
+      }
+    </div>
+  </section>
+}
+
+<app-explore-feed class="home-section home-explore" />
+
+<section class="home-section people-panel" aria-labelledby="people-title">
+  <header class="section-heading">
+    <div><p class="section-kicker">Comunidad</p><h2 id="people-title">Personas</h2><p>Busca a otras personas y visita sus álbumes públicos.</p></div>
+    <button type="button" class="btn btn-secondary" (click)="togglePeople()" [attr.aria-expanded]="peopleOpen()" aria-controls="people-body">
+      <app-icon [name]="peopleOpen() ? 'close' : 'search'" [size]="16"/>{{ peopleOpen() ? 'Ocultar personas' : 'Buscar personas' }}
+    </button>
+  </header>
+  <div id="people-body">@if (peopleOpen()) { <app-people-directory /> }</div>
+</section>

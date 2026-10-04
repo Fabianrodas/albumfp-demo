@@ -1,0 +1,12 @@
+<section class="page-header">
+  <div class="page-header__copy"><h1 class="page-title">Favoritos</h1></div>
+  @if(favorites().length){<div class="page-actions"><span class="chip chip-accent"><app-icon name="heart" [size]="13"/>{{ favorites().length }}</span></div>}
+</section>
+
+@if (error()) { <p class="notice notice-error error-banner">{{ error() }}</p> }
+
+@if(favorites().length){
+  <app-media-grid [items]="favorites()" mode="favorites" role="owner" appScrollReveal />
+}@else if (loaded() && !error()) {
+  <section class="empty-state"><div class="empty-state__copy"><h2>No tienes favoritos.</h2><p>Marca una foto o video con el corazón para verlo aquí.</p><a class="btn btn-brand" routerLink="/albumes">Ver álbumes</a></div></section>
+}

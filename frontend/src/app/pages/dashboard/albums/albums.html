@@ -1,0 +1,128 @@
+<section class="page-header">
+  <div class="page-header__copy">
+    <h1 class="page-title">Mis álbumes</h1>
+    <p class="page-subtitle">Encuentra recuerdos por título, fecha, lugar, datos del archivo o tags.</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-secondary" (click)="openSmartCreate()"><app-icon name="sparkle" [size]="16"/>Álbum inteligente</button>
+    <button type="button" class="btn btn-brand" (click)="openCreate()"><app-icon name="plus" [size]="16"/>Crear álbum</button>
+  </div>
+</section>
+
+<form class="search-workspace" [formGroup]="searchForm" (ngSubmit)="applySearch()" role="search">
+  <div class="search-workspace__main">
+    <label class="search-input" for="library-search">
+      <app-icon name="search" [size]="18"/>
+      <span class="sr-only">Buscar en mi biblioteca</span>
+      <input id="library-search" formControlName="q" maxlength="200" autocomplete="off"
+             placeholder="Título, texto, archivo, lugar, cámara o tag">
+    </label>
+    <button type="button" class="btn btn-secondary filter-toggle" (click)="filtersOpen.set(!filtersOpen())"
+            [attr.aria-expanded]="filtersOpen()" aria-controls="advanced-search-filters">
+      <app-icon name="settings" [size]="16"/>Filtros
+      @if (activeFilters().length) { <span class="filter-count">{{ activeFilters().length }}</span> }
+    </button>
+    <button type="submit" class="btn btn-brand search-submit">Buscar</button>
+  </div>
+
+  @if (filtersOpen()) {
+    <app-search-filter-fields [form]="searchForm" [albums]="filterAlbums()" [tags]="tags()" />
+  }
+
+  @if (query || activeFilters().length) {
+    <div class="active-search" aria-label="Filtros activos">
+      @if (query) {
+        <button type="button" class="filter-chip" (click)="clearQuery()" aria-label="Quitar texto de búsqueda">
+          “{{ query }}”<app-icon name="close" [size]="13"/>
+        </button>
+      }
+      @for (filter of activeFilters(); track filter) {
+        <button type="button" class="filter-chip" (click)="removeFilter(filter)" [attr.aria-label]="'Quitar filtro ' + filterLabel(filter)">
+          {{ filterLabel(filter) }}<app-icon name="close" [size]="13"/>
+        </button>
+      }
+      <button type="button" class="save-search" (click)="saveSearchAsSmart()"><app-icon name="sparkle" [size]="13"/>Guardar búsqueda como álbum inteligente</button>
+      <button type="button" class="clear-all" (click)="clearSearch()">Limpiar todo</button>
+    </div>
+  }
+</form>
+
+@if (error()) { <p class="notice notice-error error-banner" role="alert">{{ error() }}</p> }
+
+@if (!hasStructuredFilters() && albums().length) {
+  @if (query) { <h2 class="results-title">Álbumes <span>{{ totalAlbums() }}</span></h2> }
+  <div class="album-grid" appScrollReveal="stagger">
+    @for (album of albums(); track album.id) { <app-album-card [album]="album" /> }
+  </div>
+}
+@if (!hasStructuredFilters() && hasMoreAlbums()) {
+  <div class="load-more">
+    <button type="button" class="btn btn-ghost" (click)="loadMoreAlbums()" [disabled]="loadingAlbums()">
+      {{ loadingAlbums() ? 'Cargando...' : 'Cargar más álbumes' }}
+    </button>
+    <p class="load-more__count">{{ albums().length }} de {{ totalAlbums() }}</p>
+  </div>
+}
+
+@if (!hasSearch() && smartAlbums().length) {
+  <section class="smart-section" aria-labelledby="smart-section-title">
+    <h2 class="results-title" id="smart-section-title">Álbumes inteligentes <span>{{ totalSmart() }}</span></h2>
+    <p class="smart-section__hint">Se llenan solos con lo que cumpla sus filtros. No guardan copias.</p>
+    <div class="album-grid">
+      @for (smart of smartAlbums(); track smart.id) { <app-smart-album-card [smart]="smart" /> }
+    </div>
+    @if (hasMoreSmart()) {
+      <div class="load-more">
+        <button type="button" class="btn btn-ghost" (click)="loadMoreSmart()" [disabled]="loadingSmart()">
+          {{ loadingSmart() ? 'Cargando...' : 'Cargar más álbumes inteligentes' }}
+        </button>
+      </div>
+    }
+  </section>
+}
+
+@if (hasSearch() && media().length) {
+  <h2 class="results-title">Recuerdos <span>{{ totalMedia() }}</span></h2>
+  <app-media-grid [items]="media()" mode="search" [backParams]="backParams()" />
+  @if (hasMoreMedia()) {
+    <div class="load-more">
+      <button type="button" class="btn btn-ghost" (click)="loadMoreMedia()" [disabled]="loadingMedia()">
+        {{ loadingMedia() ? 'Cargando...' : 'Cargar más recuerdos' }}
+      </button>
+      <p class="load-more__count">{{ media().length }} de {{ totalMedia() }}</p>
+    </div>
+  }
+}
+
+@if (loaded() && !error() && (!albums().length || hasStructuredFilters()) && !media().length && (hasSearch() || !smartAlbums().length)) {
+  <section class="empty-state">
+    <div class="empty-state__copy">
+      <h2>{{ hasSearch() ? 'No encontramos recuerdos con esos criterios.' : 'Aún no tienes álbumes.' }}</h2>
+      <p>{{ hasSearch() ? 'Prueba quitando un filtro o usando menos palabras.' : 'Crea uno para organizar tus fotos y videos.' }}</p>
+      @if (hasSearch()) { <button class="btn btn-secondary" type="button" (click)="clearSearch()">Limpiar búsqueda</button> }
+    </div>
+  </section>
+}
+
+<app-modal [open]="creating()" title="Nuevo álbum" (closed)="closeCreate()">
+  <label class="form-label">Nombre
+    <div class="field-icon"><app-icon name="albums" [size]="16"/><input class="field" [(ngModel)]="title" name="title" placeholder="Ej. Viaje a Galápagos" maxlength="100"></div>
+  </label>
+  <label class="form-label">Descripción
+    <input class="field" [(ngModel)]="description" name="description" placeholder="Opcional">
+  </label>
+  <label class="privacy-option">
+    <input [(ngModel)]="isPrivate" name="private" type="checkbox">
+    <span><b>Privado</b><small>Solo tú tendrás acceso hasta que lo compartas.</small></span>
+  </label>
+
+  <div modal-actions>
+    <button type="button" class="btn btn-ghost" (click)="closeCreate()">Cancelar</button>
+    <button type="button" class="btn btn-brand" [disabled]="saving()" (click)="create()">
+      @if (saving()) { <span class="btn-spinner"></span> }{{ saving() ? 'Creando…' : 'Crear' }}
+    </button>
+  </div>
+</app-modal>
+
+<app-smart-album-editor [open]="smartEditorOpen()" [prefill]="smartPrefill()"
+                        (saved)="onSmartSaved($event)" (closed)="smartEditorOpen.set(false)" />

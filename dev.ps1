@@ -17,7 +17,7 @@ if (-not (Test-Path -LiteralPath $postgresMarker) -or
 }
 
 $entries = Get-Content -LiteralPath (Join-Path $repoRoot '.env') | Where-Object { $_ -match '^\s*[^#\s][^=]*=' }
-$settings = $entries | ConvertFrom-StringData
+$settings = ConvertFrom-StringData -StringData ($entries -join [Environment]::NewLine)
 if ($settings.POSTGRES_HOST -ne '127.0.0.1' -or [int]$settings.POSTGRES_PORT -ne $postgresPort -or
     $settings.DEV_HOST -notin @('localhost', '127.0.0.1', '::1') -or
     $settings.FRONTEND_HOST -notin @('localhost', '127.0.0.1', '::1')) {
@@ -33,6 +33,16 @@ $env:DEV_HOST = '127.0.0.1'
 $env:FRONTEND_HOST = '127.0.0.1'
 $env:POSTGRES_HOST = '127.0.0.1'
 $env:POSTGRES_PORT = [string]$postgresPort
+
+function Assert-LoopbackPortAvailable([int]$Port) {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Parse('127.0.0.1'), $Port)
+    try { $listener.Start() }
+    catch { throw "Loopback port $Port is already in use; refusing to start the Demo on another process." }
+    finally { $listener.Stop() }
+}
+
+Assert-LoopbackPortAvailable 4200
+Assert-LoopbackPortAvailable 5000
 
 $postgresBin = $null
 foreach ($version in @(18, 17, 16, 15, 14)) {
@@ -60,35 +70,47 @@ if (-not (Test-Path -LiteralPath $python) -or -not $npm -or
     throw 'Run .\setup.ps1 to install the local dependencies before starting AlbumFP Demo.'
 }
 
-$backendJob = $null
-$frontendJob = $null
+$backendProcess = $null
+$frontendProcess = $null
+$taskkill = Join-Path $env:SystemRoot 'System32\taskkill.exe'
+$backendStdout = Join-Path $runtimeRoot 'backend.stdout.log'
+$backendStderr = Join-Path $runtimeRoot 'backend.stderr.log'
+$frontendStdout = Join-Path $runtimeRoot 'frontend.stdout.log'
+$frontendStderr = Join-Path $runtimeRoot 'frontend.stderr.log'
+foreach ($log in @($backendStdout, $backendStderr, $frontendStdout, $frontendStderr)) {
+    Remove-Item -LiteralPath $log -Force -ErrorAction SilentlyContinue
+}
 try {
-    $backendJob = Start-Job -Name AlbumFPDemoBackend -ArgumentList $backendDir, $python -ScriptBlock {
-        param($WorkingDirectory, $PythonPath)
-        Set-Location -LiteralPath $WorkingDirectory
-        & $PythonPath app.py
-    }
-    $frontendJob = Start-Job -Name AlbumFPDemoFrontend -ArgumentList $frontendDir, $npm -ScriptBlock {
-        param($WorkingDirectory, $NpmPath)
-        Set-Location -LiteralPath $WorkingDirectory
-        & $NpmPath run start -- --host 127.0.0.1 --port 4200
-    }
+    $backendProcess = Start-Process -FilePath $python -ArgumentList @('app.py') -WorkingDirectory $backendDir `
+        -WindowStyle Hidden -PassThru -RedirectStandardOutput $backendStdout -RedirectStandardError $backendStderr
+    $frontendProcess = Start-Process -FilePath $npm -ArgumentList @('run', 'start', '--', '--port', '4200') `
+        -WorkingDirectory $frontendDir -WindowStyle Hidden -PassThru `
+        -RedirectStandardOutput $frontendStdout -RedirectStandardError $frontendStderr
 
     Write-Host 'AlbumFP Demo is starting. Services listen only on loopback.' -ForegroundColor Green
     Write-Host 'App:     http://localhost:4200'
     Write-Host 'Loopback: http://127.0.0.1:4200'
     Write-Host 'Backend: http://127.0.0.1:5000'
-    Write-Host 'Press Ctrl+C to stop the Demo jobs and the PostgreSQL cluster started by this script.'
+    Write-Host 'Press Ctrl+C to stop these Demo services and the PostgreSQL cluster started by this script.'
+    Write-Host "Logs:    $runtimeRoot"
 
-    while ($backendJob.State -eq 'Running' -and $frontendJob.State -eq 'Running') {
-        Receive-Job -Job $backendJob -ErrorAction SilentlyContinue
-        Receive-Job -Job $frontendJob -ErrorAction SilentlyContinue
+    while (-not $backendProcess.HasExited -and -not $frontendProcess.HasExited) {
+        $backendProcess.Refresh()
+        $frontendProcess.Refresh()
+        if ($backendProcess.HasExited -or $frontendProcess.HasExited) { break }
         Start-Sleep -Milliseconds 500
     }
-    if ($backendJob.State -ne 'Running') { throw 'The Demo backend stopped; review the output above.' }
-    if ($frontendJob.State -ne 'Running') { throw 'The Demo frontend stopped; review the output above.' }
+    if ($backendProcess.HasExited) { throw "The Demo backend stopped; review $backendStderr." }
+    if ($frontendProcess.HasExited) { throw "The Demo frontend stopped; review $frontendStderr." }
 } finally {
-    if ($backendJob) { Stop-Job -Job $backendJob -ErrorAction SilentlyContinue; Remove-Job -Job $backendJob -Force -ErrorAction SilentlyContinue }
-    if ($frontendJob) { Stop-Job -Job $frontendJob -ErrorAction SilentlyContinue; Remove-Job -Job $frontendJob -Force -ErrorAction SilentlyContinue }
+    foreach ($process in @($frontendProcess, $backendProcess)) {
+        if ($process) {
+            $process.Refresh()
+            if (-not $process.HasExited) {
+                & $taskkill /PID $process.Id /T /F *> $null
+                $process.WaitForExit(5000)
+            }
+        }
+    }
     if (-not $wasRunning) { & $pgCtl -D $postgresData stop -m fast *> $null }
 }

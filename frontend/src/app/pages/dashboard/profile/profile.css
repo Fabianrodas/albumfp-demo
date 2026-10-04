@@ -1,0 +1,217 @@
+/* La pagina se ata a una medida legible. Lo hacia .profile-layout con un
+   max-width de 1120px, y al desaparecer la rejilla de dos columnas el bloque
+   de identidad se estiraba a los 1440 del panel: el nombre a la izquierda y
+   los contadores a la derecha quedaban a medio metro. */
+:host { display: block; max-width: 1120px; }
+
+/* Un solo bloque de identidad. Antes eran seis: la tarjeta de identidad, tres
+   tarjetas-contador iguales, "Datos de la cuenta" (que repetia el nombre y el
+   @usuario de la tarjeta de arriba) y las dos de ajustes, cada una con la misma
+   cabecera icono-cuadrado. Los contadores son ahora enlaces a las vistas que
+   cuentan, en vez de tres numeros que no llevan a ninguna parte. */
+.identity {
+  margin-bottom: 16px;
+  padding: 26px 28px;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  flex-wrap: wrap;
+}
+
+/* Es un <button>: cambiar la foto era un viaje a "Editar cuenta" para algo
+   que se ve justo aqui. El reset quita el aspecto de boton del navegador sin
+   perder el foco de teclado, que se dibuja abajo. */
+.identity__avatar {
+  width: 104px;
+  height: 104px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--brand-900), var(--sage-500));
+  color: var(--on-brand);
+  display: grid;
+  place-items: center;
+  font: 500 32px/1 var(--display);
+  box-shadow: 0 14px 30px rgba(18, 52, 38, .18);
+  position: relative;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--display);
+}
+/* Sin overflow:hidden en el boton (si no, recortaria el lapiz que ahora
+   sobresale). Lo que clipa la foto a un circulo es el propio radio en la
+   imagen. */
+.identity__avatar img { grid-area: 1 / 1; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+.identity__avatar > span:not(.identity__avatar-edit) { grid-area: 1 / 1; }
+
+/* El lapiz se insinua y se afirma al enfocar o pasar por encima. Nunca
+   desaparece del todo: si no, en tactil (donde no hay hover) nada indicaria
+   que la foto se puede tocar. */
+.identity__avatar-edit {
+  position: absolute;
+  /* A caballo del borde del circulo (mitad dentro, mitad fuera), no pegado
+     hacia adentro ni flotando del todo afuera. */
+  right: -2px;
+  bottom: -2px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--brand-800);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm);
+  opacity: .82;
+  transition: opacity var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
+}
+.identity__avatar:hover .identity__avatar-edit,
+.identity__avatar:focus-visible .identity__avatar-edit { opacity: 1; transform: scale(1.06); }
+.identity__avatar:focus-visible { outline: 2px solid var(--brand-700); outline-offset: 3px; }
+
+.identity__who { min-width: 0; flex: 1 1 240px; }
+.identity__who h2 { margin: 0; font: 500 clamp(24px, 2.6vw, 31px)/1.12 var(--display); letter-spacing: -.025em; overflow-wrap: anywhere; }
+/* --text-soft y no --muted: medido, --muted da 4.04:1 sobre el papel claro y no
+   llega al 4.5:1 de AA para texto pequeno. */
+.identity__handle { margin: 5px 0 0; color: var(--text-soft); font-size: 13.5px; font-weight: 650; overflow-wrap: anywhere; }
+.identity__since { margin: 9px 0 0; color: var(--text-soft); font-size: 12px; }
+
+/* Cuota de almacenamiento (S03): solo aparece si el servidor tiene una
+ * configurada -- ver `storagePercent()`, que devuelve null sin cuota. */
+.identity__storage { margin: 10px 0 0; max-width: 260px; }
+.identity__storage-bar { height: 6px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.identity__storage-bar span { display: block; height: 100%; background: var(--brand-700); border-radius: inherit; }
+.identity__storage-text { margin: 6px 0 0; color: var(--text-soft); font-size: 12px; }
+
+.identity__counts { flex: 0 0 auto; display: flex; align-items: stretch; }
+.identity__counts a {
+  padding: 2px 22px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius-sm);
+  transition: color var(--motion-fast) var(--ease-out);
+}
+.identity__counts a + a { border-left: 1px solid var(--border); }
+.identity__counts strong { font: 500 30px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.identity__counts span { color: var(--text-soft); font-size: 11px; font-weight: 700; }
+.identity__counts a:hover strong, .identity__counts a:hover span { color: var(--brand-800); }
+.identity__counts a:focus-visible { outline: 2px solid var(--sage-500); outline-offset: 2px; }
+
+/* Bloques de ajustes */
+.settings-card { margin-bottom: 16px; padding: 22px; }
+.settings-card:last-of-type { margin-bottom: 0; }
+.settings-head { display: flex; align-items: flex-start; gap: 13px; }
+.settings-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--brand-800);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+.settings-icon.danger { background: var(--danger-soft); color: var(--danger); }
+.settings-head h2 { margin: 2px 0 0; font: 500 21px/1.15 var(--display); letter-spacing: -.015em; }
+.settings-head p { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+.settings-card .helper { margin: 16px 0 0; }
+.settings-card > .btn { margin-top: 16px; }
+.checkbox-row { display: flex; align-items: center; gap: 10px; padding: 10px 2px; font-size: 13.5px; cursor: pointer; }
+.checkbox-row:not(:last-of-type) { border-bottom: 1px solid var(--border); }
+.checkbox-row input { width: 17px; height: 17px; accent-color: var(--brand-800); cursor: pointer; }
+.checkbox-row + .btn { margin-top: 14px; }
+
+/* Lista de sesiones. Mismo criterio que .checkbox-row: linea entre filas,
+   nada en la ultima -- no una tarjeta por sesion, que para dos o tres
+   dispositivos es demasiado peso visual. */
+.session-list { list-style: none; margin: 16px 0 0; padding: 0; }
+.session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 2px;
+  flex-wrap: wrap;
+}
+.session-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+.session-row--empty { color: var(--text-soft); font-size: 13px; }
+.session-row__info { min-width: 0; }
+.session-row__device { margin: 0; font-size: 13.5px; font-weight: 650; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.session-row__meta { margin: 3px 0 0; color: var(--text-soft); font-size: 12px; }
+.session-row__badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--brand-800);
+  background: var(--accent-soft);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.danger-zone {
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-lg);
+  background: var(--danger-soft);
+}
+.danger-zone .settings-head p { color: var(--danger-text); }
+.danger-zone .btn { margin-top: 18px; }
+
+/* Campo de foto dentro del modal de edicion */
+.avatar-field { display: flex; align-items: center; gap: 16px; }
+.avatar-preview {
+  width: 78px;
+  height: 78px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(145deg, var(--brand-900), var(--sage-500));
+  color: var(--on-brand);
+  display: grid;
+  place-items: center;
+  font: 500 25px/1 var(--display);
+}
+.avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.avatar-picker { display: grid; gap: 7px; justify-items: start; cursor: pointer; }
+.avatar-picker small { color: var(--text-soft); font-size: 12px; }
+
+/* Los contadores pasan a una fila propia bajo una linea: en tres columnas de un
+   tercio de movil, "Compartido" y su numero no tienen sitio al lado del nombre. */
+@media (max-width: 760px) {
+  .identity { padding: 20px; gap: 16px 18px; }
+  .identity__avatar { width: 76px; height: 76px; font-size: 24px; }
+  .identity__who { flex: 1 1 140px; }
+  .identity__counts { width: 100%; padding-top: 16px; border-top: 1px solid var(--border); }
+  .identity__counts a { flex: 1 1 0; min-width: 0; padding: 2px 6px; }
+  .identity__counts strong { font-size: 25px; }
+}
+
+@media (max-width: 620px) {
+  .settings-card, .danger-zone { padding: 18px; }
+  .avatar-field { flex-direction: column; align-items: flex-start; }
+}
+
+/* L12: preferencias de avisos in-app. Reutiliza `.favorite-control` (global). */
+.pref-list { display: grid; gap: 8px; margin-top: 16px; }
+.pref-row { min-height: 56px; }
+.pref-row__copy { display: grid; gap: 2px; }
+.pref-row__copy b { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.pref-row__copy small { font-size: 12.5px; color: var(--text-soft); line-height: 1.4; }
+
+/* L14: los códigos en una rejilla monoespaciada, fácil de copiar a mano. */
+.recovery-reveal { display: grid; gap: 14px; margin-top: 16px; }
+.recovery-reveal__list { margin: 0; padding: 14px 18px 14px 36px; display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 8px 24px; border: 1px dashed var(--border); border-radius: 12px; background: var(--surface-muted); font: 600 14px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .04em; color: var(--text); }
+.recovery-reveal__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.recovery-reveal .recovery-reveal__actions { margin-top: 0; }
+
+/* L15: cada passkey, una fila con su nombre y cuándo se usó. */
+.passkey-list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
+.passkey-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; }
+.passkey-row b { display: block; font-size: 14px; color: var(--text); }
+.passkey-row small { font-size: 12.5px; color: var(--text-soft); }
+.passkey-row__actions { display: flex; gap: 6px; }

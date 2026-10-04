@@ -1,0 +1,13 @@
+<div class="toast-stack" aria-live="polite" aria-atomic="false">
+  @for (item of toast.items(); track item.id) {
+    <button
+      type="button"
+      class="toast"
+      [class.toast--error]="item.kind === 'error'"
+      (click)="toast.dismiss(item.id)"
+      aria-label="Descartar aviso">
+      <app-icon [name]="item.kind === 'error' ? 'close' : 'check'" [size]="16"/>
+      <span>{{ item.message }}</span>
+    </button>
+  }
+</div>

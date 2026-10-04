@@ -1,0 +1,54 @@
+<a class="back-link" routerLink="/albumes">Volver a mis álbumes</a>
+
+@if (error()) {
+  <section class="empty-state"><div class="empty-state__copy"><h2>No pudimos abrir este álbum inteligente.</h2><p>{{ error() }}</p></div></section>
+}
+
+@if (smart(); as item) {
+  <section class="album-hero smart-hero">
+    <div class="album-hero__copy">
+      <div class="chip-row">
+        <span class="chip smart-badge"><app-icon name="sparkle" [size]="13"/>Inteligente</span>
+        @if (!broken() && total() !== null) { <span class="chip">{{ total() }} {{ total() === 1 ? 'elemento' : 'elementos' }}</span> }
+      </div>
+      <h1>{{ item.titulo }}</h1>
+      @if (item.descripcion) { <p>{{ item.descripcion }}</p> }
+      <ul class="smart-summary" aria-label="Filtros de este álbum inteligente">
+        @for (part of summary(); track part) { <li>{{ part }}</li> }
+      </ul>
+    </div>
+    <div class="album-actions">
+      <button type="button" class="btn btn-secondary" (click)="editing.set(true)"><app-icon name="edit" [size]="16"/>Editar</button>
+      <button type="button" class="btn btn-ghost danger-action" (click)="remove()"><app-icon name="trash" [size]="16"/>Eliminar</button>
+    </div>
+  </section>
+
+  @if (broken()) {
+    <section class="empty-state smart-broken" role="alert">
+      <div class="empty-state__copy">
+        <h2>Este álbum inteligente usa un filtro que ya no existe.</h2>
+        <p>Edita sus filtros para continuar. Mientras tanto no se muestra ningún recuerdo.</p>
+        <button type="button" class="btn btn-brand" (click)="editing.set(true)">Editar filtros</button>
+      </div>
+    </section>
+  } @else if (media().length) {
+    <app-media-grid [items]="media()" mode="smart" [backParams]="backParams" />
+    @if (hasMore()) {
+      <div class="load-more">
+        <button type="button" class="btn btn-ghost" (click)="loadMore()" [disabled]="loadingMore()">
+          {{ loadingMore() ? 'Cargando...' : 'Cargar más' }}
+        </button>
+        <p class="load-more__count">{{ media().length }} de {{ total() }}</p>
+      </div>
+    }
+  } @else if (loaded()) {
+    <section class="empty-state">
+      <div class="empty-state__copy">
+        <h2>Ningún recuerdo cumple estos filtros todavía.</h2>
+        <p>Cuando alguno coincida aparecerá aquí solo, sin que tengas que añadirlo.</p>
+      </div>
+    </section>
+  }
+}
+
+<app-smart-album-editor [open]="editing()" [smart]="smart()" (saved)="onSaved($event)" (closed)="editing.set(false)" />

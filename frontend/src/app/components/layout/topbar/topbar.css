@@ -1,0 +1,18 @@
+.topbar{height:var(--topbar-h);position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:flex-end;gap:16px;border-bottom:1px solid var(--topbar-border);background:var(--topbar-bg);backdrop-filter:blur(18px)}
+.search{width:min(440px,48vw);height:42px;border:1px solid var(--border);border-radius:999px;background:var(--glass-surface);display:flex;align-items:center;gap:9px;padding:0 12px;color:var(--muted);transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease}
+.search:focus-within{border-color:var(--sage-500);box-shadow:var(--focus-ring);background:var(--surface-raised)}
+.search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font-size:13px}
+.search input::placeholder{color:var(--input-placeholder)}
+.search-clear{width:25px;height:25px;border:0;background:transparent;color:var(--muted);display:grid;place-items:center;border-radius:50%;padding:0}
+.search-clear:hover{background:var(--surface-muted);color:var(--text)}
+.top-actions{display:flex;align-items:center;gap:13px}/* Mismo trato que el interruptor de la navegacion publica, para que los dos
+   se vean iguales: el vidrio blanco resaltaba de mas sobre la topbar. */
+.mobile-theme{display:none;width:40px;height:40px;border:1px solid color-mix(in srgb,var(--brand-900) 16%,var(--border));border-radius:50%;background:color-mix(in srgb,var(--brand-900) 7%,transparent);color:var(--text);place-items:center;padding:0}
+.avatar{width:39px;height:39px;border-radius:50%;display:grid;place-items:center;background:var(--brand-900);color:var(--on-brand);text-decoration:none;font-size:11px;font-weight:800;letter-spacing:.05em;box-shadow:0 5px 16px rgba(18,52,38,.15);transition:transform .18s ease,background-color .18s ease}
+.avatar:hover{transform:translateY(-1px);background:var(--brand-800)}
+.avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+/* La marca no se repite: el carril lateral la sigue enseñando en movil desde que
+   dejo de convertirse en barra inferior, y tenerla dos veces en 390px solo
+   quitaba sitio a la busqueda. */
+@media(max-width:760px){.search{width:min(310px,48vw)}.mobile-theme{display:grid}}
+@media(max-width:560px){.search{display:none}}

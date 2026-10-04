@@ -1,0 +1,102 @@
+<section class="page-header library-header">
+  <div class="page-header__copy">
+    <span class="eyebrow">{{ archived ? 'Fuera del día a día' : 'Tu historia, en orden' }}</span>
+    <h1 class="page-title">{{ archived ? 'Archivo' : 'Biblioteca' }}</h1>
+    <p class="library-intro">{{ archived
+      ? 'Lo que guardaste sin borrar: no aparece en Biblioteca ni en Inicio, pero sigue en sus álbumes y en la búsqueda.'
+      : 'Todos tus recuerdos, organizados por el momento en que ocurrieron.' }}</p>
+  </div>
+  <div class="page-actions">
+    @if (timeline.total() !== null) {
+      <span class="chip"><app-icon name="image" [size]="14"/>{{ timeline.total() }} {{ timeline.total() === 1 ? (archived ? 'archivado' : 'recuerdo') : (archived ? 'archivados' : 'recuerdos') }}</span>
+    }
+    <a class="btn btn-secondary" routerLink="/albumes"><app-icon name="search" [size]="16"/>Buscar</a>
+  </div>
+</section>
+
+@if (!archived) {
+  @if (recentState() === 'loading') {
+    <section class="recent-section" aria-label="Cargando añadidos recientemente" aria-busy="true">
+      <div class="skeleton skeleton-heading"></div>
+    </section>
+  } @else if (recentState() === 'error') {
+    <section class="notice notice-error recent-error" role="alert">
+      <span>No se pudieron cargar los añadidos recientes.</span>
+      <button type="button" class="btn btn-secondary" (click)="loadRecent()">Reintentar</button>
+    </section>
+  } @else if (recent().length) {
+    <section class="recent-section" aria-labelledby="recent-title">
+      <div class="month-heading-row">
+        <h2 class="recent-heading" id="recent-title">Añadidos recientemente</h2>
+        <span>Lo último que entró en tu biblioteca, por fecha de subida</span>
+      </div>
+      <app-media-grid [items]="recent()" mode="library" role="owner" />
+    </section>
+  }
+}
+
+@if (initialLoading()) {
+  <section class="library-loading" aria-label="Cargando biblioteca" aria-busy="true">
+    <div class="skeleton skeleton-heading"></div>
+    <div class="skeleton-grid">
+      @for (placeholder of [1, 2, 3, 4]; track placeholder) { <div class="skeleton skeleton-card"></div> }
+    </div>
+  </section>
+}
+
+@if (timeline.error()) {
+  <section class="notice notice-error library-error" role="alert">
+    <span>{{ timeline.error() }}</span>
+    <button type="button" class="btn btn-secondary" (click)="retry()">Reintentar</button>
+  </section>
+}
+
+@if (timeline.items().length) {
+  <div class="timeline" aria-label="Recuerdos por fecha">
+    @for (year of groups(); track year.year) {
+      <section class="year-group" [attr.aria-labelledby]="'year-' + year.year">
+        <h2 class="year-heading" [id]="'year-' + year.year">{{ year.year }}</h2>
+        @for (month of year.months; track month.key) {
+          <section class="month-group" [attr.aria-labelledby]="'month-' + month.key">
+            <div class="month-heading-row">
+              <h3 class="month-heading" [id]="'month-' + month.key">{{ month.label }}</h3>
+              <span>{{ month.items.length }} {{ month.items.length === 1 ? 'recuerdo' : 'recuerdos' }}</span>
+            </div>
+            <app-media-grid [items]="month.items" [mode]="archived ? 'archive' : 'library'" role="owner" />
+          </section>
+        }
+      </section>
+    }
+  </div>
+
+  <div class="load-zone" appInfiniteScroll [enabled]="automaticLoad()" [busy]="timeline.loading()" (reached)="timeline.loadMore()">
+    @if (timeline.hasMore()) {
+      <button type="button" class="btn btn-secondary load-button" [disabled]="timeline.loading()" (click)="timeline.loadMore()">
+        @if (timeline.loading()) { Cargando… } @else { Cargar más recuerdos }
+      </button>
+    } @else if (!timeline.error()) {
+      <p class="timeline-end">{{ archived ? 'No hay más recuerdos archivados.' : 'Has llegado al principio de tu historia.' }}</p>
+    }
+  </div>
+} @else if (timeline.loaded() && !timeline.error()) {
+  <section class="empty-state library-empty">
+    <div class="empty-state__copy">
+      @if (archived) {
+        <span class="empty-icon"><app-icon name="archive" [size]="26"/></span>
+        <h2>No has archivado nada.</h2>
+        <p>Archiva un recuerdo desde su detalle para sacarlo de Biblioteca e Inicio sin borrarlo.</p>
+        <a class="btn btn-brand" routerLink="/biblioteca">Ir a la biblioteca</a>
+      } @else {
+        <span class="empty-icon"><app-icon name="calendar" [size]="26"/></span>
+        <h2>Tu biblioteca está lista para empezar.</h2>
+        <p>Sube fotos o videos a un álbum y aquí aparecerán ordenados por fecha.</p>
+        <a class="btn btn-brand" routerLink="/albumes">Ir a mis álbumes</a>
+      }
+    </div>
+  </section>
+}
+
+<p class="sr-only" aria-live="polite">
+  @if (timeline.loading()) { Cargando más recuerdos. }
+  @else if (timeline.loaded()) { {{ timeline.items().length }} {{ timeline.items().length === 1 ? 'recuerdo cargado' : 'recuerdos cargados' }}. }
+</p>

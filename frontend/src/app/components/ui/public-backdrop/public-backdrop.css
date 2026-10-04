@@ -1,0 +1,166 @@
+/* Aurora de las cinco vistas públicas.
+
+   Es UNA sola capa fija detrás de todo el documento, no una por sección: al
+   estar `fixed` no se desplaza con el scroll, así que no hay nada que se pueda
+   repetir ni ningún corte entre secciones.
+
+   La FORMA es lo que decide si se lee como aurora, y costó tres intentos:
+     - un `radial-gradient` centrado da una MANCHA;
+     - una `linear-gradient` de bandas paralelas da RAYAS, por difusas que sean
+       las paradas: se siguen contando las franjas;
+     - lo que sí funciona son cuatro CAMPOS enormes que se salen de la ventana,
+       cada uno con dos tonos dentro, solapados entre sí.
+   Si alguien vuelve a las elipses sueltas o a las bandas, vuelve el problema.
+
+   El fundido NO sale de ningún filtro. Aquí no hay `filter: blur()` y no puede
+   volver: cuatro capas desenfocadas a pantalla completa costaban 2 fps incluso
+   en reposo, y `source_checks.py` lo prohíbe. Sale de la cola del degradado —
+   cada elipse va de su color a `transparent 100%`, así que no llega a tener
+   nunca un borde que dibujar. */
+
+:host {
+  position: fixed;
+  inset: 0;
+  /* Cero, no negativo: `:root` y `body` pintan fondo opaco, así que no hay
+     propagación al lienzo y un z-index negativo se queda detrás de ese fondo,
+     invisible. El contenido se eleva encima con z-index 1. */
+  z-index: 0;
+  pointer-events: none;
+  /* Los campos se salen de la ventana por los cuatro lados a propósito, para
+     que no se les vea nunca el canto; sin esto darían scroll horizontal. */
+  overflow: hidden;
+
+  /* Paleta derivada, local a este componente: cuatro verdes que no existen como
+     tokens globales porque solo los usa el fondo.
+
+     Lo que los separa es la LUMINANCIA, no el tono: 0.07, 0.13, 0.22 y 0.41.
+     Ese escalón es el que da profundidad; el tono se queda dentro de una franja
+     estrecha (97°–155°) para que todo pertenezca a la misma familia. Hubo aquí
+     un petróleo, un teal y un cian (173°–187°) y el fondo se leía como una
+     familia cromática ajena al resto del sitio: crema y verde. */
+  --pino: #255440;
+  --eucalipto: #437052;
+  --musgo: #6f8a5e;
+  --salvia: #86b78d;
+
+  /* Intensidad de cada campo. El tema oscuro y el móvil solo cambian esto. */
+  --i-a: 58%;
+  --i-b: 50%;
+  --i-c: 44%;
+  --i-d: 30%;
+
+  /* Base cálida. Los campos flotan encima y son los que ponen el color; el
+     velo claro sube el suelo de luminancia allí donde vive el cuerpo de texto,
+     que es la mitad izquierda, sin apagar la composición entera. */
+  background:
+    /* Velo claro sobre la columna de lectura. */
+    radial-gradient(126% 108% at 10% 70%,
+      color-mix(in srgb, var(--surface-raised) 82%, transparent) 0%, transparent 70%),
+    /* Campo C, la luz: lima y crema. Quieto, y por eso gratis. */
+    radial-gradient(ellipse 34% 30% at 76% 34%,
+      color-mix(in srgb, var(--accent-lime) var(--i-c), transparent) 0%, transparent 100%),
+    radial-gradient(ellipse 42% 34% at 58% 18%,
+      color-mix(in srgb, var(--accent-soft) calc(var(--i-c) * 1.25), transparent) 0%, transparent 100%),
+    /* Campo D, el suelo: musgo y verde de marca. También quieto. */
+    radial-gradient(ellipse 34% 32% at 8% 90%,
+      color-mix(in srgb, var(--musgo) var(--i-d), transparent) 0%, transparent 100%),
+    radial-gradient(ellipse 34% 32% at 84% 82%,
+      color-mix(in srgb, var(--brand-800) calc(var(--i-d) * 0.72), transparent) 0%, transparent 100%),
+    var(--paper);
+}
+
+/* Cada campo cubre el viewport y se sale un 20% por los cuatro lados. Ese
+   margen no es decorativo, y marca el techo del movimiento: el campo se traslada
+   hasta un 20%, gira y escala, y sin margen se le vería entrar el canto en
+   pantalla. `source_checks.py` comprueba que la traslación no pase del `inset`.
+
+   Y llevan dos tonos dentro, no uno: al solaparse aparecen mezclas que no están
+   en ninguna capa por separado, que es de donde sale la sensación de aurora. */
+.campo {
+  position: absolute;
+  inset: -20%;
+}
+
+/* A — eucalipto y pino, el campo hondo, entrando por arriba a la izquierda. */
+.campo--a {
+  background:
+    radial-gradient(ellipse 44% 38% at 22% 16%,
+      color-mix(in srgb, var(--eucalipto) var(--i-a), transparent) 0%, transparent 100%),
+    radial-gradient(ellipse 36% 34% at 60% 30%,
+      color-mix(in srgb, var(--pino) calc(var(--i-a) * 0.67), transparent) 0%, transparent 100%);
+  animation: campo-a 14s ease-in-out infinite alternate;
+  /* Arranca a un cuarto de recorrido, que es donde `ease-in-out` va más
+     deprisa. Sin esto la página se abre justo en el punto muerto de la curva y
+     los primeros segundos parecen congelados. */
+  animation-delay: -3.5s;
+}
+
+/* B — salvia y sage, el campo claro, ocupando el centro y la derecha. */
+.campo--b {
+  background:
+    radial-gradient(ellipse 44% 40% at 70% 60%,
+      color-mix(in srgb, var(--salvia) var(--i-b), transparent) 0%, transparent 100%),
+    radial-gradient(ellipse 40% 36% at 34% 72%,
+      color-mix(in srgb, var(--sage-500) calc(var(--i-b) * 0.52), transparent) 0%, transparent 100%);
+  animation: campo-b 19s ease-in-out infinite alternate;
+  /* Un cuarto de SU recorrido, que no es el mismo cuarto: los dos campos
+     invierten el sentido en momentos distintos, así que cuando uno se para el
+     otro va lanzado y la composición nunca queda del todo quieta. */
+  animation-delay: -4.7s;
+}
+
+/* Movimiento continuo, sin `steps()`: la sensación tiene que ser líquida.
+
+   No es solo traslación, y ahí está la diferencia. Una masa de degradado que se
+   desplaza en bloque cambia poquísimo por píxel: medido, 9 niveles RGB en seis
+   segundos, o sea invisible. `rotate` y `scale` deforman el degradado entero,
+   así que lo que cambia es la relación entre las cuatro masas.
+
+   Los números están medidos contra el instante de carga, en la portada a
+   1440x900, y esta es la tercera vuelta:
+       solo traslación, 25s/33s      3s:  -    6s:  9   10s:  -
+       + giro y escala, 21s/29s      3s: 13    6s: 23   10s: 34
+       amplitud grande, 14s/19s      3s: 32    6s: 56   10s: 83   <- lo que hay
+   La segunda ya se percibía, pero se pidió que fuera MUY notable. La amplitud
+   sale gratis en fps —lo que cuesta es tener capas animadas, no cuánto
+   recorren— así que subirla es el ajuste barato; acortar la duración es el
+   otro.
+
+   Los dos van en sentido contrario y con las escalas cruzadas: cuando uno crece
+   el otro encoge. Y con duraciones distintas, así que nunca vuelven al mismo
+   sitio a la vez. */
+@keyframes campo-a {
+  from { transform: translate3d(-20%, -13%, 0) rotate(-6deg) scale(1.03); }
+  to   { transform: translate3d(20%, 14%, 0) rotate(6deg) scale(1.18); }
+}
+
+@keyframes campo-b {
+  from { transform: translate3d(20%, 14%, 0) rotate(6.5deg) scale(1.16); }
+  to   { transform: translate3d(-20%, -15%, 0) rotate(-6.5deg) scale(1.02); }
+}
+
+/* Con movimiento reducido las posiciones se congelan, pero la composición se
+   queda entera: quitarla devolvería el crema plano. */
+@media (prefers-reduced-motion: reduce) {
+  .campo { animation: none; }
+}
+
+
+/* En móvil, algo menos de intensidad. Siempre POR DEBAJO de los valores de
+   escritorio: a 390px el texto ocupa todo el ancho y cae encima de los cuatro
+   campos, así que no hay columna limpia donde toque menos color. Al bajar los
+   de arriba hay que bajar estos, o vuelven los fallos de contraste solo en
+   móvil. */
+@media (max-width: 640px) {
+  :host { --i-a: 36%; --i-b: 34%; --i-c: 28%; --i-d: 16%; }
+}
+
+/* En oscuro el papel es casi negro: mandan el pino y el eucalipto, la lima se
+   apaga —una mancha clara bajo texto claro es lo único que se come el
+   contraste— y el conjunto se lee como bosque de noche. */
+:host-context(:root[data-theme="dark"]) {
+  --i-a: 52%;
+  --i-b: 26%;
+  --i-c: 8%;
+  --i-d: 34%;
+}

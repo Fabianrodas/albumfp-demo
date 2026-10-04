@@ -1,0 +1,15 @@
+:host { display: block; }
+.location-picker { display: grid; gap: 12px; }
+.location-picker__intro, .location-picker__hint { margin: 0; color: var(--text-soft); font-size: 12px; line-height: 1.55; }
+.location-picker__coordinates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.location-picker__coordinates .field { min-height: 44px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.location-picker__preview { min-height: 64px; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-muted); color: var(--text); }
+.location-picker__preview span { font-size: 13px; font-variant-numeric: tabular-nums; }
+.location-picker__preview small { margin-left: auto; color: var(--text-soft); font-size: 11px; }
+.location-picker__error { margin: 0; color: var(--danger-text); font-size: 12px; line-height: 1.5; }
+.location-picker__hint { font-size: 11px; }
+@media (max-width: 560px) {
+  .location-picker__coordinates { grid-template-columns: minmax(0, 1fr); }
+  .location-picker__preview { align-items: flex-start; flex-wrap: wrap; }
+  .location-picker__preview small { width: 100%; margin-left: 28px; }
+}

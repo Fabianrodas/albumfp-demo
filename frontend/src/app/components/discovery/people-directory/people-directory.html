@@ -1,0 +1,41 @@
+<form class="user-search" (ngSubmit)="search()" role="search">
+  <app-icon name="search" [size]="18"/>
+  <label for="user-search-field" class="sr-only">Buscar personas por nombre o usuario</label>
+  <input id="user-search-field" [(ngModel)]="query" name="q" placeholder="Buscar por nombre o usuario" autocomplete="off">
+  @if (query) { <button type="button" class="search-clear" (click)="clearSearch()" aria-label="Limpiar búsqueda"><app-icon name="close" [size]="16"/></button> }
+  <button type="submit" class="btn btn-brand">Buscar</button>
+</form>
+
+@if (error()) { <p class="notice notice-error">{{ error() }}</p> }
+
+@if (users().length) {
+  <div class="user-grid" appScrollReveal="stagger">
+    @for (user of users(); track user.id) {
+      <a class="user-card" [routerLink]="['/u', user.username]">
+        <span class="user-card__avatar">
+          @if (user.has_avatar) { <img [src]="avatarUrl(user.id)" alt="" loading="lazy"> }
+          @else { <b>{{ initials(user.username) }}</b> }
+        </span>
+        <strong>{{ user.full_name }}</strong>
+        <span class="user-card__handle">&#64;{{ user.username }}</span>
+        <span class="user-card__count">{{ albumLabel(user.public_albums) }}</span>
+      </a>
+    }
+  </div>
+
+  @if (totalPages() > 1) {
+    <nav class="pager" aria-label="Paginación de usuarios">
+      <button type="button" class="btn btn-secondary" [disabled]="page() === 1" (click)="goTo(page() - 1)">Anterior</button>
+      <span class="pager__status">Página {{ page() }} de {{ totalPages() }}</span>
+      <button type="button" class="btn btn-secondary" [disabled]="page() === totalPages()" (click)="goTo(page() + 1)">Siguiente</button>
+    </nav>
+  }
+} @else if (loaded() && !error()) {
+  <section class="empty-state">
+    <div class="empty-state__copy">
+      <h3>{{ query ? 'No encontramos a nadie con ese nombre.' : 'Todavía no hay más personas por aquí.' }}</h3>
+      <p>{{ query ? 'Prueba con otro término de búsqueda.' : 'Cuando alguien más se registre, aparecerá en esta lista.' }}</p>
+      @if (query) { <button type="button" class="btn btn-secondary" (click)="clearSearch()">Ver a todos</button> }
+    </div>
+  </section>
+}
