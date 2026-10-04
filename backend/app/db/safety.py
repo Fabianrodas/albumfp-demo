@@ -13,6 +13,16 @@ _LOOPBACK_HOSTS = {"localhost", "127.0.0.1", "::1"}
 _POSTGRES_SCHEMES = {"postgresql", "postgresql+psycopg2"}
 
 
+def validate_loopback_host(host: str) -> str:
+    """Return a normalized loopback bind host, rejecting network interfaces."""
+    if not isinstance(host, str):
+        raise ValueError("services must bind to a loopback host")
+    normalized = host.strip().lower()
+    if normalized not in _LOOPBACK_HOSTS:
+        raise ValueError("services must bind to a loopback host")
+    return normalized
+
+
 def database_url_from_environment(
     environ: Mapping[str, str] | None = None, *, purpose: str = "development"
 ) -> str:
@@ -42,14 +52,18 @@ def parse_demo_database_url(url: str, *, purpose: str = "development") -> str:
         parts = urlsplit(url)
         host = parts.hostname
         database = unquote(parts.path[1:]) if parts.path.startswith("/") else ""
-        _ = parts.port
+        port = parts.port
     except ValueError as exc:
         raise ValueError("invalid PostgreSQL URL") from exc
 
     if parts.scheme not in _POSTGRES_SCHEMES:
         raise ValueError("the Demo requires PostgreSQL")
+    if parts.username != "albumfp_demo" or not parts.password:
+        raise ValueError("the Demo database must use the non-admin albumfp_demo role")
     if host not in _LOOPBACK_HOSTS:
         raise ValueError("the Demo database must use a loopback host")
+    if port != 55432:
+        raise ValueError("the Demo database must use its dedicated PostgreSQL port 55432")
     if parts.query or parts.fragment:
         raise ValueError("query parameters and fragments are not allowed")
     if parts.path.count("/") != 1 or database != _DATABASES[purpose]:

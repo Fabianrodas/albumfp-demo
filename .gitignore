@@ -16,6 +16,7 @@ htmlcov/
 
 # Frontend dependencies and builds
 node_modules/
+.npm-cache/
 dist/
 .angular/
 coverage/
@@ -23,11 +24,15 @@ coverage/
 # Local runtime data and exports
 /data/
 /runtime/
+/exports/
+/backups/
 **/data/media/
 **/data/tmp/
 **/data/quarantine/
 *.dump
 *.backup
+*.sql
+!backend/schemas/schema.sql
 *.sqlite
 *.sqlite3
 

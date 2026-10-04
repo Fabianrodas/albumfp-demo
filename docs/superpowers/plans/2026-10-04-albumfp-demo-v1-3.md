@@ -14,6 +14,7 @@
 
 - Product version ends at exactly `1.3.0`.
 - Database names are `albumfp_demo` and `albumfp_demo_test`; destructive operations accept only loopback hosts and explicit allowlisted Demo databases.
+- The Demo PostgreSQL cluster uses port `55432`; reject port `5432` and implicit ports.
 - PostgreSQL is required; SQLite is not an application or test substitute.
 - Frontend, backend, and database bind to loopback only.
 - Runtime media and generated local state stay outside Git.
@@ -35,23 +36,23 @@
 
 **Files:**
 - Create: root `.env.example`, `.gitignore`, `setup.ps1`, and `dev.ps1`
-- Create: `backend/app/config.py`, `backend/app/db/safety.py`, `backend/requirements.txt`, and backend test configuration
-- Create: `frontend/package.json`, lockfile, Angular/TypeScript configuration, and `frontend/src/environments/environment.ts`
+- Create: `backend/app/db/safety.py`, guarded database setup in `backend/app/db/db.py`, `backend/requirements.txt`, and backend test configuration
+- Create: `frontend/package.json`, lockfile, Angular/TypeScript configuration, and the loopback-only development proxy
 - Create: `docs/DEVELOPMENT.md`, `docs/TESTING.md`, `docs/RELEASE_STATUS.json`, `CHANGELOG.md`
 - Test: `backend/tests/test_database_safety.py`; frontend test/build scripts
 
 **Interfaces:**
-- Backend configuration exposes a parsed local `DATABASE_URL`, a guarded SQLAlchemy engine, local `MEDIA_ROOT`, and loopback bind defaults.
-- Frontend API base URL resolves to the local backend and has no production fallback.
+- Backend configuration exposes `parse_demo_database_url(url: str, *, purpose: Literal["development", "test"]) -> str`, `database_url_from_environment(environ, *, purpose) -> str`, and `validate_loopback_host(host: str) -> str`, plus a guarded SQLAlchemy engine and local media root.
+- Frontend development requests use the `/api` and `/auth` proxy to `127.0.0.1:5000`; production build requests remain same-origin with no production fallback.
 - Setup is idempotent and refuses unsafe database targets before creating or migrating a database.
 
 - [ ] Create the minimal Angular/Flask project configuration and dependency manifests using the v1.0.0 tag as the version source; do not import product routes or screens yet.
 - [ ] Add `backend/tests/test_database_safety.py` cases for loopback/database-name allowlisting and rejection of production-like or malformed URLs.
 - [ ] Add cases proving test setup requires `albumfp_demo_test` and refuses `albumfp_demo`.
-- [ ] Implement `parse_demo_database_url(url, *, purpose) -> URL` and `assert_demo_database_url(url, *, purpose) -> None` in `backend/app/db/safety.py`; only test/bootstrap purposes may use their respective allowlisted database names.
-- [ ] Implement guarded settings, SQLAlchemy startup, local media directories, and CORS/session defaults in `backend/app/config.py`.
+- [ ] Implement `parse_demo_database_url(url, *, purpose) -> str`, `database_url_from_environment(environ, *, purpose) -> str`, and `validate_loopback_host(host: str) -> str` in `backend/app/db/safety.py`; development accepts only `albumfp_demo`, tests accept only `albumfp_demo_test`, and both require a loopback host plus explicit port `55432`.
+- [ ] Implement guarded SQLAlchemy startup, local media directories, and local CORS/session defaults in `backend/app/db/db.py` and the Flask application factory.
 - [ ] Add Windows setup/start scripts that do not inspect or operate on the sibling project.
-- [ ] Run isolated backend safety tests, frontend unit tests, and a production build; fix failures.
+- [ ] Run backend safety tests and `pip check`, parse both PowerShell scripts, and assert frontend manifest/lock/proxy consistency. Run Angular tests and the production build after Task 2 imports the v1.0.0 source.
 - [ ] Commit the passing foundation; push only after confirming the exact Demo origin.
 
 ### Task 2: Reconstruct and certify v1.0.0

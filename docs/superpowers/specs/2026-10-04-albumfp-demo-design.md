@@ -39,7 +39,9 @@ and the browser uses only the local Demo services.
   session semantics.
 - Database: PostgreSQL only. Development uses `albumfp_demo`; tests use the
   separate `albumfp_demo_test` database. Destructive setup and test commands
-  require loopback hosts and an explicit allowlisted database name.
+  require loopback hosts and an explicit allowlisted database name. The Demo
+  cluster uses dedicated port `55432`; the guard rejects default port `5432` so
+  the app cannot attach to an existing local PostgreSQL service by accident.
 - Media: local filesystem storage under an ignored, repository-external runtime
   directory. No remote media origin is part of the Demo.
 - Network: frontend, backend, and PostgreSQL listen on loopback. Default
