@@ -1,4 +1,8 @@
 import unittest
+import importlib
+import importlib.util
+import os
+from unittest.mock import patch
 
 from app import db
 
@@ -97,6 +101,39 @@ class DatabaseSafetyTests(unittest.TestCase):
         }
         with self.assertRaises(RuntimeError):
             loader(environ, purpose="test")
+
+    def test_sqlalchemy_engine_uses_the_dedicated_test_url_without_connecting(self):
+        spec = importlib.util.find_spec("app.db.db")
+        self.assertIsNotNone(spec, "the guarded SQLAlchemy connector must exist")
+        if spec is None:
+            return
+
+        environment = {
+            "DATABASE_URL": "postgresql+psycopg2://albumfp_demo:unused@127.0.0.1:55432/albumfp_demo",
+            "TEST_DATABASE_URL": "postgresql+psycopg2://albumfp_demo:unused@127.0.0.1:55432/albumfp_demo_test",
+            "ALBUMFP_DEMO_TEST_MODE": "1",
+        }
+        with patch.dict(os.environ, environment):
+            module = importlib.import_module("app.db.db") if spec is not None else None
+            module = importlib.reload(module)
+        self.assertEqual(module.engine.url.database, "albumfp_demo_test")
+
+    def test_invalid_test_mode_fails_closed_even_when_app_environment_is_test(self):
+        spec = importlib.util.find_spec("app.db.db")
+        self.assertIsNotNone(spec, "the guarded SQLAlchemy connector must exist")
+        if spec is None:
+            return
+        environment = {
+            "DATABASE_URL": "postgresql+psycopg2://albumfp_demo:unused@127.0.0.1:55432/albumfp_demo",
+            "TEST_DATABASE_URL": "postgresql+psycopg2://albumfp_demo:unused@127.0.0.1:55432/albumfp_demo_test",
+            "APP_ENV": "development",
+            "ALBUMFP_DEMO_TEST_MODE": "1",
+        }
+        with patch.dict(os.environ, environment):
+            module = importlib.import_module("app.db.db")
+        with patch.dict(os.environ, {"APP_ENV": "test", "ALBUMFP_DEMO_TEST_MODE": "maybe"}):
+            with self.assertRaises(RuntimeError):
+                module._database_purpose()
 
 
 if __name__ == "__main__":

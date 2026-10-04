@@ -2,7 +2,7 @@
   "product": "AlbumFP Demo",
   "target_version": "1.3.0",
   "current_version": null,
-  "stage": "foundation",
+  "stage": "v1.0.0-import",
   "source_tags_verified": [
     "v1.0.0",
     "v1.1.0",
@@ -16,8 +16,8 @@
   "media": "local-filesystem-only",
   "real_source_repository_mutated": false,
   "milestones": {
-    "foundation": "in-progress",
-    "v1.0.0": "not-started",
+    "foundation": "complete",
+    "v1.0.0": "in-progress",
     "v1.1.0": "not-started",
     "v1.1.1": "not-started",
     "v1.2.0": "not-started",
@@ -26,13 +26,13 @@
     "final_certification": "not-started"
   },
   "checks": {
-    "database_safety_tests": "PASS (15 pytest cases)",
+    "database_safety_tests": "PASS (17 pytest cases, 13 subtests)",
     "automated_tests": "in-progress",
     "browser_qa": "not-run",
     "publication_scan": "not-run",
     "readme_screenshots": "not-captured",
-    "main_push": "PASS through commit 1cfde21"
+    "main_push": "PASS through commit 9952184"
   },
-  "last_pushed_commit": "1cfde21",
+  "last_pushed_commit": "9952184",
   "release_tags": {}
 }
