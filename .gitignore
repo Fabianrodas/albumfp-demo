@@ -1,0 +1,42 @@
+# Local configuration and generated secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage*
+
+# Frontend dependencies and builds
+node_modules/
+dist/
+.angular/
+coverage/
+
+# Local runtime data and exports
+/data/
+/runtime/
+**/data/media/
+**/data/tmp/
+**/data/quarantine/
+*.dump
+*.backup
+*.sqlite
+*.sqlite3
+
+# Local QA output
+playwright-report/
+test-results/
+screenshots-local/
+*.trace.zip
+
+# Agent scratch and plan execution ledger
+.superpowers/
+.codex-local/
