@@ -390,10 +390,8 @@ def get_media_detail(media_id: int):
             asset, access = require_asset_permission(conn, media_id, user_id, "read")
         else:
             asset, access = require_asset_in_album(conn, media_id, album_id, user_id)
-        if not asset:
+        if not asset or not access:
             return fail("Media no encontrada", status=404)
-        if not access:
-            return fail("No autorizado para ver esta media", status=403)
         media = execute_safe(
             conn,
             """
@@ -540,8 +538,9 @@ def update_media(media_id: int):
     reset_location = updates.pop("reset_location", False)
 
     with db_conn() as conn:
+        asset, readable = require_asset_permission(conn, media_id, user_id, "read")
+        if not asset or not readable: return fail("Media no encontrada", status=404)
         asset, access = require_asset_capability(conn, media_id, user_id, "edit_media")
-        if not asset: return fail("Media no encontrada", status=404)
         if not access: return fail("No autorizado para editar esta foto", status=403)
         media = execute_safe(conn, "SELECT id, taken_at FROM assets WHERE id = :media_id", {"media_id": media_id}).mappings().first()
 
@@ -682,7 +681,7 @@ def _authorized_media_file(media_id: int, user_id: int):
         required = "owner" if media["deleted_at"] is not None else "read"
         _asset, access = require_asset_permission(conn, media_id, user_id, required, trashed=None)
         if not access:
-            return None, fail("No autorizado para ver este archivo", status=403)
+            return None, fail("Media no encontrada", status=404)
     return media, None
 
 
@@ -1039,8 +1038,9 @@ def create_media(album_id: int):
 def delete_media(media_id: int):
     user_id = current_user_id()
     with db_conn() as conn:
-        asset, access = require_asset_capability(conn, media_id, user_id, "delete_media")
-        if not asset: return fail("Media no encontrada", status=404)
+        asset, readable = require_asset_permission(conn, media_id, user_id, "read")
+        if not asset or not readable: return fail("Media no encontrada", status=404)
+        _, access = require_asset_capability(conn, media_id, user_id, "delete_media")
         if not access: return fail("No autorizado para eliminar media", status=403)
         # La papelera es global al asset: sus pertenencias se conservan y
         # restaurar lo devuelve a todos sus albumes.
@@ -1056,8 +1056,9 @@ def toggle_favorite(media_id: int):
     is_favorite = payload.get("is_favorite")
     if not isinstance(is_favorite, bool): return fail("is_favorite debe ser boolean", status=400)
     with db_conn() as conn:
-        asset, access = require_asset_capability(conn, media_id, user_id, "organize")
-        if not asset: return fail("Media no encontrada", status=404)
+        asset, readable = require_asset_permission(conn, media_id, user_id, "read")
+        if not asset or not readable: return fail("Media no encontrada", status=404)
+        _, access = require_asset_capability(conn, media_id, user_id, "organize")
         if not access: return fail("No autorizado para gestionar favoritos", status=403)
         updated = execute_safe(conn, "UPDATE assets SET is_favorite = :is_favorite WHERE id = :media_id RETURNING id, is_favorite", {"is_favorite": is_favorite, "media_id": media_id}).mappings().first()
     return ok(data={**dict(updated), "album_id": access["album_id"]}, message="Favorito actualizado")
@@ -1073,8 +1074,9 @@ def set_media_archived(media_id: int):
     if not isinstance(archived, bool): return fail("archived debe ser boolean", status=400)
     with db_conn() as conn:
         # Solo media activa: sobre la papelera, la papelera gana.
-        asset, access = require_asset_capability(conn, media_id, user_id, "organize")
-        if not asset: return fail("Media no encontrada", status=404)
+        asset, readable = require_asset_permission(conn, media_id, user_id, "read")
+        if not asset or not readable: return fail("Media no encontrada", status=404)
+        _, access = require_asset_capability(conn, media_id, user_id, "organize")
         if not access: return fail("No autorizado para archivar media", status=403)
         # COALESCE: archivar dos veces conserva la fecha del primer archivado.
         state = "COALESCE(archived_at, NOW())" if archived else "NULL"
@@ -1328,8 +1330,7 @@ def restore_media(media_id: int):
     user_id = current_user_id()
     with db_conn() as conn:
         asset, access = require_asset_permission(conn, media_id, user_id, "owner", trashed=True)
-        if not asset: return fail("Media no encontrada en papelera", status=404)
-        if not access: return fail("Solo el dueño puede restaurar", status=403)
+        if not asset or not access: return fail("Media no encontrada en papelera", status=404)
         # Las pertenencias nunca se tocaron: vuelve a todos sus albumes.
         execute_safe(conn, "UPDATE assets SET deleted_at=NULL WHERE id=:media_id", {"media_id": media_id})
     return ok(message="Media restaurada")

@@ -7,6 +7,7 @@ vivo contra una base desechable.
 import ast
 import inspect
 import unittest
+from flask import Flask
 from pathlib import Path
 from unittest.mock import patch
 
@@ -101,18 +102,25 @@ class RegistrationModeTests(unittest.TestCase):
             __import__("os").environ.pop("REGISTRATION_MODE", None)
             self.assertEqual("open", registration_mode())
 
-    def test_an_unknown_value_falls_back_to_the_most_permissive_mode(self):
-        """Al reves de "fail closed": una variable mal escrita en el .env no
-        debe bloquear registros por accidente."""
+    def test_an_unknown_value_fails_closed(self):
         from app.domain.rules import registration_mode
         with patch.dict("os.environ", {"REGISTRATION_MODE": "algo-mal-escrito"}):
-            self.assertEqual("open", registration_mode())
+            self.assertEqual("closed", registration_mode())
 
     def test_recognizes_the_three_documented_modes(self):
         from app.domain.rules import registration_mode
         for modo in ("open", "invite_only", "closed"):
             with patch.dict("os.environ", {"REGISTRATION_MODE": modo}):
                 self.assertEqual(modo, registration_mode())
+
+    def test_health_reports_the_fail_closed_decision_for_an_unknown_value(self):
+        from app.api.health import health_bp
+        app = Flask(__name__)
+        app.register_blueprint(health_bp)
+        with patch.dict("os.environ", {"REGISTRATION_MODE": "typo"}):
+            response = app.test_client().get("/api/health")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("closed", response.get_json()["data"]["registration_mode"])
 
 
 class RegistrationInviteAtomicityTests(unittest.TestCase):

@@ -6,11 +6,11 @@
 
 <p align="center"><strong>Tus fotos, tus videos y las historias que quieres volver a encontrar.</strong></p>
 
-<p align="center"><a href="https://albumfp.com">Conoce AlbumFP</a> · Demo local v1.2.1</p>
+<p align="center"><a href="https://albumfp.com">Conoce AlbumFP</a> · Demo local v1.3.0</p>
 
 AlbumFP reúne fotos y videos en una biblioteca personal. Ordénalos en álbumes, encuentra cada recuerdo por sus datos, guarda tus favoritos y comparte solo lo que elijas.
 
-Esta edición Demo reproduce la experiencia del producto hasta v1.2.1 y funciona solo en tu equipo. No es la infraestructura de producción de AlbumFP.
+Esta edición Demo reproduce la experiencia del producto hasta v1.3.0 y funciona solo en tu equipo. No es la infraestructura de producción de AlbumFP.
 
 ## Lo que puedes hacer
 
@@ -38,7 +38,7 @@ Esta edición Demo reproduce la experiencia del producto hasta v1.2.1 y funciona
 
 ![Un álbum abierto en una pantalla de teléfono](frontend/public/capturas/movil/album.webp)
 
-Las capturas se hicieron en esta Demo con una cuenta y contenido sintéticos.
+Las capturas se hicieron en esta Demo con una cuenta y contenido sintéticos. Las cuatro ilustraciones del seed se generan localmente y no incluyen EXIF.
 
 ## Probarlo en Windows
 
@@ -58,6 +58,17 @@ La preparacion aplica las migraciones con `alembic upgrade head`; no reinicia ni
 El helper destructivo `python -m schemas.schema` es solo para bases Demo desechables. Al marcar un esquema historico usa `alembic stamp 0001_current_schema_baseline`; las actualizaciones normales usan `alembic upgrade head`.
 
 Abre [http://localhost:4200](http://localhost:4200). Los servicios se enlazan a loopback. Pulsa Ctrl+C en la ventana de `dev.ps1` para detener la Demo.
+
+### Crear contenido sintético
+
+Para probar la galería con contenido original generado localmente, ejecuta una vez:
+
+```powershell
+Set-Location backend
+.\.venv\Scripts\python.exe scripts\seed_synthetic_gallery.py --confirm-local-demo
+```
+
+El comando solo acepta `albumfp_demo` en PostgreSQL loopback, puerto `55432`, y exige `REGISTRATION_MODE=open`; crea la cuenta mediante la ruta normal de registro. Crea una cuenta dedicada `albumfp_demo_synthetic_gallery`, un álbum privado y cuatro ilustraciones propias sin EXIF. Elige una contraseña local en el prompt; el comando no la muestra ni la guarda en el repositorio. Si el registro está cerrado o la cuenta ya existe, el seed se detiene sin modificarla.
 
 ## Pruebas
 

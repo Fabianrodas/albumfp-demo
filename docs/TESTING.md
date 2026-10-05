@@ -23,6 +23,15 @@ npm.cmd test
 npm.cmd run build
 ```
 
+Dependency advisory checks use the Python requirement manifests and npm lock:
+
+```powershell
+Set-Location ..\backend
+.\.venv\Scripts\pip-audit.exe -r requirements.txt -r requirements-dev.txt
+Set-Location ..\frontend
+npm.cmd audit
+```
+
 Never point tests or setup at a database other than `albumfp_demo_test` or the
 Demo-owned `albumfp_demo`. The backend URL guard requires an explicit local
 PostgreSQL URL on port `55432` and refuses the default local PostgreSQL port.

@@ -36,7 +36,7 @@ def _connection():
     yield object()
 
 
-def _call(view, path, results, *, method="GET", json=None, capability=True, module=media):
+def _call(view, path, results, *, method="GET", json=None, capability=True, readable=False, module=media):
     """Run a view with the DB mocked; return (payload, status, [(sql, params)])."""
     app = Flask(__name__)
     calls = []
@@ -45,8 +45,8 @@ def _call(view, path, results, *, method="GET", json=None, capability=True, modu
         calls.append((sql, dict(params or {})))
         return _Rows(results[len(calls) - 1] if len(calls) <= len(results) else [])
 
-    access = ({"role": "owner", "capabilities": {"organize"}, "album": {"user_id": 9},
-               "album_id": 3, "owner_id": 9} if capability else None)
+    access = ({"role": "owner", "capabilities": {"organize"} if capability else set(), "album": {"user_id": 9},
+               "album_id": 3, "owner_id": 9} if capability or readable else None)
     # L10A: las rutas de un asset lo buscan con los helpers de `app.media.assets`
     # (su SQL entra en `calls` con el mismo orden de resultados); solo se simula
     # el calculo de accesos por pertenencia.
@@ -81,7 +81,7 @@ class ArchiveEndpointTests(unittest.TestCase):
     def test_archiving_requires_the_organize_capability(self):
         payload, status, calls, capability_check = _call(
             media.set_media_archived, "/api/media/5/archive", [[{"id": 5, "album_id": 3}]],
-            method="PATCH", json={"archived": True}, capability=False,
+            method="PATCH", json={"archived": True}, capability=False, readable=True,
         )
         self.assertEqual(403, status)
         capability_check.assert_called_once()
@@ -92,11 +92,11 @@ class ArchiveEndpointTests(unittest.TestCase):
         archived_at = datetime(2026, 9, 1, 10, 0)
         payload, status, calls, _ = _call(
             media.set_media_archived, "/api/media/5/archive",
-            [[{"id": 5, "album_id": 3}], [{"id": 5, "album_id": 3, "archived_at": archived_at}]],
+            [[{"id": 5, "album_id": 3}], [{"id": 5, "album_id": 3}], [{"id": 5, "album_id": 3, "archived_at": archived_at}]],
             method="PATCH", json={"archived": True},
         )
         self.assertEqual(200, status)
-        update_sql = calls[1][0]
+        update_sql = calls[2][0]
         self.assertIn("archived_at = COALESCE(archived_at, NOW())", update_sql)
         self.assertIn("deleted_at IS NULL", update_sql)
         self.assertEqual(5, payload["data"]["id"])
@@ -105,11 +105,11 @@ class ArchiveEndpointTests(unittest.TestCase):
     def test_unarchive_clears_the_date(self):
         payload, status, calls, _ = _call(
             media.set_media_archived, "/api/media/5/archive",
-            [[{"id": 5, "album_id": 3}], [{"id": 5, "album_id": 3, "archived_at": None}]],
+            [[{"id": 5, "album_id": 3}], [{"id": 5, "album_id": 3}], [{"id": 5, "album_id": 3, "archived_at": None}]],
             method="PATCH", json={"archived": False},
         )
         self.assertEqual(200, status)
-        self.assertIn("archived_at = NULL", calls[1][0])
+        self.assertIn("archived_at = NULL", calls[2][0])
         self.assertIsNone(payload["data"]["archived_at"])
 
 

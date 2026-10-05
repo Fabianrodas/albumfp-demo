@@ -21,3 +21,18 @@ places PostgreSQL files and uploaded media under
 `%LOCALAPPDATA%\AlbumFP-Demo`, outside the repository. `.env` and all runtime
 data are ignored by Git. The databases are `albumfp_demo` and
 `albumfp_demo_test`.
+
+To create an optional screenshot account and four synthetic, EXIF-free images,
+run this once from `backend`:
+
+```powershell
+Set-Location backend
+.\.venv\Scripts\python.exe scripts\seed_synthetic_gallery.py --confirm-local-demo
+```
+
+The command requires an interactive password prompt and accepts only the
+`albumfp_demo` database on PostgreSQL loopback port `55432`. It creates the
+fixed account `albumfp_demo_synthetic_gallery`; if that name already exists,
+it stops without changing the account. It also requires `REGISTRATION_MODE=open`
+and uses the normal registration route, so a closed or invite-only setup stays
+closed to the seed command.

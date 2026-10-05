@@ -464,6 +464,7 @@ class _AppCase(unittest.TestCase):
         sesion = self.sessions[user]
         cliente.set_cookie(session_cookie_name(), sesion["session_token"])
         cabeceras = {"X-CSRF-Token": sesion["csrf_token"]}
+        cabeceras.update(kwargs.pop("headers", {}))
         return getattr(cliente, method)(path, headers=cabeceras, **kwargs)
 
     def ids(self, response) -> list[int]:
@@ -517,19 +518,93 @@ class MembershipAccessTests(_AppCase):
 
     def test_collaborator_reads_only_through_the_album_that_grants_it(self):
         self.assertEqual(200, self.call(COLLAB, "get", "/api/media/900201").status_code)
-        self.assertEqual(403, self.call(COLLAB, "get", "/api/media/900205").status_code)
-        self.assertEqual(403, self.call(COLLAB, "get", "/api/media/900205/preview").status_code)
+        for suffix in ("", "/file", "/preview", "/context", "/ocr"):
+            with self.subTest(suffix=suffix):
+                self.assertEqual(404, self.call(COLLAB, "get", f"/api/media/900205{suffix}").status_code)
 
     def test_collaborator_capabilities_come_from_the_granting_album(self):
         self.assertEqual(200, self.call(COLLAB, "patch", "/api/media/900201/favorite",
                                         json={"is_favorite": True}).status_code)
         self.assertEqual(403, self.call(COLLAB, "delete", "/api/media/900201").status_code)
-        self.assertEqual(403, self.call(COLLAB, "patch", "/api/media/900205/favorite",
+        self.assertEqual(404, self.call(COLLAB, "patch", "/api/media/900205/favorite",
                                         json={"is_favorite": True}).status_code)
         self.assertIsNone(self.scratch.scalar("SELECT deleted_at FROM assets WHERE id = 900201"))
 
+    def test_inaccessible_media_routes_hide_asset_existence_including_range(self):
+        suffixes = ("", "/file", "/preview", "/context", "/ocr")
+        for suffix in suffixes:
+            with self.subTest(suffix=suffix):
+                existing = self.call(STRANGER, "get", f"/api/media/900201{suffix}")
+                missing = self.call(STRANGER, "get", f"/api/media/999999{suffix}")
+                self.assertEqual(404, existing.status_code)
+                self.assertEqual(missing.status_code, existing.status_code)
+                self.assertEqual("application/json", existing.mimetype)
+                self.assertEqual("application/json", missing.mimetype)
+
+        ranged = self.call(
+            STRANGER, "get", "/api/media/900201/file", headers={"Range": "bytes=0-2"}
+        )
+        self.assertEqual(404, ranged.status_code)
+        self.assertEqual("application/json", ranged.mimetype)
+
+    def test_revoked_collaborator_gets_the_same_not_found_as_a_missing_asset(self):
+        self.scratch.execute("DELETE FROM album_shares WHERE id = 900401")
+        try:
+            for suffix in ("", "/file", "/preview", "/context", "/ocr"):
+                with self.subTest(suffix=suffix):
+                    existing = self.call(COLLAB, "get", f"/api/media/900201{suffix}")
+                    missing = self.call(COLLAB, "get", f"/api/media/999999{suffix}")
+                    self.assertEqual(404, existing.status_code)
+                    self.assertEqual(missing.status_code, existing.status_code)
+                    self.assertEqual("application/json", existing.mimetype)
+        finally:
+            self.scratch.execute(
+                "INSERT INTO album_shares (id, album_id, shared_by, share_type, shared_with_user_id, permission, capabilities, active) "
+                "VALUES (900401, :a, :o, 'account', :c, 'write', '{organize}', TRUE) "
+                "ON CONFLICT (id) DO NOTHING",
+                {"a": ALBUM_A, "o": OWNER, "c": COLLAB},
+            )
+
+    def test_context_enrichment_hides_ids_from_non_viewers_but_keeps_capability_403(self):
+        for action in ("location", "solar", "holiday"):
+            path = f"/api/media/900201/context/{action}"
+            missing = f"/api/media/999999/context/{action}"
+            with self.subTest(action=action):
+                self.assertEqual(404, self.call(STRANGER, "post", path, json={}).status_code)
+                self.assertEqual(404, self.call(STRANGER, "post", missing, json={}).status_code)
+                self.assertEqual(403, self.call(COLLAB, "post", path, json={}).status_code)
+
+    def test_media_mutations_hide_existing_assets_from_non_viewers(self):
+        routes = (
+            ("patch", "/api/media/900201", {"caption": "probe"}),
+            ("delete", "/api/media/900201", {}),
+            ("patch", "/api/media/900201/favorite", {"is_favorite": True}),
+            ("patch", "/api/media/900201/archive", {"archived": True}),
+            ("post", "/api/media/900201/context/enrich", {}),
+            ("post", "/api/media/900201/ocr", {}),
+            ("post", "/api/media/900201/tag-suggestions", {}),
+            ("delete", "/api/media/900201/ocr", {}),
+        )
+        for method, path, body in routes:
+            missing = path.replace("900201", "999999")
+            with self.subTest(method=method, path=path):
+                self.assertEqual(404, self.call(STRANGER, method, path, json=body).status_code)
+                self.assertEqual(404, self.call(STRANGER, method, missing, json=body).status_code)
+        for method, path, body in (
+            ("patch", "/api/media/900201", {"caption": "probe"}),
+            ("delete", "/api/media/900201", {}),
+            ("post", "/api/media/900201/ocr", {}),
+            ("post", "/api/media/900201/tag-suggestions", {}),
+            ("delete", "/api/media/900201/ocr", {}),
+        ):
+            with self.subTest(readable_collaborator=True, method=method, path=path):
+                self.assertEqual(403, self.call(COLLAB, method, path, json=body).status_code)
+
+    def test_restore_hides_another_users_trashed_asset(self):
+        self.assertEqual(404, self.call(STRANGER, "post", "/api/media/900202/restore").status_code)
+        self.assertEqual(404, self.call(STRANGER, "post", "/api/media/999999/restore").status_code)
+
     def test_strangers_read_only_public_assets(self):
-        self.assertEqual(403, self.call(STRANGER, "get", "/api/media/900201").status_code)
         self.assertEqual(200, self.call(STRANGER, "get", "/api/media/900206").status_code)
 
     def test_owner_detail_reports_the_context_album(self):
@@ -595,8 +670,8 @@ class MembershipDeletionTests(_AppCase):
         detalle = self.call(OWNER, "get", "/api/media/900204")
         self.assertEqual(200, detalle.status_code)
         self.assertIsNone(detalle.get_json()["data"]["media"]["album_id"])
-        self.assertEqual(403, self.call(COLLAB, "get", "/api/media/900204").status_code)
-        self.assertEqual(403, self.call(STRANGER, "get", "/api/media/900204").status_code)
+        self.assertEqual(404, self.call(COLLAB, "get", "/api/media/900204").status_code)
+        self.assertEqual(404, self.call(STRANGER, "get", "/api/media/900204").status_code)
 
     def test_permanent_delete_of_an_unassigned_asset_removes_its_files(self):
         archivo = self.unassigned_trashed(900209)
@@ -910,7 +985,7 @@ class MembershipWorkflowTests(_AppCase):
                          (datos["media"]["album_id"], datos["album_role"], datos["album_capabilities"]))
         # Las otras pertenencias (albumes privados del dueño) no se revelan.
         self.assertNotIn("albums", datos)
-        self.assertEqual(403, self.call(COLLAB, "get", f"/api/media/900201?album_id={ALBUM_B}").status_code)
+        self.assertEqual(404, self.call(COLLAB, "get", f"/api/media/900201?album_id={ALBUM_B}").status_code)
 
         visitante = self.call(STRANGER, "get", f"/api/media/900206?album_id={ALBUM_P}")
         self.assertEqual(200, visitante.status_code)

@@ -126,13 +126,13 @@ class VideoPosterTests(_AppCase):
         self.assertEqual("bytes", partial.headers.get("Accept-Ranges"))
         self.assertEqual(full.get_data()[2:6], partial.get_data())
         # A Range request is authorized exactly like a full one, every time.
-        self.assertEqual(403, self.ranged(STRANGER, path, "bytes=0-3").status_code)
+        self.assertEqual(404, self.ranged(STRANGER, path, "bytes=0-3").status_code)
         self.assertEqual(401, self.ranged(None, path, "bytes=0-3").status_code)
         # Revoking the collaborator's share takes effect on the very next range.
         self.assertEqual(206, self.ranged(COLLAB, path, "bytes=0-3").status_code)
         self.scratch.execute("UPDATE album_shares SET active = FALSE WHERE id = :s", {"s": SHARE})
         self.addCleanup(self.scratch.execute, "UPDATE album_shares SET active = TRUE WHERE id = :s", {"s": SHARE})
-        self.assertEqual(403, self.ranged(COLLAB, path, "bytes=4-7").status_code)
+        self.assertEqual(404, self.ranged(COLLAB, path, "bytes=4-7").status_code)
 
 if __name__ == "__main__":
     unittest.main()

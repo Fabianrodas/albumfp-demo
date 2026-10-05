@@ -50,10 +50,8 @@ def get_media_context(media_id: int):
     user_id = current_user_id()
     with db_conn() as conn:
         asset, access = require_asset_permission(conn, media_id, user_id, "read")
-        if not asset:
+        if not asset or not access:
             return fail("Media no encontrada", status=404)
-        if not access:
-            return fail("No autorizado para ver el contexto de esta media", status=403)
         context = _read_context(conn, media_id)
     # `ok(data=None, ...)` omite la clave "data" entera (asi la usan el resto
     # de endpoints que no devuelven nada); anidar bajo "context" deja
@@ -76,9 +74,10 @@ def enrich_media_location(media_id: int):
     refresh = bool(payload.get("refresh"))
 
     with db_conn() as conn:
-        asset, access = require_asset_capability(conn, media_id, user_id, "edit_media")
-        if not asset:
+        asset, readable = require_asset_permission(conn, media_id, user_id, "read")
+        if not asset or not readable:
             return fail("Media no encontrada", status=404)
+        asset, access = require_asset_capability(conn, media_id, user_id, "edit_media")
         # Mismo permiso que editar la foto: rellenar el lugar desde su GPS es
         # exactamente lo que hace el editor cuando le cambias la ubicacion.
         if not access:
@@ -138,9 +137,10 @@ def enrich_media_solar(media_id: int):
     refresh = bool(payload.get("refresh"))
 
     with db_conn() as conn:
-        asset, access = require_asset_capability(conn, media_id, user_id, "edit_media")
-        if not asset:
+        asset, readable = require_asset_permission(conn, media_id, user_id, "read")
+        if not asset or not readable:
             return fail("Media no encontrada", status=404)
+        asset, access = require_asset_capability(conn, media_id, user_id, "edit_media")
         if not access:
             return fail("No autorizado para completar el contexto", status=403)
         media = execute_safe(
@@ -192,9 +192,10 @@ def enrich_media_holiday(media_id: int):
     refresh = bool(payload.get("refresh"))
 
     with db_conn() as conn:
-        asset, access = require_asset_capability(conn, media_id, user_id, "edit_media")
-        if not asset:
+        asset, readable = require_asset_permission(conn, media_id, user_id, "read")
+        if not asset or not readable:
             return fail("Media no encontrada", status=404)
+        asset, access = require_asset_capability(conn, media_id, user_id, "edit_media")
         if not access:
             return fail("No autorizado para completar el contexto", status=403)
         media = execute_safe(
@@ -245,9 +246,10 @@ def enrich_media_context(media_id: int):
     resultados = {}
 
     with db_conn() as conn:
-        asset, access = require_asset_capability(conn, media_id, user_id, "edit_media")
-        if not asset:
+        asset, readable = require_asset_permission(conn, media_id, user_id, "read")
+        if not asset or not readable:
             return fail("Media no encontrada", status=404)
+        asset, access = require_asset_capability(conn, media_id, user_id, "edit_media")
         if not access:
             return fail("No autorizado para completar el contexto", status=403)
         media = execute_safe(
@@ -343,9 +345,10 @@ def _owned_image_for_external_call(conn, media_id: int, user_id: int, accion: st
     Ambas exigen **dueño real** —no una capacidad— porque decidir que la imagen
     viaje a un tercero no es lo mismo que editar un dato de la foto.
     """
-    asset, access = require_asset_permission(conn, media_id, user_id, "owner")
-    if not asset:
+    asset, readable = require_asset_permission(conn, media_id, user_id, "read")
+    if not asset or not readable:
         return None, fail("Media no encontrada", status=404)
+    asset, access = require_asset_permission(conn, media_id, user_id, "owner")
     if not access:
         return None, fail(f"Solo el dueño puede {accion}", status=403)
 
@@ -381,10 +384,8 @@ def get_media_ocr(media_id: int):
     user_id = current_user_id()
     with db_conn() as conn:
         asset, access = require_asset_permission(conn, media_id, user_id, "read")
-        if not asset:
+        if not asset or not access:
             return fail("Media no encontrada", status=404)
-        if not access:
-            return fail("No autorizado para ver esta media", status=403)
         row = _read_ocr(conn, media_id)
     # Mismo patron que el contexto: anidar deja distinguir "todavia no se ha
     # analizado" de "no hay dato", que `data=None` no puede expresar.
@@ -588,9 +589,10 @@ def delete_media_ocr(media_id: int):
     """Borra el texto detectado. Solo el dueño, igual que analizarlo."""
     user_id = current_user_id()
     with db_conn() as conn:
-        asset, access = require_asset_permission(conn, media_id, user_id, "owner")
-        if not asset:
+        asset, readable = require_asset_permission(conn, media_id, user_id, "read")
+        if not asset or not readable:
             return fail("Media no encontrada", status=404)
+        asset, access = require_asset_permission(conn, media_id, user_id, "owner")
         if not access:
             return fail("Solo el dueño puede borrar el texto detectado", status=403)
         execute_safe(conn, "DELETE FROM media_ocr WHERE media_id = :media_id", {"media_id": media_id})

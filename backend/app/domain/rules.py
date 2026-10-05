@@ -11,11 +11,10 @@ def registration_mode() -> str:
     """Una sola fuente de verdad para `REGISTRATION_MODE`: la lee tanto
     `auth.py` (para exigirla de verdad) como `health.py` (para que el
     formulario sepa que pintar antes de tener sesión). Un valor desconocido
-    en el .env cae a "open" -- el modo mas permisivo, nunca el mas
-    restrictivo, para que una variable mal escrita no bloquee registros por
-    accidente."""
+    en el .env cae a "closed" para que un error de configuración nunca abra
+    los registros accidentalmente."""
     modo = (os.getenv("REGISTRATION_MODE") or "open").strip().lower()
-    return modo if modo in REGISTRATION_MODES else "open"
+    return modo if modo in REGISTRATION_MODES else "closed"
 
 
 def validate_registration_fields(username: str, full_name: str | None = None) -> dict:

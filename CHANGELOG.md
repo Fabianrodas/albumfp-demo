@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.0 - Registration and media privacy hardening
+
+- Closes registration when `REGISTRATION_MODE` is unknown or invalid.
+- Returns the same not-found response for inaccessible and nonexistent media, including byte-range requests, while preserving permission errors for readable media without the requested capability.
+- Audits local runtime and development dependencies for known advisories.
+
 ## v1.2.1 - Cache policy and touch targets
 
 - Gives media-detail controls 44px touch targets on phones and tablets while preserving compact mouse controls.

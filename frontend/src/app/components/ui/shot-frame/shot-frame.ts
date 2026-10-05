@@ -52,4 +52,4 @@ export class ShotFrame {
  * sirven `immutable` un año) seguiría enseñando las viejas. `source_checks.py`
  * la recalcula y falla si cambian los archivos y no esta constante.
  */
-export const CAPTURAS_REV = '6ad4d1831f';
+export const CAPTURAS_REV = '68aec6b2c7';
