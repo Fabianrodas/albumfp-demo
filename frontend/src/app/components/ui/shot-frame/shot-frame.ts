@@ -41,8 +41,7 @@ export class ShotFrame {
   still = input(false);
 
   private readonly theme = inject(Theme);
-  readonly themedSrc = computed(() =>
-    `${this.theme.isDark() ? this.src() : this.src().replace(/^capturas\//, 'capturas/claro/')}?v=${CAPTURAS_REV}`);
+  readonly themedSrc = computed(() => themedShotSrc(this.src(), this.theme.isDark()));
 }
 
 /**
@@ -53,3 +52,17 @@ export class ShotFrame {
  * la recalcula y falla si cambian los archivos y no esta constante.
  */
 export const CAPTURAS_REV = '68aec6b2c7';
+
+const CAPTURES_WITH_LIGHT_VARIANT = new Set([
+  'capturas/movil/album.webp',
+  'capturas/movil/biblioteca.webp',
+  'capturas/movil/inicio.webp',
+  'capturas/movil/recuerdo.webp',
+]);
+
+export function themedShotSrc(src: string, isDark: boolean): string {
+  const themedSrc = !isDark && CAPTURES_WITH_LIGHT_VARIANT.has(src)
+    ? src.replace(/^capturas\//, 'capturas/claro/')
+    : src;
+  return `${themedSrc}?v=${CAPTURAS_REV}`;
+}
