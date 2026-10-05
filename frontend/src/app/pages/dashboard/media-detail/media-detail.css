@@ -81,7 +81,7 @@
 /* Una columna, pero el alto sigue siendo el de la pantalla: la foto arriba y
    el panel debajo, cada uno con su parte. Cero scroll tambien en movil. */
 @media(max-width:820px){.viewer-shell,.viewer-shell--loading{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,45fr) minmax(0,55fr)}.media-info,.detail-skeleton{border-left:0;border-top:1px solid var(--border)}.detail-actions{width:100%}.detail-actions .btn{flex:1}}
-@media(max-width:560px){.media-detail-page{padding:8px 0 12px;gap:9px}.detail-header{gap:10px}.detail-header h1{font-size:22px}.detail-actions{width:auto;flex:none;gap:6px}.detail-actions .btn{flex:0 0 auto;min-width:44px;min-height:44px;padding:8px}.detail-actions .btn-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.detail-actions .tema{width:44px;height:44px}.viewer-shell{margin-inline:-6px;border-radius:16px}.media-stage{padding:8px}.media-info{padding:20px 16px}.tag-manager{grid-template-columns:1fr}}
+@media(max-width:560px){.media-detail-page{padding:8px 0 12px;gap:9px}.detail-header{gap:10px}.detail-header h1{font-size:22px}.detail-actions{width:auto;flex:none;gap:6px}.detail-actions .btn{flex:0 0 auto;min-width:44px;padding:8px}.detail-actions .btn-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.viewer-shell{margin-inline:-6px;border-radius:16px}.media-stage{padding:8px}.media-info{padding:20px 16px}.tag-manager{grid-template-columns:1fr}}
 @media(max-width:360px){.viewer-shell{margin-inline:0}}
 
 .ocr-notice{margin:0 0 12px;font-size:11px;color:var(--muted);line-height:1.5}
@@ -146,8 +146,6 @@
 .detail-comments{padding-top:0}
 .detail-comments--public{padding:0 clamp(14px,3vw,28px)}
 
-/* F06: el enlace de volver, tocable en movil (>=40px). */
-@media (max-width: 560px) { .back-link { min-height: 40px; display: inline-flex; align-items: center; } }
-@media (max-width: 560px) { .info-body .btn { min-height: 40px; } }
-/* Teléfono: «Anterior»/«Siguiente» siguen pareciendo enlaces, con 40px al tacto. */
-@media(max-width:560px){.detail-navigation .text-action{min-height:40px;padding:0 8px;margin-left:-8px}}
+/* Pointer capability, not viewport width, determines touch target sizing.
+   Mouse and trackpad layouts keep the compact 38px desktop density. */
+@media(pointer:coarse){.back-link,.detail-actions .btn,.detail-actions .tema,.detail-navigation .text-action,.info-body .btn{min-height:44px}.detail-actions .tema{width:44px;height:44px}.detail-navigation .text-action{padding:0 8px;margin-left:-8px}}

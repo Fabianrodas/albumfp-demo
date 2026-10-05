@@ -23,7 +23,7 @@ class PublicDependencyBoundaryTests(unittest.TestCase):
         package = json.loads((ROOT / "frontend" / "package.json").read_text(encoding="utf-8"))
         lock = json.loads((ROOT / "frontend" / "package-lock.json").read_text(encoding="utf-8"))
         self.assertEqual("albumfp-demo", package["name"])
-        self.assertEqual("1.2.0", package["version"])
+        self.assertEqual("1.2.1", package["version"])
         self.assertEqual(package["name"], lock["name"])
         self.assertEqual(package["version"], lock["version"])
         self.assertIn("127.0.0.1", package["scripts"]["start"])

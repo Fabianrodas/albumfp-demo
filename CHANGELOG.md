@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.1 - Cache policy and touch targets
+
+- Gives media-detail controls 44px touch targets on phones and tablets while preserving compact mouse controls.
+- Keeps the local service worker limited to the versioned app shell; API and private media stay outside its cache, and synthetic screenshots use a content-derived revision.
+
 ## v1.2.0 - Mobile UX and WebApp
 
 Adds phone navigation, responsive search, safe-area support, and an installable local WebApp shell. The Demo remains available only on the computer running its local services.
