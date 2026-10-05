@@ -27,15 +27,11 @@ class ObjectConflict(StorageError):
 
 
 class StorageUnavailable(StorageError):
-    """El origin no responde o la conexión fue rechazada."""
+    """El almacenamiento local no está disponible o una operación fue rechazada."""
 
 
 class StorageTimeout(StorageUnavailable):
     """Se agotó un presupuesto de tiempo finito."""
-
-
-class StorageAuthenticationError(StorageError):
-    """El origin rechazó la credencial de servicio."""
 
 
 class StorageCapacityExceeded(StorageError):

@@ -9,7 +9,7 @@ propios además de los del camino feliz:
   protegido del barredor para siempre y su reserva de bytes no volvería
   nunca al presupuesto.
 * **La contabilidad es un ledger en disco con lock interproceso, no un
-  contador en memoria.** Gunicorn tiene varios workers y los timers son
+  contador en memoria.** Varios workers y los timers son
   procesos distintos: dos de ellos no pueden creerse dueños del mismo
   presupuesto.
 """
@@ -399,21 +399,3 @@ class WorkspaceOtroProcesoTests(_EntornoAislado):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-class PreflightTests(_EntornoAislado):
-    """L13: la exportación pregunta ANTES de enviar un byte si el mayor
-    original cabría en el área de trabajo."""
-
-    extra = {"MEDIA_LOCAL_TEMP_MAX_GB": str(1 / 1024)}  # 1 MiB de presupuesto
-
-    def test_the_preflight_sees_the_budget_and_what_is_already_reserved(self):
-        from app.storage.workspace import workspace_can_hold
-
-        self.assertTrue(workspace_can_hold(1024 * 1024))
-        self.assertFalse(workspace_can_hold(1024 * 1024 + 1))
-        with local_workspace("materialize") as espacio:
-            espacio.reserve_bytes(600 * 1024)
-            self.assertFalse(workspace_can_hold(600 * 1024))
-            self.assertTrue(workspace_can_hold(400 * 1024))
-        self.assertTrue(workspace_can_hold(1024 * 1024), "al salir se libera")

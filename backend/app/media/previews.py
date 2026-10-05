@@ -5,15 +5,13 @@ tarjeta de unos cientos de pixeles: una foto de telefono son varios MB y una
 cuadricula son doce. La vista previa es la misma imagen a 1280px como mucho,
 en WebP, guardada junto al original y protegida igual que el.
 
-**Renderizar y persistir son pasos separados (spec de origen privado, S12).**
+**Renderizar y persistir son pasos separados.**
 `render_image_preview()` solo decodifica, reescala y comprime -- nunca toca
 almacenamiento -- y deja el archivo en el directorio que le pida quien llama.
-En local ese directorio es un workspace gestionado y efimero (`local_workspace`
-en `app/storage/workspace.py`), nunca un `/tmp` suelto; en remote sera el
-mismo punto por el que la subida ya materializa/renderiza antes de mandar el
-PUT al origin. Quien decide DONDE queda la vista previa final -- el backend de
-almacenamiento seleccionado -- es `create_image_preview()`, que compone sobre
-`render_image_preview()` y sobre `get_storage_backend().put_from_path()`.
+Ese directorio es un workspace gestionado y efimero (`local_workspace` en
+`app/storage/workspace.py`), nunca un `/tmp` suelto. `create_image_preview()`
+compone sobre `render_image_preview()` y persiste la vista previa en el
+almacenamiento local.
 
 **El original nunca se toca**: se abre en solo lectura y todo lo que se
 reescala o recomprime va a un archivo aparte. La escritura atomica (`.part` +

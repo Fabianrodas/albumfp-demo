@@ -15,8 +15,7 @@ from ..db.db import db_conn
 from ..library_export import build_manifest, parse_export_options, stream_export
 from ..security.rate_limit import peek, try_consume
 from ..security.sessions import current_user_id, session_required
-from ..storage.backends import get_storage_backend, storage_backend_mode
-from ..storage.workspace import workspace_can_hold
+from ..storage.backends import get_storage_backend
 from ..utils.env import int_env
 from ..utils.responses import fail, ok
 from ..utils.sql_security import execute_safe
@@ -28,7 +27,7 @@ WINDOW_SECONDS = 3600
 
 
 def _limit() -> int:
-    # Cada descarga ocupa un hilo de Gunicorn mientras dura; el cupo por cuenta
+    # Cada descarga ocupa un hilo del servidor mientras dura; el cupo por cuenta
     # es lo que impide que una sola cuenta los acapare.
     return int_env("RATE_LIMIT_EXPORT_PER_HOUR", 3)
 
@@ -83,14 +82,7 @@ def download_export():
                                      status=429, code="rate_limited")
             respuesta.headers["Retry-After"] = str(retry_after)
             return respuesta, status
-        largest = int(_sizes(conn, user_id)["largest_bytes"])
         manifest, entries = build_manifest(conn, user_id, options, generated_at)
-
-    # En el perfil remoto cada original pasa por el área de trabajo, de uno en
-    # uno: si ni el mayor cabe hoy, se dice ya, no a mitad de la descarga.
-    if storage_backend_mode() == "remote" and not workspace_can_hold(largest):
-        return fail("No hay espacio temporal suficiente para preparar la exportación ahora.",
-                    status=507, code="export_workspace_full")
 
     username = re.sub(r"[^A-Za-z0-9_-]+", "_", manifest["account"]["username"]) or "cuenta"
     filename = f"albumfp-export-{username}-{generated_at:%Y%m%d-%H%M}.zip"
@@ -100,8 +92,5 @@ def download_export():
         headers={
             "Content-Disposition": f'attachment; filename="{filename}"',
             "Cache-Control": "no-store",
-            # Nginx no debe amortiguar la respuesta en su disco temporal: sería
-            # volver a guardar la biblioteca entera en RackNerd.
-            "X-Accel-Buffering": "no",
         },
     )

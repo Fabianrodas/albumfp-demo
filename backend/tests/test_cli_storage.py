@@ -139,7 +139,7 @@ class OrphanCleanupTests(_EstadoAislado):
 
         class BackendCaido:
             def list_objects(self, *, cursor=None, limit=500):
-                raise StorageUnavailable("origin caido")
+                raise StorageUnavailable("almacenamiento local no disponible")
 
             def delete(self, key, *, expected_version=None):
                 borrados.append(key)
@@ -406,7 +406,7 @@ class ReconcileStorageOperationsTests(_EstadoAislado):
 
         class BackendCaido:
             def delete(self, key, *, expected_version=None):
-                raise StorageUnavailable("origin caido")
+                raise StorageUnavailable("almacenamiento local no disponible")
 
         with patch("app.cli.get_storage_backend", return_value=BackendCaido()), \
              patch("app.cli._referenced_storage_paths", return_value=set()), \

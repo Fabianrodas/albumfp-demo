@@ -9,8 +9,6 @@ ACTIVE_SURFACES = (
     ROOT / "backend" / ".env.example",
     ROOT / "frontend" / "src",
     ROOT / "frontend" / "public",
-    ROOT / "deployment" / "API_KEYS.md",
-    ROOT / "deployment" / "nginx" / "albumfp-browser-headers.conf.example",
 )
 
 TEXT_SUFFIXES = {
@@ -136,7 +134,7 @@ class ExternalPushProviderRemovalTests(unittest.TestCase):
         """L16. Se registra UN worker, el de @angular/service-worker, y solo con
         la configuración de la cáscara: sin `dataGroups` (ningún JSON de la
         API se guarda), y la navegación nunca responde con index.html en
-        /api, /auth ni /_protected_media. No hay un worker propio en public/."""
+            /api ni /auth. No hay un worker propio en public/."""
         import json
 
         config = (ROOT / "frontend" / "src" / "app" / "app.config.ts").read_text(encoding="utf-8")
@@ -145,14 +143,14 @@ class ExternalPushProviderRemovalTests(unittest.TestCase):
         ngsw = json.loads((ROOT / "frontend" / "ngsw-config.json").read_text(encoding="utf-8"))
         self.assertNotIn("dataGroups", ngsw)
         self.assertEqual("freshness", ngsw.get("navigationRequestStrategy"))
-        for excluded in ("!/api/**", "!/auth/**", "!/_protected_media/**"):
+        for excluded in ("!/api/**", "!/auth/**"):
             self.assertIn(excluded, ngsw["navigationUrls"])
         cached = [f for group in ngsw["assetGroups"] for f in group["resources"].get("files", [])]
         self.assertEqual([], [g for g in ngsw["assetGroups"] if g["resources"].get("urls")],
                          "ningún assetGroup puede apuntar a URLs de fuera")
         for pattern in cached:
             with self.subTest(pattern=pattern):
-                self.assertFalse(pattern.startswith(("/api", "/auth", "/_protected_media", "/capturas", "/personas")))
+                self.assertFalse(pattern.startswith(("/api", "/auth", "/capturas", "/personas")))
         public_js = sorted(p.name for p in (ROOT / "frontend" / "public").rglob("*.js"))
         self.assertEqual(["theme-init.js"], public_js, "un worker propio en public/ saltaría esta revisión")
 

@@ -7,12 +7,11 @@ Antes de esto, un archivo grande se spooleaba donde dijera `tempfile`
 
 Tres decisiones son el módulo entero:
 
-* **Los bytes se reservan mientras entran, no cuando Werkzeug termina.** Con
-  `proxy_request_buffering off` y HTTP/1.1 al upstream, Nginx manda el cuerpo
-  troceado y `Content-Length` no existe: no hay nada que mirar antes de
-  escribir. Un `Content-Length` presente sí permite rechazo temprano —una sola
-  reserva antes de abrir el archivo—, pero nunca sustituye a medir los bytes
-  reales, así que cada `write()` sigue pasando por el presupuesto.
+* **Los bytes se reservan mientras entran, no cuando Werkzeug termina.** Si
+  `Content-Length` no está disponible, no hay nada que mirar antes de
+  escribir. Un valor presente sí permite rechazo temprano —una sola reserva
+  antes de abrir el archivo—, pero nunca sustituye a medir los bytes reales,
+  así que cada `write()` sigue pasando por el presupuesto.
 * **El spool es un `local_workspace("ingress")`, no un directorio suelto.** Un
   directorio compartido sin lease sería basura envejecida para
   `sweep_workspaces()`, que lo borraría por debajo de una subida en curso de

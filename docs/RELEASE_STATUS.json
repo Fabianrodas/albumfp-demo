@@ -2,16 +2,21 @@
   "product": "AlbumFP Demo",
   "target_version": "1.3.1",
   "current_version": "1.3.1",
+  "product_boundary": "v1.3",
+  "release_type": "Demo-only patch release",
   "stage": "v1.3.1-release-certified",
-  "source_tags_verified": [
-    "v1.0.0",
-    "v1.1.0",
-    "v1.1.1",
-    "v1.2.0",
-    "v1.2.1",
-    "v1.3.0",
-    "v1.3.1"
-  ],
+  "golden_source_reconstruction": {
+    "through_version": "v1.3.0",
+    "verified_tag_targets": {
+      "v1.0.0": "31b8a9631f9a11931ca74efb744bdcaa698b0d6f",
+      "v1.1.0": "69e75481d14b9bcadc3925429d269a628a541edb",
+      "v1.1.1": "14403c9babd9a45458ba7e677bd78367efd8a09f",
+      "v1.2.0": "d7cfa0be5834cebc7c8f335dfc7c9976c0851497",
+      "v1.2.1": "7f0a0cf17cec86afbd6b116000408a42229c2da3",
+      "v1.3.0": "b06d2d0a9ab509ea17d8179793c7f83deee358a8"
+    }
+  },
+  "latest_demo_release_tag": "v1.3.1",
   "database": "PostgreSQL",
   "runtime": "loopback-only",
   "media": "local-filesystem-only",
@@ -40,23 +45,43 @@
     "readme_screenshots": "PASS (33 synthetic captures checked in the prior release certification; v1.3.1 changes README version text only)",
     "main_push": "PASS (v1.3.1 release closure commit pushed normally to origin/main; annotated v1.3.1 targets this commit)"
   },
+  "post_release_hygiene": {
+    "status": "PASS",
+    "product_behavior_changed": false,
+    "private_infrastructure_in_current_tree": false,
+    "private_infrastructure_history": "PASS (non-secret terminology only; Gitleaks unavailable)",
+    "env_file": "PASS (ignored, untracked, and absent from reachable history)",
+    "runtime_network": "PASS (loopback-only services; no external runtime URLs or browser requests)",
+    "publication_scan": "PASS (516 tracked files; 10 scanner regression tests; Gitleaks unavailable)",
+    "safe_export": "PASS (tracked-file archive integration checked for ignored/private content and dirty-tree rejection)",
+    "postgresql_loopback_guard": "PASS (setup listener validation and safety regression cases)",
+    "backend_tests": "PASS (full suite: 932 passed, 3 Windows permission skips, 1592 subtests; final focused suites: storage guards 16 passed, publication scanner 10 passed)",
+    "frontend_tests": "PASS (212 tests across 47 files)",
+    "typescript": "PASS (no-emit check)",
+    "production_build": "PASS",
+    "browser_qa": "PASS (Chrome headless desktop, phone light/dark, and tablet portrait/landscape; all screenshot images decoded, no horizontal overflow, external requests, HTTP errors, or runtime errors)",
+    "dependency_audit": "PASS (pip-audit: no known vulnerabilities; npm audit: 0 vulnerabilities)",
+    "source_repository_mutated": false,
+    "release_tags_created": false
+  },
   "post_tag_fix": {
     "commit": "5ec50317f7a5de605c7c81b8bedef0b984138917",
     "scope": "Use light-theme screenshot files only when the corresponding paired asset exists; preserve base screenshots otherwise.",
     "verification": "PASS (3 focused regression cases, 212 frontend tests, production build, responsive local browser checks)",
-    "release_tag": "v1.3.0 unchanged; included in v1.3.1"
+    "release_tag": "v1.3.0 unchanged; v1.3.1 is a Demo-only hotfix release"
   },
-  "release_tags": {
+  "demo_release_tags": {
     "v1.0.0": "90f09aef1a5938b57ea2e431b14bf9352a65a0c5",
     "v1.1.0": "d6546e8beaddf8b837951ccca1ce016ad88016a8",
     "v1.1.1": "92a3e60ca0013b681bb866bcad9764ce03fdbfa3",
     "v1.2.0": "e7114b58bba8c4f9bd63e13433567cbb9b3823b8",
     "v1.2.1": "6a7280ff1d4922387303c632b5ad9064c1f013d0",
-    "v1.3.0": "653ee53bea1360da15c6db8c1c34fce1f8ac7ea6"
+    "v1.3.0": "653ee53bea1360da15c6db8c1c34fce1f8ac7ea6",
+    "v1.3.1": "c8821c9f1b9e318957b25114d7726f1df0ea0a56"
   },
   "current_release": {
     "tag": "v1.3.1",
     "annotated": true,
-    "peeled_target": "this commit"
+    "peeled_target": "c8821c9f1b9e318957b25114d7726f1df0ea0a56"
   }
 }

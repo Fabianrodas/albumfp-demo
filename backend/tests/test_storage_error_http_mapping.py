@@ -1,10 +1,4 @@
-"""Un fallo del origin es 503, no 500 (spec: degradacion elegante).
-
-La arquitectura entera existe para que la caida del local workstation sea un servicio
-degradado, no una app rota. Si `StorageUnavailable` sale como 500 generico,
-el navegador no puede distinguir "vuelve en un minuto" de "esto es un bug", y
-el operador no tiene senal en el log de que el problema es el enlace privado.
-"""
+"""Un fallo de almacenamiento local es 503, no 500."""
 import sys
 import unittest
 from pathlib import Path
@@ -17,7 +11,6 @@ from app.errors import register_error_handlers
 from app.storage.contracts import (
     InvalidStorageKey,
     ObjectNotFound,
-    StorageAuthenticationError,
     StorageTimeout,
     StorageUnavailable,
 )
@@ -35,11 +28,10 @@ def _app(exc: Exception) -> Flask:
 
 
 class StorageErrorMappingTests(unittest.TestCase):
-    def test_una_caida_del_origin_es_503_y_no_500(self):
+    def test_un_fallo_de_almacenamiento_es_503_y_no_500(self):
         for exc in (
-            StorageUnavailable("origin caido"),
+            StorageUnavailable("almacenamiento no disponible"),
             StorageTimeout("tarde demasiado"),
-            StorageAuthenticationError("token rechazado"),
         ):
             with self.subTest(exc=type(exc).__name__):
                 cliente = _app(exc).test_client()

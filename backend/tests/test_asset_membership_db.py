@@ -408,7 +408,6 @@ class _AppCase(unittest.TestCase):
                 "MEDIA_QUARANTINE_ROOT": str(raiz / "quarantine"),
                 "MEDIA_WORK_ROOT": str(raiz / "work"),
                 "MEDIA_STATE_ROOT": str(raiz / "state"),
-                "MEDIA_EXPECTED_MOUNTPOINT": "",
                 "USE_X_ACCEL_REDIRECT": "false",
                 "APP_ENV": "development",
                 "HTTPS_ENABLED": "false",

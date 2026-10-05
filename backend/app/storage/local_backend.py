@@ -67,14 +67,13 @@ def _offset_from(cursor: str | None) -> int:
 
 
 class LocalStorageBackend:
-    """Filesystem configurado, con la misma API que el origin remoto."""
+    """Filesystem local configurado con operaciones de almacenamiento seguras."""
 
     def _absolute(self, relative_key: str) -> Path:
         # La key se valida SIEMPRE antes de resolver nada: ninguna operacion
         # toca el disco con una key que no cumple la gramatica. Despues se
         # reutiliza `resolve_storage_path()`, que conserva la comprobacion de
-        # contencion que ya existia (spec seccion 16); el descenso con
-        # O_NOFOLLOW es garantia del origin, no de este backend de desarrollo.
+        # contencion que ya existia (spec seccion 16).
         key = validate_storage_key(relative_key)
         from .media_storage import resolve_storage_path
 
@@ -167,9 +166,7 @@ class LocalStorageBackend:
     def capacity(self) -> StorageCapacity:
         from .media_storage import storage_root
 
-        # `storage_root()` ya comprueba MEDIA_EXPECTED_MOUNTPOINT y lanza si
-        # el volumen esperado no esta montado: llegar aqui ES la senal de
-        # montaje, no se inventa.
+        # `storage_root()` ya crea y valida la raíz local antes de medirla.
         root = storage_root()
         usage = shutil.disk_usage(root)
         return StorageCapacity(
@@ -190,11 +187,9 @@ class LocalStorageBackend:
             for item in root.rglob("*")
             if item.is_file() and not item.name.startswith(".")
         )
-        # ponytail: el listado local re-escanea en cada pagina y el cursor es
-        # un offset; no es el snapshot inmutable del origin. Basta porque las
-        # decisiones destructivas del GC vuelven a comprobar referencia y
-        # version antes de borrar. Si el GC local necesitara consistencia
-        # entre paginas, aqui va un manifiesto como el del local workstation.
+        # El listado local re-escanea en cada página y el cursor es un offset.
+        # Basta porque las decisiones destructivas del GC vuelven a comprobar
+        # referencia y versión antes de borrar.
         offset = _offset_from(cursor)
         page = keys[offset:offset + max(1, min(limit, _MAX_PAGE))]
         objects = []

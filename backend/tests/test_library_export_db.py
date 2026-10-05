@@ -159,7 +159,6 @@ class LibraryExportTests(_AppCase):
         self.assertIn("attachment", respuesta.headers["Content-Disposition"])
         self.assertIn("albumfp-export-l10a_owner-", respuesta.headers["Content-Disposition"])
         self.assertIn("no-store", respuesta.headers["Cache-Control"])
-        self.assertEqual("no", respuesta.headers["X-Accel-Buffering"])
         respuesta.close()
 
     def test_no_session_bad_options_and_rate_limit_are_refused_before_streaming(self):
@@ -187,16 +186,6 @@ class LibraryExportTests(_AppCase):
         self.assertEqual(100 * len(OWNER_LIVE), resumen["total_bytes"])
         self.assertEqual(0, self.scratch.scalar("SELECT count(*) FROM rate_limit_counters WHERE scope = 'library_export'"),
                          "mirar el resumen no gasta cupo")
-
-    def test_a_remote_workspace_that_cannot_hold_the_largest_original_refuses_up_front(self):
-        from app.api import export
-
-        with patch.object(export, "storage_backend_mode", return_value="remote"), \
-                patch.object(export, "workspace_can_hold", return_value=False):
-            respuesta = self.call(OWNER, "get", "/api/export/download")
-        self.assertEqual(507, respuesta.status_code)
-        self.assertEqual("export_workspace_full", respuesta.get_json()["code"])
-
 
 if __name__ == "__main__":
     unittest.main()

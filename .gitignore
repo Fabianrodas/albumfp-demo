@@ -26,6 +26,23 @@ coverage/
 /runtime/
 /exports/
 /backups/
+/media/
+/tmp/
+/quarantine/
+/postgresql/
+/pgdata/
+/pg_wal/
+/backend/postgresql/
+/backend/pgdata/
+/backend/pg_wal/
+/backend/data/
+/backend/runtime/
+/backend/tmp/
+/backend/quarantine/
+/backend/exports/
+**/postgresql/
+**/pgdata/
+**/pg_wal/
 **/data/media/
 **/data/tmp/
 **/data/quarantine/
@@ -33,8 +50,12 @@ coverage/
 /backend/uploads/
 *.dump
 *.backup
+*.bak
+*.log
+*.log.*
 *.sql
 !backend/schemas/schema.sql
+*.sql.gz
 *.sqlite
 *.sqlite3
 

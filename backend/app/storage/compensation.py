@@ -7,7 +7,7 @@ las referencias reales de la base.
 
 Reutiliza el lock de archivo interproceso que ya establecio Task 6
 (`workspace._held`) en vez de reinventar una segunda forma de serializar
-entre procesos: Gunicorn tiene varios workers y los timers son procesos
+entre procesos: varios workers y los timers son procesos
 aparte, asi que un lock en memoria no protegeria nada.
 
 El lock vive como hermano de `storage-operations/`, no dentro: la carpeta de

@@ -16,7 +16,6 @@ from app.storage.contracts import (
     ObjectPage,
     ObjectStat,
     PutReceipt,
-    StorageAuthenticationError,
     StorageBackend,
     StorageCapacity,
     StorageCapacityExceeded,
@@ -33,7 +32,7 @@ class ErrorHierarchyTests(unittest.TestCase):
     def test_todos_los_errores_derivan_de_storage_error(self):
         for clase in (
             InvalidStorageKey, StorageConfigurationError, ObjectNotFound, ObjectConflict,
-            StorageUnavailable, StorageTimeout, StorageAuthenticationError,
+            StorageUnavailable, StorageTimeout,
             StorageCapacityExceeded, StorageIntegrityError, WorkspaceCapacityExceeded,
         ):
             with self.subTest(clase=clase.__name__):
@@ -46,7 +45,7 @@ class ErrorHierarchyTests(unittest.TestCase):
         self.assertTrue(issubclass(StorageTimeout, StorageUnavailable))
 
     def test_un_fallo_de_infraestructura_NO_es_value_error(self):
-        for clase in (StorageUnavailable, StorageTimeout, StorageAuthenticationError,
+        for clase in (StorageUnavailable, StorageTimeout,
                       StorageIntegrityError, StorageCapacityExceeded, ObjectConflict):
             with self.subTest(clase=clase.__name__):
                 self.assertFalse(issubclass(clase, ValueError))

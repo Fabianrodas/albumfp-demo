@@ -218,7 +218,7 @@ class LocalBackendSelectionTests(unittest.TestCase):
             self.assertIs(backends.get_storage_backend(), backends.get_storage_backend())
 
     def test_no_local_storage_mode_is_rejected(self):
-        with patch.dict(os.environ, {"MEDIA_STORAGE_BACKEND": "remote"}, clear=False):
+        with patch.dict(os.environ, {"MEDIA_STORAGE_BACKEND": "network"}, clear=False):
             with self.assertRaises(StorageConfigurationError):
                 backends.get_storage_backend()
 

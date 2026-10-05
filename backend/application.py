@@ -44,12 +44,9 @@ def create_app() -> Flask:
             },
         )
 
-    # Falla al arrancar si el backend de almacenamiento está mal configurado
-    # (spec S13) -- MEDIA_STORAGE_BACKEND=remote con una raíz local rellena,
-    # un token demasiado corto, etc. Mejor un crash inmediato con el nombre
-    # de la variable que servir tráfico con una configuración a medias
-    # (Task 7 lo dejó preparado pero sin conectar; Task 29 llenó
-    # production.env.example con lo que esto exige, y esto es la otra mitad).
+    # Falla al arrancar si el almacenamiento local está mal configurado.
+    # Mejor detenerse inmediatamente con el nombre de la variable que servir
+    # tráfico con una configuración incompleta.
     validate_storage_configuration()
 
     app_env = (os.getenv("APP_ENV") or os.getenv("FLASK_ENV") or "development").strip().lower()
@@ -73,12 +70,9 @@ def create_app() -> Flask:
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         # `geolocation=(self)` y no `()`: la app SÍ pide la ubicación —"Estoy
-        # aquí" en el selector de mapa y el clima del inicio— así que negarla
-        # aquí describe mal lo que hace. Hoy no rompe nada porque en producción
-        # Nginx sirve el index.html y esta cabecera solo viaja en respuestas de
-        # la API, donde `Permissions-Policy` es inerte; pero el día que alguien
-        # sirva el frontend desde Flask, o copie esta línea al Nginx, la
-        # geolocalización dejaría de funcionar sin ningún error visible.
+        # aquí" en el selector— así que negarla aquí describe mal lo que hace.
+        # Esta política permite el permiso para la propia página sin conceder
+        # acceso a otros orígenes.
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(self)"
         response.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none'; base-uri 'self'"
         response.headers["Cross-Origin-Resource-Policy"] = "same-site"

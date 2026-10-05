@@ -1,11 +1,5 @@
-"""Las utilidades de filesystem de `media_storage` son SOLO locales (spec §12).
-
-En modo `remote` no hay arbol final en este host: `storage_root()` y
-`resolve_storage_path()` tienen que negarse ANTES de resolver o crear una
-raiz, no devolver un `Path` que apunta a un directorio vacio del VPS. Y el
-borrado deja de ser un `except (OSError, ValueError)` que convierte cualquier
-fallo en "no habia nada que borrar": eso, con un origin caido, dejaria al
-llamador creyendo que los bytes ya no existen.
+"""Las utilidades de filesystem usan almacenamiento local y fallan cerradas
+si se configura un modo que el Demo no admite.
 """
 import io
 import os
@@ -29,14 +23,9 @@ from app.storage.contracts import (
     StorageUnavailable,
 )
 
-REMOTE = {
-    "MEDIA_STORAGE_BACKEND": "remote",
-    "MEDIA_ORIGIN_BASE_URL": "https://demo-media.invalid",
-    "MEDIA_ORIGIN_TOKEN": "x" * 43,
+UNSUPPORTED_BACKEND = {
+    "MEDIA_STORAGE_BACKEND": "network",
     "MEDIA_STORAGE_ROOT": "",
-    "MEDIA_EXPECTED_MOUNTPOINT": "",
-    "USE_X_ACCEL_REDIRECT": "true",
-    "NGINX_INTERNAL_MEDIA_URI": "/_protected_media",
 }
 KEY = "user_1/album_2/" + "a" * 32 + ".jpg"
 
@@ -47,7 +36,7 @@ class _FakeUpload:
         self.filename = filename
 
 
-class RemoteModeRefusesLocalRootTests(unittest.TestCase):
+class UnsupportedModeRefusesLocalRootTests(unittest.TestCase):
     def setUp(self):
         reset_storage_backend()
         self.addCleanup(reset_storage_backend)
@@ -55,30 +44,66 @@ class RemoteModeRefusesLocalRootTests(unittest.TestCase):
         media_storage._STORAGE_ROOT = None
         self.addCleanup(lambda: setattr(media_storage, "_STORAGE_ROOT", self._anterior))
 
-    def test_storage_root_lanza_en_remote(self):
-        with patch.dict(os.environ, REMOTE, clear=False):
+    def test_storage_root_rejects_an_unsupported_mode(self):
+        with patch.dict(os.environ, UNSUPPORTED_BACKEND, clear=False):
             with self.assertRaises(StorageConfigurationError):
                 media_storage.storage_root()
 
-    def test_resolve_storage_path_lanza_en_remote(self):
-        with patch.dict(os.environ, REMOTE, clear=False):
+    def test_resolve_storage_path_rejects_an_unsupported_mode(self):
+        with patch.dict(os.environ, UNSUPPORTED_BACKEND, clear=False):
             with self.assertRaises(StorageConfigurationError):
                 media_storage.resolve_storage_path(KEY)
 
-    def test_storage_root_no_resuelve_ninguna_raiz_en_remote(self):
-        """El guard va ANTES de resolver la raiz, no despues.
-
-        Comprobar "no se creo /srv/albumfp/media" no distingue nada: en remote
-        `MEDIA_STORAGE_ROOT` esta vacia, asi que la raiz que se resolveria es
-        el `storage/media` de desarrollo, que ya existe. Lo que si prueba el
-        orden es que `_configured_storage_root()` no llegue a llamarse.
-        """
-        with patch.dict(os.environ, REMOTE, clear=False), patch.object(
+    def test_rejects_unsupported_mode_before_resolving_a_root(self):
+        with patch.dict(os.environ, UNSUPPORTED_BACKEND, clear=False), patch.object(
             media_storage, "_configured_storage_root"
         ) as espia:
             with self.assertRaises(StorageConfigurationError):
                 media_storage.storage_root()
         espia.assert_not_called()
+
+
+class RequiredLocalMountTests(unittest.TestCase):
+    def setUp(self):
+        reset_storage_backend()
+        self.addCleanup(reset_storage_backend)
+        self._anterior = media_storage._STORAGE_ROOT
+        media_storage._STORAGE_ROOT = None
+        self.addCleanup(lambda: setattr(media_storage, "_STORAGE_ROOT", self._anterior))
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+
+    def _settings(self, root: Path, mount: Path):
+        return patch.dict(os.environ, {
+            "MEDIA_STORAGE_BACKEND": "local",
+            "MEDIA_STORAGE_ROOT": str(root),
+            "MEDIA_STORAGE_REQUIRED_MOUNTPOINT": str(mount),
+        }, clear=False)
+
+    def test_missing_required_mount_stops_before_creating_storage(self):
+        root = Path(self._tmp.name) / "media"
+        mount = Path(self._tmp.name) / "not-mounted"
+        with self._settings(root, mount), patch("app.storage.media_storage.os.path.ismount", return_value=False):
+            with self.assertRaisesRegex(RuntimeError, "no está montado"):
+                media_storage.storage_root()
+        self.assertFalse(root.exists())
+
+    def test_storage_root_must_remain_inside_required_mount(self):
+        mount = Path(self._tmp.name) / "mounted-volume"
+        mount.mkdir()
+        root = Path(self._tmp.name) / "outside-media"
+        with self._settings(root, mount), patch("app.storage.media_storage.os.path.ismount", return_value=True):
+            with self.assertRaisesRegex(RuntimeError, "MEDIA_STORAGE_ROOT"):
+                media_storage.storage_root()
+        self.assertFalse(root.exists())
+
+    def test_storage_root_inside_required_mount_is_allowed(self):
+        mount = Path(self._tmp.name) / "mounted-volume"
+        mount.mkdir()
+        root = mount / "media"
+        with self._settings(root, mount), patch("app.storage.media_storage.os.path.ismount", return_value=True):
+            self.assertEqual(root.resolve(), media_storage.storage_root())
+        self.assertTrue(root.is_dir())
 
 
 class RemoveStoredFileTests(unittest.TestCase):
@@ -117,10 +142,10 @@ class RemoveStoredFileTests(unittest.TestCase):
 
     def test_un_fallo_de_infraestructura_NO_se_traga_como_false(self):
         # Regresion de un hueco real: `except (OSError, ValueError)` hacia que
-        # una caida del origin pareciera "no habia nada que borrar".
+        # una caída del almacenamiento pareciera "no había nada que borrar".
         class BackendCaido:
             def delete(self, key, *, expected_version=None):
-                raise StorageUnavailable("origin caido")
+                raise StorageUnavailable("almacenamiento local no disponible")
 
         with patch("app.storage.media_storage.get_storage_backend", return_value=BackendCaido()):
             with self.assertRaises(StorageUnavailable):
@@ -128,13 +153,7 @@ class RemoveStoredFileTests(unittest.TestCase):
 
 
 class CapacityComesFromTheBackendTests(unittest.TestCase):
-    """La politica se calcula sobre `backend.capacity()`, no sobre un `df`.
-
-    Consultar capacidad en remote no puede significar medir el disco vacio
-    del VPS (spec §6), asi que `storage_capacity_status()` ya no llama a
-    `shutil.disk_usage()`: pregunta al backend seleccionado, y respeta las
-    dos senales que solo el conoce.
-    """
+    """La política usa las métricas que entrega el backend local."""
 
     def setUp(self):
         reset_storage_backend()

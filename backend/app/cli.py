@@ -78,7 +78,7 @@ def cleanup_orphaned_media() -> int:
     SEGURIDAD CRITICA, fail-closed en cada fase: si las referencias de la
     base no se pueden leer, si el backend de storage no se puede obtener, si
     el inventario llega incompleto (pagina truncada, snapshot que cambia a
-    mitad del recorrido) o si el origin se cae a mitad del recorrido, el
+    mitad del recorrido) o si el almacenamiento falla a mitad del recorrido, el
     contrato es CERO deletes -- nunca "borra lo que se alcanzo a ver". Un
     inventario a medias es indistinguible de una biblioteca vacia, y eso no
     puede terminar en un DELETE masivo.
@@ -125,9 +125,8 @@ def cleanup_orphaned_media() -> int:
         return 1
 
     # La edad se mide contra el reloj del snapshot, no `time.time()` de este
-    # proceso: RackNerd y el local workstation son hosts distintos, y mezclar relojes
-    # podria hacer que un objeto recien subido parezca "viejo" por un simple
-    # adelanto de reloj local (spec seccion 12, paso 3).
+    # proceso: asi una diferencia de reloj no hace que un objeto recien creado
+    # parezca viejo y entre antes de tiempo en la limpieza.
     corte_ns = int((snapshot_created_at - umbral_horas * 3600) * 1e9)
     candidatos = [o for o in inventario
                   if o.key not in protegidos and o.modified_at_ns < corte_ns]
@@ -159,8 +158,8 @@ def cleanup_orphaned_media() -> int:
 
 def cleanup_workspace() -> int:
     """Borra residuos de workspaces locales abandonados por un proceso
-    muerto a la fuerza (spec seccion 11). Puramente local: nunca llama al
-    backend de almacenamiento configurado, corre igual en local y remote."""
+    muerto a la fuerza (spec seccion 11). Puramente local; nunca llama al
+    backend de almacenamiento."""
     from .storage.workspace import sweep_workspaces
 
     borrados = sweep_workspaces(int_env("MEDIA_WORK_MAX_AGE_HOURS", 24))

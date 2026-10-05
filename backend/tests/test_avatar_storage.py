@@ -67,7 +67,7 @@ class AvatarUploadTests(unittest.TestCase):
 
     def test_un_fallo_al_borrar_el_anterior_no_tumba_la_subida(self):
         """El avatar nuevo ya es el bueno. Si el viejo no se puede borrar
-        (origin caido, fichero abierto en Windows), eso es basura para el GC,
+        (fallo de almacenamiento, fichero abierto en Windows), eso es basura para el GC,
         no un error que deba devolverle 500 a quien acaba de cambiar su foto."""
         despues = self.fuente[self.fuente.index("SET avatar_path"):]
         self.assertIn("except StorageError", despues)

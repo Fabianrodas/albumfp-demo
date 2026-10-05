@@ -28,7 +28,7 @@ class LocalStorageContractTests(unittest.TestCase):
 
     def test_nonlocal_storage_mode_fails_closed(self):
         reset_storage_backend()
-        with patch.dict(os.environ, {"MEDIA_STORAGE_BACKEND": "remote"}, clear=False):
+        with patch.dict(os.environ, {"MEDIA_STORAGE_BACKEND": "network"}, clear=False):
             with self.assertRaises(StorageConfigurationError):
                 validate_storage_configuration()
 

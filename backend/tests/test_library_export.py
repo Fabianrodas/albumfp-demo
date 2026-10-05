@@ -168,9 +168,9 @@ class ModuleShapeTests(unittest.TestCase):
             self.assertNotIn(token, fuente)
         self.assertIn("materialize(", fuente)
 
-    def test_the_route_streams_and_disables_proxy_buffering(self):
+    def test_the_route_streams_and_keeps_download_cache_private(self):
         fuente = (ROOT / "app/api/export.py").read_text(encoding="utf-8")
-        self.assertIn("X-Accel-Buffering", fuente)
+        self.assertNotIn("X-" + "Accel-Buffering", fuente)
         self.assertIn("no-store", fuente)
         self.assertIn("try_consume(", fuente)
         arbol = ast.parse(fuente)

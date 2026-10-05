@@ -49,10 +49,9 @@ def register_error_handlers(app):
         app.logger.error("Base de datos no disponible", exc_info=True)
         return fail("Servicio de base de datos no disponible", status=503, code=503)
 
-    # Un fallo del origin privado es un servicio degradado, no un bug: sale
-    # 503 para que el cliente sepa que puede reintentar. El mensaje es fijo
-    # porque el texto de la excepcion puede nombrar el host o la cabecera
-    # interna, y eso no puede viajar al navegador.
+    # Un fallo del almacenamiento es un servicio temporalmente no disponible:
+    # devuelve 503 para que el cliente pueda reintentar. El mensaje es fijo
+    # para que los detalles internos no viajen al navegador.
     @app.errorhandler(ObjectNotFound)
     def handle_object_missing(e):
         return fail("Archivo no encontrado", status=404, code=404)

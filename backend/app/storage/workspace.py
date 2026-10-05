@@ -16,7 +16,7 @@ Dos decisiones son el módulo entero:
   borrarlo por edad y su reserva vuelve al presupuesto. Con la mera presencia
   del archivo, ese residuo quedaría protegido para siempre.
 * **La contabilidad vive en un ledger en disco con lock interproceso, no en
-  memoria.** Gunicorn tiene varios workers y los timers son procesos
+  memoria.** Varios workers y los timers son procesos
   distintos: dos de ellos no pueden creerse dueños del mismo presupuesto.
 
 `WorkspaceBusy` es subclase de `WorkspaceCapacityExceeded` porque agotar las
@@ -160,15 +160,11 @@ def _configured_root(name: str) -> Path:
 
 def _other_roots(name: str) -> dict[str, Path]:
     otras = ["MEDIA_WORK_ROOT", "MEDIA_STATE_ROOT", "MEDIA_QUARANTINE_ROOT"]
-    if (os.getenv("MEDIA_STORAGE_ROOT") or "").strip():
-        otras.append("MEDIA_STORAGE_ROOT")
-    else:
-        # Sin valor configurado, el árbol final solo existe en local: en
-        # remote los bytes viven en el local workstation y esta raíz no se resuelve.
+    if not (os.getenv("MEDIA_STORAGE_ROOT") or "").strip():
         from .backends import storage_backend_mode
 
-        if storage_backend_mode() == "local":
-            otras.append("MEDIA_STORAGE_ROOT")
+        storage_backend_mode()
+    otras.append("MEDIA_STORAGE_ROOT")
     return {otra: _configured_root(otra) for otra in otras if otra != name}
 
 
@@ -389,16 +385,6 @@ def _dispose(workspace: Workspace) -> None:
         # Cerrar antes de borrar: en Windows no se borra un archivo abierto.
         workspace._release_lease()
         shutil.rmtree(workspace.directory, ignore_errors=True)
-
-
-def workspace_can_hold(n_bytes: int) -> bool:
-    """¿Cabría hoy una reserva de `n_bytes` en el área de trabajo? Solo es una
-    comprobación previa (la exportación la usa para negarse ANTES de empezar
-    a enviar un ZIP que no podría terminar); la autoridad sigue siendo
-    `reserve_bytes`, que vuelve a comprobarlo bajo el lock al reservar."""
-    root = workspace_root()
-    with _held(root / _LEDGER_LOCK_NAME):
-        return _fits(root, sum(_recalculated(root).values()), max(0, int(n_bytes)))
 
 
 @contextmanager

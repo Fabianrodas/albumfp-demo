@@ -422,9 +422,8 @@ def detect_media_ocr(media_id: int):
 
         try:
             # La copia temporal se borra sola al salir del `with`, tambien si
-            # el proveedor falla dentro. `materialize` cede el original (real
-            # en local, descargado a un temporal en remote); la copia reducida
-            # sale a un workspace "external-copy" aparte.
+            # el proveedor falla dentro. `materialize` cede el archivo local;
+            # la copia reducida sale a un workspace "external-copy" aparte.
             with get_storage_backend().materialize(clave) as origen, \
                  local_workspace("external-copy") as espacio:
                 with temporary_jpeg_for_external_service(origen, espacio.directory) as copia:

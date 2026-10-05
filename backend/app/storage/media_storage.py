@@ -7,7 +7,7 @@ from typing import Callable
 
 from ..media.image_validation import ImageValidationError, validate_image
 from .backends import get_storage_backend, storage_backend_mode
-from .contracts import InvalidStorageKey, ObjectConflict, StorageConfigurationError
+from .contracts import InvalidStorageKey, ObjectConflict
 from .object_keys import validate_storage_key
 
 _BACKEND_ROOT = Path(__file__).resolve().parents[2]
@@ -38,25 +38,18 @@ def _configured_storage_root() -> Path:
 
 
 def storage_root() -> Path:
-    """Raiz local del arbol final. Solo existe con el backend local.
-
-    El guard va ANTES de resolver nada: en remote los bytes viven en el local workstation,
-    asi que ni se calcula una raiz ni se crea el directorio vacio que la
-    delataria en el VPS (spec 6 y 12).
-    """
-    if _STORAGE_ROOT is None and storage_backend_mode() != "local":
-        raise StorageConfigurationError(
-            "storage_root() solo existe con MEDIA_STORAGE_BACKEND=local"
-        )
+    """Raíz del árbol local de archivos. La selección se valida antes de crearla."""
+    if _STORAGE_ROOT is None:
+        storage_backend_mode()
     root = _configured_storage_root()
 
-    expected_mount = (os.getenv("MEDIA_EXPECTED_MOUNTPOINT") or "").strip()
-    if expected_mount:
-        mount = Path(expected_mount).expanduser().resolve()
+    required_mount = (os.getenv("MEDIA_STORAGE_REQUIRED_MOUNTPOINT") or "").strip()
+    if required_mount:
+        mount = Path(required_mount).expanduser().resolve()
         if not os.path.ismount(mount):
-            raise RuntimeError(f"El almacenamiento esperado no está montado en {mount}")
+            raise RuntimeError("El volumen de almacenamiento requerido no está montado")
         if root != mount and mount not in root.parents:
-            raise RuntimeError("MEDIA_STORAGE_ROOT debe estar dentro de MEDIA_EXPECTED_MOUNTPOINT")
+            raise RuntimeError("MEDIA_STORAGE_ROOT debe estar dentro de MEDIA_STORAGE_REQUIRED_MOUNTPOINT")
 
     root.mkdir(parents=True, exist_ok=True)
     return root
@@ -65,8 +58,8 @@ def storage_root() -> Path:
 def storage_capacity_status(required_bytes: int = 0) -> dict:
     """Return current storage capacity policy without changing app behavior by default.
 
-    Development remains unrestricted unless MEDIA_MAX_USAGE_PERCENT and/or
-    MEDIA_MIN_FREE_GB are configured. Production examples enable both.
+    Local development remains unrestricted unless MEDIA_MAX_USAGE_PERCENT
+    and/or MEDIA_MIN_FREE_GB are configured.
     """
     capacidad = get_storage_backend().capacity()
     required = max(0, int(required_bytes or 0))
@@ -392,7 +385,7 @@ def resolve_storage_path(relative_path: str) -> Path:
     """Ruta absoluta de una key canonica. Solo local, igual que storage_root().
 
     La gramatica la decide `validate_storage_key()`, no una comprobacion
-    propia: es la misma que aplica el origin. El guard de contencion se
+    propia: es la misma que aplica la validacion de almacenamiento. El guard de contencion se
     conserva de todas formas -- una raiz con enlaces simbolicos podria sacar
     de ella una key por lo demas valida. `InvalidStorageKey` hereda de
     `ValueError` y conserva el mensaje historico, asi que los llamadores que
@@ -413,7 +406,7 @@ def remove_stored_file(relative_path: str | None) -> bool:
     """True si borro algo; False si no habia nada que borrar.
 
     Un fallo de infraestructura se propaga: antes, `except (OSError,
-    ValueError)` convertia un origin caido o un permiso denegado en un
+    ValueError)` convertia un almacenamiento no disponible o un permiso denegado en un
     silencioso "no habia nada", y quien llamaba se quedaba creyendo que los
     bytes ya no existian. Solo la ausencia (False del backend), una key que
     no cumple la gramatica y un conflicto de version -- ninguno borra nada --

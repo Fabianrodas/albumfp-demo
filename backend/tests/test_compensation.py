@@ -7,7 +7,7 @@ fija cinco propiedades que el borrador original omitia y que son el motivo
 de que este archivo exista:
 
 * un tope de bytes y de cantidad de registros (spec: 100.000 o 256 MiB);
-* bloqueo interproceso real, no solo en memoria (varios workers de Gunicorn
+* bloqueo interproceso real, no solo en memoria (varios procesos de trabajo
   y timers son procesos distintos, igual que en `test_workspace.py`);
 * version de esquema y version de objeto conocida por key;
 * fsync del directorio contenedor tras cada rename, no solo del archivo;

@@ -38,18 +38,19 @@ PostgreSQL URL on port `55432` and refuses the default local PostgreSQL port.
 
 ## Publication scan
 
-Stage the intended release tree, then run the deterministic repository scan
-from the Demo root:
+Run the deterministic repository scan from the Demo root:
 
 ```powershell
 .\backend\.venv\Scripts\python.exe scripts\publication_scan.py
 ```
 
-The scanner reads staged Git blobs and checks tracked paths and text for
-credential patterns, literal database passwords, user home-directory paths,
-non-loopback IP addresses, external runtime URLs, and ignored runtime artifacts.
-It is a project-specific check, not a general secret scanner. Regression tests
-for its route, test-file, and ignore rules are included in the backend suite.
+The scanner checks indexed Git blobs and modified tracked working copies. It
+checks paths and text for credential patterns, unsafe database URLs, private
+infrastructure addresses, private host/configuration material, stale
+production-specific storage terms, external runtime URLs, and local artifacts.
+It reads only tracked files, not ignored dependencies, caches, or `.env`. It is
+a project-specific check, not a general secret scanner. Regression tests for
+its detection rules are included in the backend suite.
 
 For the v1.0.0 release gate, Gitleaks was unavailable in the local environment;
 it was not run or represented by the deterministic scan.

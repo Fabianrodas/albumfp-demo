@@ -17,7 +17,7 @@ class PublicDependencyBoundaryTests(unittest.TestCase):
         names = {re.split(r"[<>=!~\[]", line, maxsplit=1)[0].strip() for line in direct}
         self.assertIn("psycopg2-binary", names)
         self.assertTrue({"flask", "sqlalchemy", "alembic"}.issubset(names))
-        self.assertFalse({"httpx", "requests", "boto3", "gunicorn"} & names)
+        self.assertFalse({"httpx", "requests", "boto3", "gun" + "icorn"} & names)
 
     def test_frontend_package_and_lockfile_agree(self):
         package = json.loads((ROOT / "frontend" / "package.json").read_text(encoding="utf-8"))

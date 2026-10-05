@@ -4,8 +4,8 @@ Lo que se fija aquí no es solo "el archivo grande cae en el workspace", sino
 las cuatro formas de terminar mal una subida —parseo roto, autorización
 denegada, cliente que se corta, cuerpo por encima del tope— dejando el
 presupuesto liberado y ningún archivo detrás. La contabilidad tiene que
-ocurrir MIENTRAS los bytes entran: con `proxy_request_buffering off` y HTTP/1.1
-al upstream no hay `Content-Length` que mirar antes de escribir.
+ocurrir MIENTRAS los bytes entran: `Content-Length` puede no estar disponible
+antes de empezar a escribir.
 """
 import io
 import os
@@ -89,7 +89,7 @@ class _BaseSpool(unittest.TestCase):
         return environ
 
     def _sin_longitud(self, environ, cuerpo=None):
-        """El caso de producción: Nginx sin buffering, sin `Content-Length`."""
+        """Una solicitud sin `Content-Length` respeta el presupuesto al copiar."""
         if cuerpo is not None:
             environ["wsgi.input"] = io.BytesIO(cuerpo)
         environ.pop("CONTENT_LENGTH", None)
@@ -297,7 +297,7 @@ class CableadoEnLaFactoryTests(unittest.TestCase):
 
     def test_instalar_el_spool_no_resuelve_ninguna_raiz_al_arrancar(self):
         """La factory no puede tocar el disco ni validar storage: `create_app()`
-        corre en el arranque de Gunicorn, con el entorno que haya, y la liveness
+        corre al iniciar la aplicación, con el entorno que haya, y la liveness
         de la app no depende del almacenamiento."""
         with patch("app.storage.workspace.workspace_root",
                    side_effect=AssertionError("la factory resolvió una raíz")):

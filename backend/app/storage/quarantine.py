@@ -14,8 +14,7 @@ huerfano si el cliente se desconecta a mitad de la subida.
 `MEDIA_QUARANTINE_ROOT` vive FUERA de `MEDIA_STORAGE_ROOT` a proposito: si
 algo fallara entre cuarentena y promocion, un archivo en cuarentena nunca
 debe volverse indistinguible de uno ya validado y servible. La cuarentena
-sigue siendo LOCAL siempre -- los bytes hostiles se copian y se validan en
-este host, nunca en el que guarda los objetos finales.
+usa el filesystem local configurado y queda separada del arbol final.
 
 La promocion LEE de cuarentena y nunca mueve: entrega el archivo al backend
 seleccionado (`put_from_path`), que decide donde viven los bytes y como se
@@ -61,16 +60,12 @@ def quarantine_root() -> Path:
 
     from .backends import storage_backend_mode
 
-    # El solapamiento solo puede existir donde existe un arbol final: en
-    # remote los bytes definitivos viven en el local workstation y preguntar por
-    # `storage_root()` aqui seria justo lo que esa funcion ya se niega a
-    # responder.
-    if storage_backend_mode() == "local":
-        from .media_storage import storage_root
+    storage_backend_mode()
+    from .media_storage import storage_root
 
-        final_root = storage_root()
-        if root == final_root or final_root in root.parents or root in final_root.parents:
-            raise RuntimeError("MEDIA_QUARANTINE_ROOT no puede estar dentro de (ni contener a) MEDIA_STORAGE_ROOT")
+    final_root = storage_root()
+    if root == final_root or final_root in root.parents or root in final_root.parents:
+        raise RuntimeError("MEDIA_QUARANTINE_ROOT no puede estar dentro de (ni contener a) MEDIA_STORAGE_ROOT")
 
     root.mkdir(parents=True, exist_ok=True)
     return root

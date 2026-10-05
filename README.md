@@ -10,7 +10,7 @@
 
 AlbumFP reúne fotos y videos en una biblioteca personal. Ordénalos en álbumes, encuentra cada recuerdo por sus datos, guarda tus favoritos y comparte solo lo que elijas.
 
-Esta edición Demo reproduce la experiencia del producto hasta la serie v1.3 y funciona solo en tu equipo. La versión actual de la Demo es v1.3.1; no es la infraestructura de producción de AlbumFP.
+Esta edición Demo reproduce la experiencia del producto hasta la serie v1.3 y funciona solo en tu equipo. La versión actual es 1.3.1, un hotfix de la Demo dentro de la serie v1.3; no es la infraestructura de producción de AlbumFP.
 
 ## Lo que puedes hacer
 
@@ -42,7 +42,7 @@ Las capturas se hicieron en esta Demo con una cuenta y contenido sintéticos. La
 
 ## Probarlo en Windows
 
-Necesitas Windows PowerShell, Python 3.12 o posterior, Node.js 22 o posterior, npm y PostgreSQL 14 o posterior.
+Necesitas Windows PowerShell, Python 3.13 o posterior, Node.js 22 o posterior, npm y PostgreSQL 14 o posterior.
 
 ```powershell
 git clone https://github.com/Fabianrodas/albumfp-demo.git

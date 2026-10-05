@@ -586,7 +586,7 @@ def upload_my_avatar():
             remove_stored_file(previous["avatar_path"])
         except StorageError:
             # El avatar nuevo ya es el bueno; el viejo queda para el GC. Un
-            # origin caído no puede tumbar una subida que ya se confirmó.
+            # fallo al limpiar el anterior no revierte la subida confirmada.
             pass
 
     return ok(data={"has_avatar": True}, message="Foto de perfil actualizada")

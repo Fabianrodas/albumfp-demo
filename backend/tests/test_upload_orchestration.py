@@ -138,7 +138,7 @@ class UploadOrchestrationTests(unittest.TestCase):
 
         class BackendCaido:
             def put_from_path(self, key, path):
-                raise StorageUnavailable("origin caído")
+                raise StorageUnavailable("almacenamiento local no disponible")
 
             def capacity(self):
                 from app.storage.contracts import StorageCapacity

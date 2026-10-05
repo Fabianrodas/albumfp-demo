@@ -8,6 +8,19 @@ $postgresData = Join-Path $runtimeRoot 'postgresql'
 $postgresMarker = Join-Path $postgresData '.albumfp-demo-cluster'
 $envFile = Join-Path $repoRoot '.env'
 $postgresPort = 55432
+. (Join-Path $repoRoot 'scripts\postgres_safety.ps1')
+
+$pythonCommand = (Get-Command python.exe -ErrorAction SilentlyContinue).Source
+if (-not $pythonCommand) { throw 'Install Python 3.13 or newer, then run setup.ps1 again.' }
+$pythonVersionOutput = & $pythonCommand --version
+if ($LASTEXITCODE -ne 0) { throw 'Could not determine the installed Python version.' }
+if (($pythonVersionOutput -join '').Trim() -notmatch '^Python\s+(\d+\.\d+(?:\.\d+)?)$') {
+    throw 'Could not determine the installed Python version.'
+}
+$pythonVersion = [version]$Matches[1]
+if ($pythonVersion -lt [version]'3.13') {
+    throw "Python 3.13 or newer is required. Found Python $pythonVersion."
+}
 
 function New-LocalToken {
     $bytes = New-Object byte[] 36
@@ -130,7 +143,7 @@ Assert-DemoUrl $settings.TEST_DATABASE_URL 'albumfp_demo_test'
 
 $python = Join-Path $backendDir '.venv\Scripts\python.exe'
 if (-not (Test-Path -LiteralPath $python)) {
-    & python -m venv (Join-Path $backendDir '.venv')
+    & $pythonCommand -m venv (Join-Path $backendDir '.venv')
     if ($LASTEXITCODE -ne 0) { throw 'Could not create the local Python environment.' }
 }
 & $python -m pip install -r (Join-Path $backendDir 'requirements-dev.txt')
@@ -207,6 +220,17 @@ try {
     $env:PGHOST = '127.0.0.1'
     $env:PGPORT = [string]$postgresPort
     $env:PGUSER = $settings.POSTGRES_ADMIN_USER
+
+    $listeners = @(Get-NetTCPConnection -LocalPort $postgresPort -State Listen -ErrorAction SilentlyContinue)
+    $listenAddressesOutput = & $psql -X -A -t -d postgres -v ON_ERROR_STOP=1 -c 'SHOW listen_addresses'
+    if ($LASTEXITCODE -ne 0) { throw 'Could not verify the Demo PostgreSQL listener configuration.' }
+    $serverPortOutput = & $psql -X -A -t -d postgres -v ON_ERROR_STOP=1 -c 'SHOW port'
+    if ($LASTEXITCODE -ne 0) { throw 'Could not verify the Demo PostgreSQL port.' }
+    $listenAddresses = ($listenAddressesOutput -join '').Trim()
+    $serverPort = [int](($serverPortOutput -join '').Trim())
+    Assert-PostgresLoopbackConfiguration -PostgresPort $serverPort `
+        -ListenAddresses $listenAddresses -Listeners $listeners
+
     $roleSqlPath = Join-Path $runtimeRoot ("role-" + [guid]::NewGuid().ToString('N') + '.sql')
     $escapedPassword = $settings.POSTGRES_PASSWORD.Replace("'", "''")
     $roleExists = & $psql -X -A -t -d postgres -v ON_ERROR_STOP=1 -c "SELECT 1 FROM pg_roles WHERE rolname = 'albumfp_demo'"
