@@ -31,13 +31,14 @@
     "browser_qa": "PASS (Chromium phone 390x844 and 844x390; 768/1024 tablets portrait and landscape; 1440 desktop; coarse pointers 44px and fine pointers 38px; production service worker offline shell; 0 external requests)",
     "publication_scan": "PASS (509 tracked files; deterministic Git-tree checks; Gitleaks unavailable)",
     "readme_screenshots": "PASS (33 synthetic captures checked; 8 phone captures refreshed from the local Demo; final gallery refresh pending)",
-    "main_push": "PASS through commit bc4e740; v1.2.1 release push pending"
+    "main_push": "PASS through commit 6a7280f; v1.2.1 peeled tag verified on origin"
   },
-  "last_pushed_commit": "bc4e740",
+  "last_pushed_commit": "6a7280ff1d4922387303c632b5ad9064c1f013d0",
   "release_tags": {
     "v1.0.0": "90f09aef1a5938b57ea2e431b14bf9352a65a0c5",
     "v1.1.0": "d6546e8beaddf8b837951ccca1ce016ad88016a8",
     "v1.1.1": "92a3e60ca0013b681bb866bcad9764ce03fdbfa3",
-    "v1.2.0": "e7114b58bba8c4f9bd63e13433567cbb9b3823b8"
+    "v1.2.0": "e7114b58bba8c4f9bd63e13433567cbb9b3823b8",
+    "v1.2.1": "6a7280ff1d4922387303c632b5ad9064c1f013d0"
   }
 }
