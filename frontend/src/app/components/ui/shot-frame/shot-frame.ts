@@ -1,4 +1,5 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { Theme } from '../../../core/services/theme';
 
 /**
  * Marco editorial de una captura real del producto: papel, filo cálido y sombra
@@ -8,6 +9,10 @@ import { Component, input } from '@angular/core';
  * No lleva movimiento de ningún tipo, a propósito: las vistas públicas se
  * quedaron sin animaciones para que la carga y el scroll sean lo más rápidos
  * posible.
+ *
+ * v1.1: cada captura existe en los dos temas con el MISMO contenido. `src`
+ * nombra la oscura (`capturas/x.webp`); en modo claro se sirve su pareja
+ * `capturas/claro/x.webp`.
  *
  * `zoom` y `crop` acercan el encuadre a una zona de la pantalla; siguen siendo
  * el archivo real, nunca un montaje.
@@ -32,4 +37,8 @@ export class ShotFrame {
   crop = input('center');
   /** La del hero: se carga con prioridad en vez de en diferido. */
   priority = input(false);
+
+  private readonly theme = inject(Theme);
+  readonly themedSrc = computed(() =>
+    this.theme.isDark() ? this.src() : this.src().replace(/^capturas\//, 'capturas/claro/'));
 }

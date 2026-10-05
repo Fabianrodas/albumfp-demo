@@ -1,22 +1,13 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component, Signal, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { lazyCoverUrl } from './lazy-cover';
-
-type PortableLazyCover = (
-  coverId: () => number | null | undefined,
-  loadable: () => boolean,
-) => Signal<string>;
 
 @Component({ template: '<span>{{ url() }}</span>' })
 class LazyCoverHost {
   readonly coverId = signal<number | null>(23);
-  readonly loadable = signal(false);
-  readonly url = (lazyCoverUrl as PortableLazyCover)(
-    () => this.coverId(),
-    () => this.loadable(),
-  );
+  readonly url = lazyCoverUrl(() => this.coverId());
 }
 
 describe('lazyCoverUrl', () => {
@@ -29,26 +20,28 @@ describe('lazyCoverUrl', () => {
 
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
-  it('does not request a cover that the caller marks as a video', async () => {
+  it('asks for the cover preview (a video cover gets its poster)', async () => {
     const http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(LazyCoverHost);
     fixture.detectChanges();
     await fixture.whenStable();
-
-    http.expectNone('/api/media/23/preview');
+    http.expectOne('/api/media/23/preview').flush(new Blob(['poster']));
+    expect(fixture.componentInstance.url()).toMatch(/^blob:/);
     fixture.destroy();
   });
 
-  it('loads the same cover after it becomes an image', async () => {
+  it('leaves no URL when the cover has no preview, and loads a new cover when it changes', async () => {
     const http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(LazyCoverHost);
     fixture.detectChanges();
     await fixture.whenStable();
-    http.expectNone('/api/media/23/preview');
+    http.expectOne('/api/media/23/preview').flush(new Blob(), { status: 404, statusText: 'Not Found' });
+    expect(fixture.componentInstance.url()).toBe('');
 
-    fixture.componentInstance.loadable.set(true);
+    fixture.componentInstance.coverId.set(24);
     fixture.detectChanges();
-    http.expectOne('/api/media/23/preview').flush(new Blob(['preview']));
+    http.expectOne('/api/media/24/preview').flush(new Blob(['preview']));
+    expect(fixture.componentInstance.url()).toMatch(/^blob:/);
     fixture.destroy();
   });
 });

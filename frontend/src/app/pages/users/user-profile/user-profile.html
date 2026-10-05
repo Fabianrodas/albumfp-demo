@@ -1,3 +1,4 @@
+@if (returnTo; as r) { <a class="back-link" [routerLink]="r.tree">{{ r.label }}</a> }
 @if (notFound()) {
   <section class="empty-state profile-missing">
     <div class="empty-state__copy">

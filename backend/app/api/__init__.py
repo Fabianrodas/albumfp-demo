@@ -10,6 +10,7 @@ from ..api.media import media_bp
 # Cuelga sus rutas del mismo `media_bp`, así que hay que importarlo ANTES de
 # registrar el blueprint o esas URLs no existirían.
 from ..api import media_context  # noqa: F401
+from ..api import media_posters  # noqa: F401  (v1.1, mismo media_bp)
 from ..api.places import places_bp
 from ..api.tags import tags_bp
 from ..api.users import users_bp

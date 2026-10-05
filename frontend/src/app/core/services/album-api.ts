@@ -242,8 +242,6 @@ export interface SharedMediaDetail {
 
 export interface MediaContext {
   place_display_name?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
   locality?: string | null;
   region?: string | null;
   country_code?: string | null;
@@ -404,6 +402,15 @@ export class AlbumApi {
     this.previewBytes = 0;
   }
 
+  /** v1.1: una portada nueva cambia los bytes de la vista previa de ESE
+   * video, la única escritura que invalida una preview ya memorizada. */
+  forgetPreview(id: number) {
+    const kept = this.previews.get(id);
+    if (!kept) return;
+    this.previews.delete(id);
+    this.previewBytes -= kept.size;
+  }
+
   private keepPreview(id: number, blob: Blob) {
     // Un original de respaldo enorme (video de portada) no entra: vaciaría el
     // presupuesto entero para guardar una sola cosa.
@@ -558,6 +565,16 @@ export class AlbumApi {
   // Los originales no se memorizan: pesan megas y guardarlos retendría cada
   // foto abierta en memoria hasta recargar. Las previews sí, acotadas (arriba).
   mediaFile(id: number) { return this.http.get(`${API}/api/media/${id}/file`, { responseType: 'blob' }); }
+  /** URL directa del original: el `<video>` la pide por rangos (206) y empieza
+   * a reproducir sin bajar el archivo entero. La sesión viaja en la cookie. */
+  mediaFileUrl(id: number) { return `${API}/api/media/${id}/file`; }
+  /** v1.1: fotograma elegido en el navegador como portada de un video. */
+  setVideoPoster(id: number, poster: Blob) {
+    const form = new FormData();
+    form.append('poster', poster, 'poster.jpg');
+    return this.write(this.http.put<ApiResponse<{ media_id: number; preview_width: number; preview_height: number }>>(
+      `${API}/api/media/${id}/poster`, form)).pipe(tap(() => this.forgetPreview(id)));
+  }
   /**
    * Versión reducida (WebP ≤1280px) para cuadrículas y portadas. El servidor
    * cae al original cuando esa foto no tiene vista previa (un video, o algo

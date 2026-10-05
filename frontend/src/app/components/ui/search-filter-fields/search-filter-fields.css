@@ -1,9 +1,13 @@
 /* Los filtros de la búsqueda avanzada. Viven aquí porque los usan la
    búsqueda de /albumes y el editor de álbumes inteligentes. */
-:host { display: block; }
+:host { display: block; container-type: inline-size; }
+/* v1.1: las columnas se deciden por el ancho REAL del panel (container
+   queries), no por el de la ventana. Dentro de un modal de 720px la regla por
+   viewport daba 3 columnas y 4 filas, y el editor de álbumes inteligentes
+   necesitaba scroll en un portátil. */
 .filter-panel {
   display: grid;
-  grid-template-columns: repeat(5, minmax(135px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 13px;
 }
 .filter-panel label { display: grid; gap: 7px; color: var(--text-soft); font-size: 12.5px; font-weight: 700; }
@@ -22,12 +26,12 @@
 .filter-panel input:focus,
 .filter-panel select:focus { border-color: var(--sage-500); box-shadow: var(--focus-ring); }
 .filter-panel--divided { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
-@media (max-width: 1050px) {
-  .filter-panel { grid-template-columns: repeat(3, minmax(150px, 1fr)); }
+@container (max-width: 700px) {
+  .filter-panel { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
-@media (max-width: 700px) {
+@container (max-width: 560px) {
   .filter-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 460px) {
+@container (max-width: 400px) {
   .filter-panel { grid-template-columns: 1fr; }
 }

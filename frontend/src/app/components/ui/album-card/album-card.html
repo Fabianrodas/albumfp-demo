@@ -1,6 +1,6 @@
 <a class="album-card" [routerLink]="['/albumes', album().id]" [queryParams]="origin() ? { from: origin() } : null">
   <div class="album-card__cover">
-    @if (coverUrl() && album().cover_file_type === 'image') {<img [src]="coverUrl()" [alt]="'Portada de ' + album().titulo" loading="lazy">}
+    @if (coverUrl()) {<img [src]="coverUrl()" [alt]="'Portada de ' + album().titulo" loading="lazy">}
     @else if (album().cover_file_type === 'video') {<div class="album-card__placeholder album-card__video" aria-hidden="true"><app-icon name="video" [size]="28"/><span>Video</span></div>}
     @else {<div class="album-card__placeholder" aria-hidden="true"><span>{{ album().titulo.slice(0,1) }}</span></div>}
     <div class="album-card__badges">@if (album().role === 'owner' && album().is_private) { <span class="card-badge"><app-icon name="lock" [size]="12"/>Privado</span> }@if (album().role !== 'owner') { <span class="card-badge shared"><app-icon name="share" [size]="12"/>{{ album().role === 'write' ? 'Colaborador' : 'Solo lectura' }}</span> }</div>

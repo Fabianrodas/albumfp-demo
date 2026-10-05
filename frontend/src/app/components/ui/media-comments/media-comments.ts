@@ -1,6 +1,7 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { AlbumApi } from '../../../core/services/album-api';
 import { AssetComment, CommentsApi, MAX_COMMENT_LENGTH } from '../../../core/services/comments-api';
 import { Confirm } from '../../../core/services/confirm';
@@ -17,7 +18,7 @@ import { Toast } from '../../../core/services/toast';
  */
 @Component({
   selector: 'app-media-comments',
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, FormsModule, NgTemplateOutlet, RouterLink],
   templateUrl: './media-comments.html',
   styleUrl: './media-comments.css',
 })
@@ -26,12 +27,15 @@ export class MediaComments {
   private readonly albumApi = inject(AlbumApi);
   private readonly confirm = inject(Confirm);
   private readonly toast = inject(Toast);
+  private readonly router = inject(Router);
 
   mediaId = input.required<number>();
   shareToken = input<string>('');
 
   readonly max = MAX_COMMENT_LENGTH;
   readonly readOnly = computed(() => !!this.shareToken());
+  /** El perfil al que lleva el autor sabe volver a ESTE post (ver `UserProfile`). */
+  returnState() { return { back: this.router.url, backLabel: 'Regresar al post' }; }
   readonly comments = signal<AssetComment[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);

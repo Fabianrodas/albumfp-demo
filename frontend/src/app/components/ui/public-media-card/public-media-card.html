@@ -1,6 +1,6 @@
 <article class="public-card">
   <a class="public-card__cover" [routerLink]="detailLink()" [queryParams]="{ from: 'explore' }" [attr.aria-label]="'Abrir ' + (media().file_type === 'video' ? 'video ' : 'foto ') + (media().title || 'sin título')">
-    @if (url() && media().file_type === 'image') {
+    @if (url()) {
       <img [src]="url()" [alt]="media().title || 'Foto compartida'">
     } @else if (media().file_type === 'video') {
       <div class="public-card__video-placeholder" aria-hidden="true">

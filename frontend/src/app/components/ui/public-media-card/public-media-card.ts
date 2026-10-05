@@ -19,7 +19,6 @@ export class PublicMediaCard {
 
   readonly url = lazyCoverUrl(
     () => this.media().id,
-    () => this.media().file_type !== 'video',
   );
 
   detailLink() {

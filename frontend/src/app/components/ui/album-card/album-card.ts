@@ -14,6 +14,5 @@ export class AlbumCard {
   origin = input<'shared' | 'home' | null>(null);
   readonly coverUrl = lazyCoverUrl(
     () => this.album().cover_media_id,
-    () => this.album().cover_file_type !== 'video',
   );
 }

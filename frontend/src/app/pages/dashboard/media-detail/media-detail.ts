@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin, of, Subscription } from 'rxjs';
@@ -15,6 +15,7 @@ import { upsertTagSorted } from '../../../core/utils/tag-catalog';
 import { isCurrentMediaRequest, MediaDirection, mediaDetailLink, navigationKey, neighboringMediaId } from '../../../core/utils/media-navigation';
 import { pagedList } from '../../../core/utils/paged-list';
 import { advancedSearchFromParams, advancedSearchToParams } from '../../../core/utils/advanced-search';
+import { captureFrame } from '../../../core/utils/video-frame';
 
 /** Ventana de ±45 min alrededor del amanecer/atardecer para la etiqueta
  * "Cerca del…". Es una regla local y explícita, no un dato del proveedor. */
@@ -127,6 +128,10 @@ export class MediaDetail implements OnDestroy {
   readonly role = signal<AlbumRole>('read');
   readonly capabilities = signal<AlbumCapability[]>([]);
   readonly assetUrl = signal('');
+  /** v1.1: portada del video (su vista previa) mientras no se reproduce. */
+  readonly videoPoster = signal('');
+  readonly savingPoster = signal(false);
+  private readonly player = viewChild<ElementRef<HTMLVideoElement>>('player');
   readonly loading = signal(true);
   readonly assetLoading = signal(true);
   readonly error = signal('');
@@ -197,7 +202,7 @@ export class MediaDetail implements OnDestroy {
    * sugerir etiquetas— son del dueño y no de una capacidad: un colaborador
    * puede corregir datos de la foto, pero que los píxeles salgan del servidor
    * lo decide quien creó el álbum. */
-  readonly canSendImageOut = computed(() => false);
+  readonly canSendImageOut = computed(() => canManageAlbum(this.role()) && this.media()?.file_type === 'image');
   /** Ya existen en la biblioteca: reutilizarlas no crea nada y mantiene el
    * catálogo pequeño, así que van primero y en su propio grupo. */
   readonly knownSuggestions = computed(() => this.suggestions().filter(s => s.tag_id !== null));
@@ -215,30 +220,29 @@ export class MediaDetail implements OnDestroy {
    * única señal de que existe es que `media_context` ya tiene fila. */
   readonly showContext = computed(() => !!this.context() || this.hasGps());
 
-  /** La pestaña sigue visible para fotos en la Demo local y explica cuando
-   * OCR no está disponible, en vez de hacer parecer que la función no existe. */
-  readonly showTextTab = computed(() => this.media()?.file_type === 'image');
+  /** El texto detectado solo existe para fotos, y la pestana solo tiene
+   * sentido si ya hay texto o si este usuario puede pedirlo. */
+  readonly showTextTab = computed(() => this.media()?.file_type === 'image' && (!!this.ocr() || this.canSendImageOut()));
 
   /** La pestana "Recuerdo" tiene algo que contar. Incluye `showContext()`
    * porque una foto con GPS todavia sin resolver tampoco esta vacia: puede
    * ofrecer el boton de completar. */
   readonly hasStory = computed(() => !!this.media()?.caption || !!this.media()?.taken_at || this.showContext());
 
-  /** Punto de partida del editor: coordenadas guardadas o, si faltan, EXIF. */
+  /** Punto de partida del selector al editar: solo se conoce si la foto trae
+   * EXIF. Un pin puesto a mano no dejó rastro de sus coordenadas crudas, así
+   * que el editor arranca en la vista del mundo, igual que al subir. */
   readonly editInitialLocation = computed(() => {
     const data = this.exif();
-    const context = this.context();
-    const latitude = context?.latitude ?? data?.latitude;
-    const longitude = context?.longitude ?? data?.longitude;
-    if (latitude == null || longitude == null) return null;
-    return { lat: latitude, lon: longitude };
+    if (data?.latitude == null || data?.longitude == null) return null;
+    return { lat: data.latitude, lon: data.longitude };
   });
 
   /** "Guayaquil, Guayas, Ecuador". Vacio si aun no se completo el contexto. */
   readonly placeLabel = computed(() => {
     const ctx = this.context();
     if (!ctx) return '';
-    return [ctx.locality, ctx.region, ctx.country_name].filter(Boolean).join(', ') || ctx.place_display_name || '';
+    return [ctx.locality, ctx.region, ctx.country_name].filter(Boolean).join(', ');
   });
 
   /** "El Consuelo": lo que responde a "dónde", en grande. */
@@ -962,6 +966,20 @@ export class MediaDetail implements OnDestroy {
 
   private loadAsset(epoch: number) {
     const mediaId = this.mediaId;
+    // v1.1: un video autenticado se reproduce desde su URL directa. El
+    // navegador pide rangos (206) y empieza a reproducir sin bajar el
+    // archivo entero; cada rango pasa por la misma autorización de siempre.
+    // Antes se descargaba ENTERO como Blob antes de poder darle a play.
+    if (!this.isPublic && this.media()?.file_type === 'video') {
+      this.revokeAsset();
+      this.assetUrl.set(this.api.mediaFileUrl(mediaId));
+      this.assetLoading.set(false);
+      this.api.mediaPreview(mediaId).subscribe({
+        next: blob => { if (epoch === this.loadEpoch) this.setPoster(blob); },
+        error: () => undefined,
+      });
+      return;
+    }
     this.assetLoading.set(true);
     // En un enlace público SIEMPRE se pinta la vista previa (derivado sin
     // EXIF), nunca el original: ver y descargar siguen siendo dos permisos
@@ -986,8 +1004,34 @@ export class MediaDetail implements OnDestroy {
 
   private revokeAsset() {
     const current = this.assetUrl();
-    if (current) URL.revokeObjectURL(current);
+    if (current.startsWith('blob:')) URL.revokeObjectURL(current);
     this.assetUrl.set('');
+    this.setPoster(null);
+  }
+
+  private setPoster(blob: Blob | null) {
+    const old = this.videoPoster();
+    if (old) URL.revokeObjectURL(old);
+    this.videoPoster.set(blob ? URL.createObjectURL(blob) : '');
+  }
+
+  /** v1.1: el fotograma que se ve en el reproductor pasa a ser la portada. */
+  async useFrameAsPoster() {
+    const video = this.player()?.nativeElement;
+    const item = this.media();
+    if (!video || !item || item.file_type !== 'video' || !this.canEdit() || this.savingPoster()) return;
+    video.pause();
+    this.savingPoster.set(true);
+    try {
+      const blob = await captureFrame(video, video.currentTime);
+      this.api.setVideoPoster(item.id, blob).subscribe({
+        next: () => { this.setPoster(blob); this.toast.success('Portada del video actualizada.'); this.savingPoster.set(false); },
+        error: error => { this.toast.error(error?.error?.message || 'No se pudo guardar la portada.'); this.savingPoster.set(false); },
+      });
+    } catch {
+      this.toast.error('No pudimos capturar este fotograma en este navegador.');
+      this.savingPoster.set(false);
+    }
   }
 
   private fail(error: any, fallback: string) {

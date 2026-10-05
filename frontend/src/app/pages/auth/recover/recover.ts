@@ -17,7 +17,7 @@ function normalizeCode(value: string): string {
  * contraseña nueva. Nada de lo escrito se guarda en el navegador, y al terminar
  * los campos se vacían. No inicia sesión: se entra después con la contraseña nueva.
  */
-@Component({ selector: 'app-recover', imports: [FormsModule, RouterLink, Icon], templateUrl: './recover.html', styleUrl: '../login/login.css' })
+@Component({ selector: 'app-recover', imports: [FormsModule, RouterLink, Icon], templateUrl: './recover.html', styleUrl: '../register/register.css' })
 export class Recover {
   private readonly account = inject(AccountApi);
 

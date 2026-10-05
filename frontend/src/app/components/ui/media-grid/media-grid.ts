@@ -23,10 +23,6 @@ export class MediaGrid {
   role = input<AlbumRole>('read');
   capabilities = input<AlbumCapability[]>([]);
   shareToken = input<string | null>(null);
-  /** Solo importa con shareToken: si el dueño del enlace permite bajar el
-   * original. Por defecto true porque en cualquier otro modo (autenticado)
-   * esta restricción no existe. */
-  allowOriginalDownload = input(true);
 
   /** Muestra la casilla de selección en cada tarjeta. La página dueña de la vista mantiene la selección. */
   selectable = input(false);
@@ -36,7 +32,6 @@ export class MediaGrid {
   permanentDelete = output<Media>();
   deleteRequested = output<Media>();
   favoriteChanged = output<Media>();
-  tagRequested = output<Media>();
   coverRequested = output<Media>();
   selectionToggled = output<Media>();
   /** Con shareToken, abrir una foto no puede navegar a la ruta autenticada

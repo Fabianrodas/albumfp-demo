@@ -6,7 +6,7 @@
 } @else if (failed()) {
   <div class="asset-unavailable">Archivo no disponible</div>
 } @else if (url()) {
-  @if (item().file_type === 'video') {
+  @if (item().file_type === 'video' && quality() === 'original') {
     <video [src]="url()" controls preload="metadata" playsinline></video>
   } @else {
     <img [src]="url()" [alt]="item().title || 'Archivo multimedia'">

@@ -3,7 +3,7 @@
     <article class="media-card" [id]="'media-' + item.id" tabindex="-1" [class.media-card--video]="item.file_type === 'video'" [class.media-card--trash]="mode() === 'trash'" [class.is-selected]="isSelected(item)">
       <div class="media-card__frame">
         <button type="button" class="media-card__asset" [class.media-card__asset--openable]="mode() !== 'trash'" [disabled]="mode() === 'trash'" [attr.aria-label]="mode() !== 'trash' ? 'Abrir ' + (item.title || 'detalle del archivo') : null" (click)="activate(item)">
-          <app-media-asset [item]="item" [shareToken]="shareToken()" [allowOriginalDownload]="allowOriginalDownload()" />
+          <app-media-asset [item]="item" [shareToken]="shareToken()" />
           @if (item.file_type === 'video') { <span class="media-kind"><app-icon name="video" [size]="13"/>Video</span> }
         </button>
 
@@ -38,7 +38,6 @@
           } @else if (mode() === 'album') {
             @if (canOrganize()) {
               <button type="button" class="icon-action icon-action--favorite" [class.active]="item.is_favorite" [attr.aria-pressed]="item.is_favorite" (click)="favoriteChanged.emit(item)" [attr.aria-label]="item.is_favorite ? 'Quitar de favoritos' : 'Marcar como favorito'" [title]="item.is_favorite ? 'Quitar de favoritos' : 'Marcar como favorito'"><app-icon name="heart" [size]="16" [filled]="!!item.is_favorite"/></button>
-              <button type="button" class="icon-action" (click)="tagRequested.emit(item)" aria-label="Gestionar tags" title="Gestionar tags"><app-icon name="tag" [size]="16"/></button>
             }
             @if (canSetCover()) {
               <button type="button" class="icon-action" (click)="coverRequested.emit(item)" aria-label="Usar como portada" title="Usar como portada"><app-icon name="image" [size]="16"/></button>

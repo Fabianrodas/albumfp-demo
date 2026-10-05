@@ -6,11 +6,11 @@
 
 <p align="center"><strong>Tus fotos, tus videos y las historias que quieres volver a encontrar.</strong></p>
 
-<p align="center"><a href="https://albumfp.com">Conoce AlbumFP</a> · Demo local v1.0.0</p>
+<p align="center"><a href="https://albumfp.com">Conoce AlbumFP</a> · Demo local v1.1.0</p>
 
 AlbumFP reúne fotos y videos en una biblioteca personal. Ordénalos en álbumes, encuentra cada recuerdo por sus datos, guarda tus favoritos y comparte solo lo que elijas.
 
-Esta edición Demo reproduce la experiencia del producto hasta v1.0.0 y funciona solo en tu equipo. No es la infraestructura de producción de AlbumFP.
+Esta edición Demo reproduce la experiencia del producto hasta v1.1.0 y funciona solo en tu equipo. No es la infraestructura de producción de AlbumFP.
 
 ## Lo que puedes hacer
 
@@ -19,6 +19,7 @@ Esta edición Demo reproduce la experiencia del producto hasta v1.0.0 y funciona
 - Marcar favoritos, archivar recuerdos y restaurar archivos desde la papelera.
 - Compartir álbumes con enlaces de solo lectura o permisos de colaboración.
 - Añadir comentarios y consultar la actividad de tus álbumes.
+- Elegir portadas de video y reproducir los originales por rangos.
 - Mantener los archivos y los datos en almacenamiento local.
 
 ## Un vistazo

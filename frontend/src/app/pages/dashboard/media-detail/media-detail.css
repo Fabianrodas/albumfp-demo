@@ -137,8 +137,14 @@
 /* L10B: los álbumes del recuerdo (solo el dueño). Reutiliza chips y fila de tags. */
 .album-membership{margin-top:16px;padding-top:15px;border-top:1px solid var(--border);display:grid;gap:8px}.album-membership__list{padding:0;list-style:none}.album-chip{border-color:var(--border-strong);background:var(--surface-sage);color:var(--text)}.album-chip a{color:inherit;text-decoration:none}.album-chip a:hover{text-decoration:underline}.album-membership__empty{margin:0;font-size:11.5px;color:var(--text-soft)}.album-membership__add{margin-top:0;padding-top:0;border-top:0}
 /* F05: los comentarios, debajo del contenedor de una pantalla. */
-.detail-comments{padding-top:4px}
-.detail-comments--public{padding:4px clamp(14px,3vw,28px) 0}
+/* v1.1: el bloque de comentarios se separa del visor. La página mide una
+   pantalla y su margen negativo (cancela --page-pad-b) subía los comentarios
+   hasta montarse 12px sobre el visor. Con comentarios debajo la página ya
+   scrollea, así que ese margen sobra: el hueco queda en el relleno inferior de
+   la página más los `gap` de sus hijos (~50px en escritorio, ~40 en móvil). */
+.media-detail-page:has(~ .detail-comments){margin-bottom:0}
+.detail-comments{padding-top:0}
+.detail-comments--public{padding:0 clamp(14px,3vw,28px)}
 
 /* F06: el enlace de volver, tocable en movil (>=40px). */
 @media (max-width: 560px) { .back-link { min-height: 40px; display: inline-flex; align-items: center; } }

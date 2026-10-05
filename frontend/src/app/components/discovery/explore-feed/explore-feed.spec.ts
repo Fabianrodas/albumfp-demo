@@ -14,7 +14,11 @@ const card = (id: number) => ({
 describe('ExploreFeed (embedded in Inicio)', () => {
   let http: HttpTestingController;
 
-  afterEach(() => http?.verify());
+  // v1.1: las tarjetas de video piden su portada (/preview); aquí no importan.
+  afterEach(() => {
+    http?.match(r => r.url.endsWith('/preview')).forEach(r => r.flush(new Blob()));
+    http?.verify();
+  });
 
   function create() {
     TestBed.configureTestingModule({

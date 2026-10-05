@@ -1,7 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PublicAlbumCard } from '../../../components/ui/public-album-card/public-album-card';
 import { ScrollReveal } from '../../../core/directives/scroll-reveal';
+import { readReturnTo } from '../../../core/utils/return-to';
 import { AlbumApi, PublicAlbum, UserProfile as PublicUser } from '../../../core/services/album-api';
 
 const PER_PAGE = 12;
@@ -9,7 +10,7 @@ const PER_PAGE = 12;
 /** Perfil público de otra persona: quién es y qué tiene publicado. */
 @Component({
   selector: 'app-user-profile',
-  imports: [PublicAlbumCard, ScrollReveal],
+  imports: [PublicAlbumCard, ScrollReveal, RouterLink],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css',
 })
@@ -24,6 +25,15 @@ export class UserProfile {
   loaded = signal(false);
   notFound = signal(false);
   private username = '';
+
+  /** A dónde vuelve «Regresar al post» (v1.1). Llega como estado de navegación
+   * desde el autor de un comentario, así que no viaja en la URL y sobrevive a
+   * recargar (`history.state`). Solo rutas de esta app: nada que empiece por
+   * `//` o por un esquema. Sin estado, no hay enlace. */
+  private readonly router = inject(Router);
+  private readonly returnState = readReturnTo(this.router.currentNavigation()?.extras.state ?? history.state);
+  /* Árbol ya parseado: un `routerLink` con texto codificaría el `?` de la vuelta. */
+  readonly returnTo = this.returnState && { tree: this.router.parseUrl(this.returnState.back), label: this.returnState.label };
 
   readonly initials = computed(() => (this.profile()?.username || '').slice(0, 2).toUpperCase());
 

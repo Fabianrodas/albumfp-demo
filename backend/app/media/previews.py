@@ -66,7 +66,7 @@ class LocalPreview:
     file_size: int
 
 
-def render_image_preview(source_path: Path, output_dir: Path) -> LocalPreview | None:
+def render_image_preview(source_path: Path, output_dir: Path, *, keep_larger: bool = False) -> LocalPreview | None:
     """Renderiza la vista previa de `source_path` dentro de `output_dir`.
 
     Sin efectos sobre el almacenamiento final: `output_dir` es responsabilidad
@@ -75,6 +75,10 @@ def render_image_preview(source_path: Path, output_dir: Path) -> LocalPreview | 
     Nunca lanza; un archivo corrupto, que no es imagen, o una vista previa que
     no pesa menos que el original devuelven None sin dejar residuos en
     `output_dir`.
+
+    `keep_larger` (v1.1, portadas de video): la portada NO tiene un original
+    de imagen al que caer, así que se conserva aunque no pese menos que el
+    fotograma que mandó el navegador.
     """
     destino = Path(output_dir) / f"{uuid.uuid4().hex}.webp"
     try:
@@ -104,7 +108,7 @@ def render_image_preview(source_path: Path, output_dir: Path) -> LocalPreview | 
             # Pasa de verdad con imagenes ya pequeñas o ya muy optimizadas,
             # donde no hubo reescalado y recomprimir a WebP no gana nada.
             tamano = destino.stat().st_size
-            if tamano >= Path(source_path).stat().st_size:
+            if not keep_larger and tamano >= Path(source_path).stat().st_size:
                 destino.unlink(missing_ok=True)
                 return None
 

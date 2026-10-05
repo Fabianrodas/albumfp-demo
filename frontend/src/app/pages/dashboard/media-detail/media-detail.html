@@ -23,6 +23,7 @@
         @if (canEdit()) {<button type="button" class="btn btn-secondary" (click)="openEdit()"><app-icon name="edit" [size]="16"/><span class="btn-label">Editar</span></button>}
         @if (canManage()) {<button type="button" class="btn btn-secondary" [class.detail-action-active]="item.is_favorite" (click)="toggleFavorite()"><app-icon name="heart" [size]="16"/><span class="btn-label">{{ item.is_favorite ? 'Quitar favorito' : 'Favorito' }}</span></button>}
         @if (canManage()) {<button type="button" class="btn btn-secondary" (click)="toggleArchive()"><app-icon name="archive" [size]="16"/><span class="btn-label">{{ item.archived_at ? 'Desarchivar' : 'Archivar' }}</span></button>}
+        @if (item.file_type === 'video' && !isPublic && canEdit() && assetUrl()) {<button type="button" class="btn btn-secondary" [disabled]="savingPoster()" (click)="useFrameAsPoster()" title="Usar el fotograma que se ve ahora como portada del video"><app-icon name="video" [size]="16"/><span class="btn-label">{{ savingPoster() ? 'Guardando…' : 'Usar fotograma' }}</span></button>}
         @if (canSetCover()) {<button type="button" class="btn btn-secondary" (click)="setCover()"><app-icon name="image" [size]="16"/><span class="btn-label">Portada</span></button>}
         @if (canDelete()) {<button type="button" class="btn btn-ghost danger-action" (click)="deleteMedia()"><app-icon name="trash" [size]="16"/><span class="btn-label">Enviar a papelera</span></button>}
       </div>
@@ -32,7 +33,7 @@
     <div class="viewer-shell">
       <section class="media-stage">
         @if (assetLoading()) {<div class="viewer-skeleton skeleton-shape" aria-label="Cargando archivo"></div>}
-        @else if (assetUrl()) {@if (item.file_type === 'video') {<video [src]="assetUrl()" controls preload="metadata" playsinline></video>} @else {<button type="button" class="stage-open" (click)="zoomOpen.set(true)" aria-label="Ver la foto completa"><img [src]="assetUrl()" [alt]="item.title || 'Foto del álbum'"></button>}}
+        @else if (assetUrl()) {@if (item.file_type === 'video' && !isPublic) {<video #player [src]="assetUrl()" [poster]="videoPoster()" controls preload="metadata" playsinline></video>} @else {<button type="button" class="stage-open" (click)="zoomOpen.set(true)" aria-label="Ver la foto completa"><img [src]="assetUrl()" [alt]="item.title || 'Foto del álbum'"></button>}}
         @else {<div class="asset-error"><strong>Archivo no disponible</strong><span>No se pudo cargar desde el almacenamiento.</span></div>}
       </section>
 
@@ -148,7 +149,12 @@
               }
 
               @if (placeLabel()) {
-                <p class="context-attribution">La ubicación se guarda localmente.@if (hasSolar()) { La hora solar se calcula en este equipo. }</p>
+                <p class="context-attribution">
+                  Ubicación: ubicacion guardada
+                  @if (hasSolar()) { · Datos solares: datos solares }
+                  @if (context()?.holiday_name) { · Festivos: festivos }
+                  @if (weatherLabel()) { · Clima: dato meteorologico guardado localmente }
+                </p>
               }
             }
 
@@ -200,7 +206,7 @@
               @if (canSendImageOut() && canManage()) {
                 <div class="suggest-block">
                   @if (!suggestions().length) {
-                    <p class="ocr-notice">Se enviará una copia temporal de esta imagen a Imagga para sugerir etiquetas. Nada se añadirá hasta que tú lo confirmes.</p>
+                    <p class="ocr-notice">La deteccion de texto esta desactivada en esta edicion local; tus archivos permanecen localmente en este equipo.</p>
                   }
                   <button type="button" class="btn btn-secondary btn-compact" [disabled]="suggesting()" (click)="suggestTags()">
                     @if (suggesting()) { <span class="btn-spinner"></span> }<app-icon name="sparkle" [size]="14"/>{{ suggesting() ? 'Buscando…' : 'Sugerir automáticamente' }}
@@ -242,7 +248,7 @@
                     <button type="button" class="btn btn-primary btn-compact" [disabled]="!chosenSuggestions().size || addingSuggestions()" (click)="addChosenSuggestions()">
                       @if (addingSuggestions()) { <span class="btn-spinner"></span> }Añadir seleccionadas
                     </button>
-                    <p class="context-attribution">Las sugerencias en línea están desactivadas; puedes añadir etiquetas manualmente.</p>
+                    <p class="context-attribution">Sugerencias: sugerencias locales</p>
                   }
                   @if (suggestError()) { <p class="notice notice-error">{{ suggestError() }}</p> }
                 </div>
@@ -261,14 +267,12 @@
                     <button type="button" class="ocr-remove" (click)="removeText()">Eliminar texto</button>
                   }
                 </div>
-                <p class="context-attribution">El análisis en línea está desactivado en la edición local.</p>
+                <p class="context-attribution">Texto: texto guardado localmente</p>
               } @else if (canSendImageOut()) {
-                <p class="ocr-notice">El análisis de texto en línea está desactivado en la edición local.</p>
+                <p class="ocr-notice">Se enviará una copia temporal de esta imagen a texto guardado localmente para extraer texto. El original de AlbumFP no se modifica.</p>
                 <button type="button" class="btn btn-secondary" [disabled]="ocrRunning()" (click)="detectText()">
                   @if (ocrRunning()) { <span class="btn-spinner"></span> }<app-icon name="search" [size]="14"/>{{ ocrRunning() ? 'Analizando…' : 'Detectar texto' }}
                 </button>
-              } @else {
-                <p class="ocr-notice">La extracción de texto está desactivada en esta edición local. Tus fotos no se envían a un servicio OCR.</p>
               }
               @if (ocrError()) { <p class="notice notice-error">{{ ocrError() }}</p> }
             }
@@ -305,8 +309,8 @@
 
       <div class="location-heading">
         <p class="location-hint">
-          @if (editClearLocation()) { El lugar volverá al que trae la foto. Elige coordenadas abajo para cambiarlo. }
-          @else { Para corregir el lugar, introduce coordenadas GPS. Si no las tocas, se conserva el valor actual. }
+          @if (editClearLocation()) { El lugar volverá al que trae la foto. Elige uno abajo para cambiarlo. }
+          @else { Para corregir el lugar, busca o haz clic en el mapa. Si no lo tocas, se conserva el que ya tenía. }
         </p>
         @if (canRemoveLocation()) {
           <button type="button" class="text-action danger-text" (click)="toggleClearLocation()">
@@ -314,7 +318,10 @@
           </button>
         }
       </div>
-      <!-- El control solo se instancia después de abrir el editor. -->
+      <!-- Y aun con permiso, solo mientras el diálogo está abierto: el picker pide
+           el mapa a LocationIQ al crearse (22 KB y cupo) y el modal cerrado
+           también proyecta su contenido, así que antes cada apertura del
+           detalle lo pagaba sin enseñarlo. -->
       @if (editOpen() && !editClearLocation()) {
         <app-location-picker [initial]="editInitialLocation()" (picked)="onEditLocationPicked($event)" />
       }

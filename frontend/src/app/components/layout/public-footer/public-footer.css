@@ -28,33 +28,81 @@
   font: 500 21px/1 var(--display);
   letter-spacing: -.02em;
 }
-.footer-brand img { width: 30px; height: 30px; object-fit: contain; }
 
-.footer-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
-.footer-links a {
-  min-height: 44px;
-  display: inline-flex;
+.footer-brand img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.public-footer small {
+  color: var(--forest-muted);
+  font-size: 12.5px;
+}
+
+.footer-version {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Quién lo hizo y dónde encontrarlo: tres logotipos monocromos, sin el color
+   de cada marca. Aquí acompañan al pie; en Acerca de sí llevan su color. */
+.footer-autor {
+  display: flex;
   align-items: center;
-  padding: 0 10px;
-  border-radius: 9px;
+  gap: 6px 10px;
+  flex-wrap: wrap;
+}
+
+.footer-autor>span {
   color: var(--forest-text);
-  text-decoration: none;
-  font-size: 14px;
+  font-size: 13.5px;
   opacity: .8;
 }
-.footer-links a:hover { opacity: 1; background: rgba(255, 255, 255, .08); }
 
-.public-footer small { color: var(--forest-muted); font-size: 12.5px; }
+.footer-redes {
+  display: flex;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-redes a {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--forest-text);
+  opacity: .8;
+}
+
+.footer-redes a:hover,
+.footer-redes a:focus-visible {
+  opacity: 1;
+  background: rgba(255, 255, 255, .08);
+}
 
 @media (max-width: 720px) {
+
   /* Marca y copyright, nada mas: los cinco enlaces ya estan en el menu de
      arriba (el panel del hamburguesa) y aqui solo alargaban el pie -- 4
      filas de min-height:44px para un punado de palabras. */
-  .public-footer { padding: 20px clamp(16px, 3vw, 40px); }
-  .footer-links { display: none; }
+  .public-footer {
+    padding: 20px clamp(16px, 3vw, 40px);
+  }
+
+  /* Una columna: marca, autor con sus redes y el copyright con la versión. */
+  .public-footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 
 /* Las transiciones de `.btn` y `.field` vienen de styles.css, que comparte el
    dashboard. No se tocan ahí: se anulan solo aquí, porque las vistas públicas
    van sin movimiento de ningún tipo. */
-.public-footer a { transition: none; }
+.public-footer a {
+  transition: none;
+}

@@ -24,7 +24,6 @@ export class PublicAlbumCard {
 
   readonly coverUrl = lazyCoverUrl(
     () => this.album().cover_media_id,
-    () => this.album().cover_file_type !== 'video',
   );
   readonly backParams = computed(() => {
     const username = this.profileUsername();

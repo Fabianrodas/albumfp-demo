@@ -66,13 +66,10 @@
 }
 .login-link:hover { color: var(--text); }
 
-/* El interruptor de tema y el del menú comparten caja: 44x44, que es el mínimo
-   táctil, y el mismo marco para que se lean como un par.
-   El fondo NO es `--surface-raised`: en claro es #fffefb, un blanco casi puro
-   sobre la barra teñida, y los dos botones se leían como pegatinas pegadas
-   encima. Se tiñen con el mismo verde de marca que ya usa el hover de los
-   enlaces, así que pertenecen a la barra y el modo oscuro sale solo. */
-.nav-toggle, .tema {
+/* El menú conserva su caja: es el único control de la barra en móvil y tiene
+   que leerse como botón. Se tiñe con el mismo verde de marca que ya usa el
+   hover de los enlaces, así que pertenece a la barra y el modo oscuro sale solo. */
+.nav-toggle {
   width: 44px;
   height: 44px;
   border: 1px solid color-mix(in srgb, var(--brand-900) 16%, var(--border));
@@ -82,10 +79,26 @@
   place-items: center;
   padding: 0;
 }
-.nav-toggle:hover, .tema:hover {
+.nav-toggle:hover {
   background: color-mix(in srgb, var(--brand-900) 13%, transparent);
   border-color: color-mix(in srgb, var(--brand-900) 28%, var(--border));
 }
+
+/* v1.1: el tema es un icono de la barra, no una pegatina encima. Sin borde ni
+   fondo en reposo (con marco se leía más fuerte que los enlaces); el tinte solo
+   aparece al pasar por encima. Conserva los 44x44 táctiles y el anillo de foco
+   global de styles.css. */
+.tema {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-soft);
+  place-items: center;
+  padding: 0;
+}
+.tema:hover { color: var(--text); background: color-mix(in srgb, var(--brand-900) 9%, transparent); }
 
 .nav-toggle { display: none; justify-self: end; }
 .tema { display: grid; flex: 0 0 auto; }

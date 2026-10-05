@@ -478,18 +478,25 @@ img, video { max-width: 100%; }
   gap: 28px;
   border-bottom: 1px solid var(--border);
 }
-.album-hero__copy { max-width: 760px; }
+.album-hero__copy { max-width: 760px; min-width: 0; }
 .album-hero h1 { margin: 13px 0 0; font: 500 clamp(36px, 4.6vw, 52px)/1 var(--display); letter-spacing: -.045em; }
 .album-hero p { margin: 12px 0 0; max-width: 620px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-.album-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-@media (max-width: 900px) {
+/* v1.1: las acciones van en UNA fila, a la misma altura (Actividad caía sola
+   a una segunda). Por debajo de 1200px esa fila no cabe al lado del título,
+   así que baja debajo de él, donde sí cabe entera. */
+.album-actions { display: flex; gap: 8px; flex-wrap: nowrap; flex: 0 0 auto; justify-content: flex-end; }
+.album-actions .btn { white-space: nowrap; }
+@media (max-width: 1199px) {
   .album-hero { align-items: flex-start; flex-direction: column; }
-  .album-actions { justify-content: flex-start; }
+  .album-actions { justify-content: flex-start; flex-wrap: wrap; }
 }
 @media (max-width: 640px) {
   .album-hero { padding-top: 20px; }
   .album-actions { width: 100%; }
   .album-actions .btn { flex: 1; }
+  /* «Descargar álbum» se aplastaba en dos líneas: en el teléfono basta
+     «Descargar» (el botón y su icono ya están dentro del álbum). */
+  .album-actions .label-long { display: none; }
 }
 
 /* F06: objetivos tactiles de 44px en movil para las pestanas del detalle. */

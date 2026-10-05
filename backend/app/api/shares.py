@@ -690,7 +690,7 @@ def _shared_media_file(token: str, media_id: int):
         media = execute_safe(
             conn,
             f"""
-            SELECT m.id, m.storage_path, mm.original_filename, mm.mime_type,
+            SELECT m.id, m.storage_path, m.file_type, mm.original_filename, mm.mime_type,
                    mm.preview_storage_path, mm.preview_mime_type
             FROM assets m
             LEFT JOIN media_metadata mm ON mm.media_id = m.id
@@ -737,6 +737,10 @@ def read_shared_preview(token: str, media_id: int):
         )
         if response is not None:
             return response
+    # v1.1: la vista previa de un video es su portada; sin ella, 404 aunque el
+    # original se pueda descargar (una miniatura no baja el video entero).
+    if media["file_type"] == "video":
+        return fail("Este video todavía no tiene portada", status=404)
     # Sin vista previa (video, foto anterior a la fase 13, o generación
     # fallida): a diferencia de la ruta autenticada, aquí NO se cae al
     # original salvo que el dueño permita explícitamente descargarlo -- si

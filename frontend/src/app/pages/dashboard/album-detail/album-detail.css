@@ -16,39 +16,15 @@
 .library-toolbar {
   padding: 26px 0 16px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 22px;
+  gap: 16px;
 }
 .library-toolbar h2 { margin: 0; font: 500 27px/1.1 var(--display); letter-spacing: -.02em; }
+.filters-button { flex: 0 0 auto; }
 
-.filters { display: flex; gap: 9px; flex-wrap: wrap; justify-content: flex-end; }
-.filters label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 7px 5px 13px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface-raised);
-  transition: border-color var(--motion-fast) var(--ease-out);
-}
-.filters label:hover { border-color: var(--border-strong); }
-.filters label:focus-within { border-color: var(--sage-500); box-shadow: var(--focus-ring); }
-.filters label span { font-size: 12.5px; font-weight: 800; color: var(--muted); }
-.filters select, .filters input[type="text"] {
-  min-height: 32px;
-  border: 0;
-  background: transparent;
-  outline: 0;
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 700;
-  padding: 3px 4px;
-}
-.filters select { cursor: pointer; }
-.filters input[type="text"] { width: 120px; }
-.filters input[type="text"]::placeholder { color: var(--muted); font-weight: 500; }
+/* Dentro del modal: una columna de campos normales del formulario. */
+.filters { display: grid; gap: 14px; }
 
 /* Barra de selección múltiple */
 .selection-bar {
@@ -276,66 +252,18 @@
 .share-empty { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 
 /* Tags */
-.tag-list { min-height: 32px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-.tag-list > span {
-  padding: 6px 7px 6px 11px;
-  border: 1px solid var(--accent-violet-border);
-  border-radius: 999px;
-  background: var(--accent-violet-soft);
-  color: var(--accent-violet-text);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 700;
-}
-.tag-list span button {
-  width: 20px;
-  height: 20px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, .08);
-  color: inherit;
-  display: grid;
-  place-items: center;
-  padding: 0;
-}
-.tag-list small { color: var(--muted); font-size: 13px; }
-.tag-actions { display: grid; grid-template-columns: minmax(150px, 1fr) auto minmax(150px, 1fr) auto; gap: 9px; }
 
 .album-empty { margin-top: 2px; }
 
-@media (max-width: 900px) {
-  .library-toolbar { align-items: flex-start; flex-direction: column; }
-  .filters { justify-content: flex-start; }
-  .tag-actions { grid-template-columns: 1fr auto; }
-}
 
 @media (max-width: 640px) {
   .permission-choice { grid-template-columns: 1fr; }
   .share-option { grid-template-columns: 1fr; }
   .share-option .btn { width: 100%; }
   .expiry-row { grid-template-columns: 1fr; }
-  .tag-actions { grid-template-columns: 1fr; }
-  /* La barra entera se aprieta: con los filtros ya en una fila, lo que queda
-     de los 348px originales es su propio relleno. 26+22 de hueco entre el
-     titulo y los filtros no se justifican en un telefono. */
+  /* La barra se aprieta: título y un solo botón en la misma fila. */
   .library-toolbar { padding: 14px 0 12px; gap: 12px; }
   .library-toolbar h2 { font-size: 22px; }
-  /* Una sola fila que se desliza, en vez de cinco filtros apilados que se
-     comian 348px antes de la primera foto (medido en un iPhone 13). El
-     desbordamiento va DENTRO del contenedor: la pagina nunca scrollea en
-     horizontal. */
-  .filters {
-    width: 100%;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .filters label { flex: 0 0 auto; min-width: 0; scroll-snap-align: start; }
-  .filters input[type="text"] { width: 130px; }
   .selection-bar { top: 76px; }
   .selection-actions { width: 100%; }
   .selection-actions .btn { flex: 1; }

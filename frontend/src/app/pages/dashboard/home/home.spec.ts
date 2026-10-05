@@ -21,7 +21,11 @@ const home = (items: unknown[]) => ({
  * Compartido contigo: tienen su vista canónica. */
 describe('Inicio (v1)', () => {
   let http: HttpTestingController;
-  afterEach(() => http?.verify());
+  // v1.1: las tarjetas de video piden su portada (/preview); aquí no importan.
+  afterEach(() => {
+    http?.match(r => r.url.endsWith('/preview')).forEach(r => r.flush(new Blob()));
+    http?.verify();
+  });
 
   function create(panel?: string) {
     TestBed.configureTestingModule({

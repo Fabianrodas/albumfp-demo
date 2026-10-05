@@ -84,6 +84,8 @@ ROUTES = {
     "download_album": ("session", "perm:read"),
     "create_media": ("session", "cap:upload"),
     "update_media": ("session", "cap:edit_media"),
+    # v1.1: edit_media, o quien subió el video mientras conserve `upload`.
+    "set_video_poster": ("session", "cap:edit_media"),
     "delete_media": ("session", "cap:delete_media"),
     "toggle_favorite": ("session", "cap:organize"),
     "set_media_archived": ("session", "cap:organize"),

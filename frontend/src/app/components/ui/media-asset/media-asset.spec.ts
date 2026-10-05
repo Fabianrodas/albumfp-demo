@@ -21,14 +21,17 @@ describe('MediaAsset video loading', () => {
 
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
-  it('shows a video placeholder without downloading an original in preview quality', () => {
+  it('shows the poster in preview quality, and the video marker when there is none', async () => {
     const http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(MediaAsset);
     fixture.componentRef.setInput('item', video);
     fixture.detectChanges();
+    await fixture.whenStable();
 
-    http.expectNone('/api/media/17/preview');
+    // v1.1: /preview de un video es su portada (404 sin ella), nunca el original.
+    http.expectOne('/api/media/17/preview').flush(new Blob(), { status: 404, statusText: 'Not Found' });
     http.expectNone('/api/media/17/file');
+    fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Video');
     expect(fixture.nativeElement.querySelector('.asset-video-placeholder')).toBeTruthy();
     fixture.destroy();

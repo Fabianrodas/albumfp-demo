@@ -37,11 +37,18 @@
      Ese escalón es el que da profundidad; el tono se queda dentro de una franja
      estrecha (97°–155°) para que todo pertenezca a la misma familia. Hubo aquí
      un petróleo, un teal y un cian (173°–187°) y el fondo se leía como una
-     familia cromática ajena al resto del sitio: crema y verde. */
-  --pino: #255440;
-  --eucalipto: #437052;
-  --musgo: #6f8a5e;
-  --salvia: #86b78d;
+     familia cromática ajena al resto del sitio: crema y verde.
+
+     v1.1: estos son los verdes del modo CLARO, un escalón más luminosos que
+     los de antes (se pidió "verdes más claros, sin exagerar"). Los hondos de
+     siempre siguen intactos en el bloque del tema oscuro, que está aprobado y
+     no se rediseña. Más luminancia bajo texto oscuro solo mejora el contraste. */
+  --pino: #6f9f7c;
+  --eucalipto: #8cba96;
+  --musgo: #a9c28f;
+  --salvia: #bcdcbc;
+  /* El suelo del campo D. En oscuro vuelve a ser el verde de marca. */
+  --hondo: #7fa98a;
 
   /* Intensidad de cada campo. El tema oscuro y el móvil solo cambian esto. */
   --i-a: 58%;
@@ -65,7 +72,7 @@
     radial-gradient(ellipse 34% 32% at 8% 90%,
       color-mix(in srgb, var(--musgo) var(--i-d), transparent) 0%, transparent 100%),
     radial-gradient(ellipse 34% 32% at 84% 82%,
-      color-mix(in srgb, var(--brand-800) calc(var(--i-d) * 0.72), transparent) 0%, transparent 100%),
+      color-mix(in srgb, var(--hondo) calc(var(--i-d) * 0.72), transparent) 0%, transparent 100%),
     var(--paper);
 }
 
@@ -159,6 +166,12 @@
    apaga —una mancha clara bajo texto claro es lo único que se come el
    contraste— y el conjunto se lee como bosque de noche. */
 :host-context(:root[data-theme="dark"]) {
+  /* Los verdes de v1.0, exactos: el modo oscuro no se toca. */
+  --pino: #255440;
+  --eucalipto: #437052;
+  --musgo: #6f8a5e;
+  --salvia: #86b78d;
+  --hondo: var(--brand-800);
   --i-a: 52%;
   --i-b: 26%;
   --i-c: 8%;

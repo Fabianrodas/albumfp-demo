@@ -1,6 +1,6 @@
 <article class="public-card">
   <a class="public-card__cover" [routerLink]="['/albumes', album().id]" [queryParams]="backParams()" [attr.aria-label]="'Abrir ' + album().titulo">
-    @if (coverUrl() && album().cover_file_type === 'image') {
+    @if (coverUrl()) {
       <img [src]="coverUrl()" [alt]="'Portada de ' + album().titulo">
     } @else if (album().cover_file_type === 'video') {
       <div class="public-card__placeholder public-card__video" aria-hidden="true"><app-icon name="video" [size]="28"/><span>Video</span></div>

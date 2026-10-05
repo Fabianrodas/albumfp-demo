@@ -668,7 +668,7 @@ def _authorized_media_file(media_id: int, user_id: int):
         media = execute_safe(
             conn,
             """
-            SELECT m.id, m.storage_path, m.deleted_at,
+            SELECT m.id, m.storage_path, m.deleted_at, m.file_type,
                    mm.original_filename, mm.mime_type,
                    mm.preview_storage_path, mm.preview_mime_type
             FROM assets m
@@ -713,6 +713,11 @@ def _deliver_preview(media):
         )
         if response is not None:
             return response
+    # v1.1: la vista previa de un video es su PORTADA. Sin portada no se cae
+    # al original: serían cientos de MB para pintar una miniatura. La
+    # cuadrícula recibe 404 y pinta su marcador de video.
+    if media["file_type"] == "video":
+        return fail("Este video todavía no tiene portada", status=404)
     return _deliver_original(media)
 
 

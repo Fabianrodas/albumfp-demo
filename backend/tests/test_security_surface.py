@@ -53,6 +53,7 @@ class SecuritySurfaceTests(unittest.TestCase):
             'media.py': {'get_media_detail', 'search_media', 'list_library_media', 'list_recent_library_media', 'location_search', 'location_staticmap', 'read_media_file', 'read_media_preview', 'list_album_media', 'download_album', 'list_public_media', 'create_media', 'update_media', 'delete_media', 'toggle_favorite', 'set_media_archived', 'list_trash', 'list_favorites', 'restore_media', 'delete_media_permanently', 'restore_all_trash', 'delete_all_trash'},
             # Cuelgan del mismo media_bp pero viven en su propio fichero.
             'media_context.py': {'get_media_context', 'enrich_media_location', 'enrich_media_solar', 'enrich_media_holiday', 'enrich_media_context', 'get_media_ocr', 'detect_media_ocr', 'delete_media_ocr', 'suggest_media_tags'},
+            'media_posters.py': {'set_video_poster'},
             'tags.py': {'list_tags', 'create_tag', 'assign_tags', 'unassign_tag'},
             'shares.py': {'list_album_shares', 'create_album_share', 'update_share_permission', 'claim_account_share', 'disable_share', 'regenerate_share_token', 'reveal_share_token'},
             'places.py': {'list_places', 'list_place_media'},

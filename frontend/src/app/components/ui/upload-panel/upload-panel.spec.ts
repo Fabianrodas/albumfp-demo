@@ -5,8 +5,10 @@ import { provideRouter } from '@angular/router';
 import { UploadPanel } from './upload-panel';
 
 const photo = (name: string) => new File([name], name, { type: 'image/jpeg' });
+const video = (name: string) => new File([name], name, { type: 'video/mp4' });
+const URL_UPLOAD = '/api/albums/7/media';
 
-describe('UploadPanel multi-upload', () => {
+describe('UploadPanel single upload (v1.1)', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [UploadPanel],
@@ -14,224 +16,175 @@ describe('UploadPanel multi-upload', () => {
     });
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.restoreAllMocks();
-  });
+  afterEach(() => vi.restoreAllMocks());
 
-  it('keeps the secure single-file endpoint and starts at most three requests', () => {
+  function setup(inputs: Record<string, unknown> = {}) {
     const http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(UploadPanel);
     fixture.componentRef.setInput('albumId', 7);
+    for (const [key, value] of Object.entries(inputs)) fixture.componentRef.setInput(key, value);
     fixture.detectChanges();
-    fixture.componentInstance.queue.add(['uno', 'dos', 'tres', 'cuatro'].map(name => ({
-      file: photo(`${name}.jpg`), title: name,
-    })));
-
-    fixture.componentInstance.startUploads();
-    const firstWave = http.match(request => request.method === 'POST' && request.url === '/api/albums/7/media');
-    expect(firstWave.length).toBe(3);
-
-    firstWave[0].event({ type: HttpEventType.UploadProgress, loaded: 5, total: 10 });
-    expect(fixture.componentInstance.queue.items()[0].progress).toBe(50);
-    firstWave[0].flush({ data: { id: 1, album_id: 7, file_type: 'image' }, message: 'ok' });
-
-    const fourth = http.expectOne(request => request.method === 'POST' && request.url === '/api/albums/7/media');
-    expect(fourth.request.body instanceof FormData).toBe(true);
-    expect((fourth.request.body as FormData).get('caption')).toBeNull();
-    fixture.destroy();
-  });
-
-  it('warns before closing and cancels files that have not started', () => {
-    const fixture = TestBed.createComponent(UploadPanel);
-    fixture.componentRef.setInput('albumId', 7);
-    fixture.detectChanges();
-    fixture.componentInstance.queue.add([{ file: photo('pendiente.jpg'), title: 'Pendiente' }]);
-    let closes = 0;
-    fixture.componentInstance.closed.subscribe(() => closes++);
-
-    fixture.componentInstance.requestClose();
-    expect(fixture.componentInstance.closeWarning()).toBe(true);
-    expect(closes).toBe(0);
-
-    fixture.componentInstance.cancelAndClose();
-    expect(fixture.componentInstance.queue.items()[0].state).toBe('cancelled');
-    expect(closes).toBe(1);
-  });
-
-  it('does not pretend to cancel a file already processing on the server', () => {
-    const http = TestBed.inject(HttpTestingController);
-    const fixture = TestBed.createComponent(UploadPanel);
-    fixture.componentRef.setInput('albumId', 7);
-    fixture.detectChanges();
-    fixture.componentInstance.queue.add([{ file: photo('procesando.jpg'), title: 'Procesando' }]);
-    let closes = 0;
-    fixture.componentInstance.closed.subscribe(() => closes++);
-    fixture.componentInstance.startUploads();
-    const request = http.expectOne('/api/albums/7/media');
-    request.event({ type: HttpEventType.UploadProgress, loaded: 10, total: 10 });
-
-    fixture.componentInstance.requestClose();
-    fixture.componentInstance.cancelAndClose();
-
-    expect(fixture.componentInstance.queue.items()[0].state).toBe('processing');
-    expect(fixture.componentInstance.error()).toContain('servidor ya está procesando');
-    expect(closes).toBe(0);
-    fixture.destroy();
-  });
-
-  it('waits for local metadata and does not discard files with the same visible attributes', async () => {
-    const http = TestBed.inject(HttpTestingController);
-    const fixture = TestBed.createComponent(UploadPanel);
-    fixture.componentRef.setInput('albumId', 7);
-    fixture.detectChanges();
-    let finishMetadata!: (value: { resolution: string; duration: number }) => void;
-    const pending = new Promise<{ resolution: string; duration: number }>(resolve => finishMetadata = resolve);
-    vi.spyOn(fixture.componentInstance as any, 'readMediaMetadata').mockReturnValue(pending);
-    const same = photo('mismo.jpg');
-
-    fixture.componentInstance.addFiles([same, same]);
-    expect(fixture.componentInstance.queue.items().length).toBe(2);
-    fixture.componentInstance.startUploads();
-    http.expectNone('/api/albums/7/media');
-    expect(fixture.componentInstance.error()).toContain('metadatos');
-
-    finishMetadata({ resolution: '1200x800', duration: 0 });
-    await pending;
-    await fixture.whenStable();
-    fixture.componentInstance.startUploads();
-    const requests = http.match('/api/albums/7/media');
-    expect(requests.length).toBe(2);
-    expect((requests[0].request.body as FormData).get('resolution')).toBe('1200x800');
-    fixture.destroy();
-  });
-
-  it('stops a cancelled metadata read so it cannot block the remaining queue', () => {
-    const http = TestBed.inject(HttpTestingController);
-    const fixture = TestBed.createComponent(UploadPanel);
-    fixture.componentRef.setInput('albumId', 7);
-    fixture.detectChanges();
-    vi.spyOn(fixture.componentInstance as any, 'readMediaMetadata')
-      .mockReturnValue(new Promise(() => {}));
-    fixture.componentInstance.addFiles([photo('cancelar.jpg')]);
-    const cancelled = fixture.componentInstance.queue.items()[0];
-
-    fixture.componentInstance.cancel(cancelled);
-    fixture.componentInstance.queue.add([{ file: photo('seguir.jpg'), title: 'Seguir' }]);
-    fixture.componentInstance.startUploads();
-
-    expect(fixture.componentInstance.metadataPendingCount()).toBe(0);
-    http.expectOne('/api/albums/7/media');
-    fixture.destroy();
-  });
-
-  it('times out a decoder that never reports load or error', async () => {
-    vi.useFakeTimers();
-    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:stuck');
-    const revoke = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
-    const fixture = TestBed.createComponent(UploadPanel);
-    fixture.componentRef.setInput('albumId', 7);
-    fixture.detectChanges();
-
-    fixture.componentInstance.addFiles([photo('atascada.jpg')]);
-    expect(fixture.componentInstance.metadataPendingCount()).toBe(1);
-    await vi.advanceTimersByTimeAsync(10_000);
-
-    expect(fixture.componentInstance.metadataPendingCount()).toBe(0);
-    expect(revoke).toHaveBeenCalledWith('blob:stuck');
-    fixture.destroy();
-  });
-
-  it('accepts HEIC and HEIF files even when the browser omits their MIME', async () => {
-    const fixture = TestBed.createComponent(UploadPanel);
-    fixture.componentRef.setInput('albumId', 7);
-    fixture.detectChanges();
-    vi.spyOn(fixture.componentInstance as any, 'readMediaMetadata')
-      .mockResolvedValue({ resolution: null, duration: null });
-
-    fixture.componentInstance.addFiles([
-      new File(['heic'], 'iphone.heic', { type: '' }),
-      new File(['heif'], 'camera.heif', { type: '' }),
-    ]);
-    await fixture.whenStable();
-
-    expect(fixture.componentInstance.queue.items().map(item => item.file.name))
-      .toEqual(['iphone.heic', 'camera.heif']);
-    fixture.destroy();
-  });
-
-  it('offers a safe existing link and uploads again only after confirmation', () => {
-    const http = TestBed.inject(HttpTestingController);
-    const fixture = TestBed.createComponent(UploadPanel);
-    fixture.componentRef.setInput('albumId', 7);
-    fixture.detectChanges();
-    fixture.componentInstance.queue.add([{ file: photo('duplicada.jpg'), title: 'Duplicada' }]);
-    fixture.componentInstance.startUploads();
-    http.expectOne('/api/albums/7/media').flush({
-      ok: false,
-      code: 'exact_duplicate',
-      message: 'Este archivo exacto ya existe',
-      existing_media_id: 41,
-      existing_album_id: 7,
-    }, { status: 409, statusText: 'Conflict' });
-
-    fixture.detectChanges();
-    const link = fixture.nativeElement.querySelector('[data-testid="view-existing"]') as HTMLAnchorElement;
-    const force = fixture.nativeElement.querySelector('[data-testid="force-duplicate"]') as HTMLButtonElement;
-    expect(link.textContent).toContain('Ver existente');
-    expect(link.getAttribute('href')).toBe('/albumes/7/media/41');
-    expect(link.target).toBe('_blank');
-    expect(force.textContent).toContain('Subir de todos modos');
-    expect(fixture.nativeElement.textContent).not.toContain('Reintentar');
-    // Ya está en este álbum: no hay nada que añadir.
-    expect(fixture.nativeElement.querySelector('[data-testid="add-existing"]')).toBeNull();
-
-    force.click();
-    const repeated = http.expectOne('/api/albums/7/media');
-    expect((repeated.request.body as FormData).get('force_duplicate')).toBe('true');
-    repeated.flush({ data: { id: 42, album_id: 7, file_type: 'image' }, message: 'ok' });
-    fixture.destroy();
-  });
-
-  function duplicateOf(existingAlbumId: number | null, canAddExisting: boolean) {
-    const http = TestBed.inject(HttpTestingController);
-    const fixture = TestBed.createComponent(UploadPanel);
-    fixture.componentRef.setInput('albumId', 7);
-    fixture.componentRef.setInput('canAddExisting', canAddExisting);
-    fixture.detectChanges();
-    fixture.componentInstance.queue.add([{ file: photo('repetida.jpg'), title: 'Repetida' }]);
-    fixture.componentInstance.startUploads();
-    http.expectOne('/api/albums/7/media').flush({
-      ok: false, code: 'exact_duplicate', message: 'Este archivo exacto ya existe en tu biblioteca',
-      existing_media_id: 41, existing_album_id: existingAlbumId,
-    }, { status: 409, statusText: 'Conflict' });
-    fixture.detectChanges();
-    return { http, fixture };
+    const panel = fixture.componentInstance;
+    // jsdom no decodifica imágenes ni videos: los metadatos locales se simulan.
+    vi.spyOn(panel as any, 'readMetadata').mockResolvedValue(undefined);
+    const events = { uploaded: 0, closed: 0 };
+    panel.uploaded.subscribe(() => events.uploaded++);
+    panel.closed.subscribe(() => events.closed++);
+    return { http, fixture, panel, events };
   }
 
-  it('adds an existing duplicate to this album without uploading its bytes again', () => {
-    const { http, fixture } = duplicateOf(null, true);
-    const link = fixture.nativeElement.querySelector('[data-testid="view-existing"]') as HTMLAnchorElement;
-    // Suelto (en ningún álbum): su detalle es la vista del recuerdo.
-    expect(link.getAttribute('href')).toBe('/recuerdos/41');
+  async function start(panel: UploadPanel, file: File, http: HttpTestingController) {
+    panel.selectFile(file);
+    const submitted = panel.submit();
+    await submitted;
+    return http.expectOne(request => request.method === 'POST' && request.url === URL_UPLOAD);
+  }
 
+  it('uploads ONE file through the secure endpoint and closes itself on success', async () => {
+    const { http, panel, events } = setup();
+    const request = await start(panel, photo('playa.jpg'), http);
+    expect(request.request.body instanceof FormData).toBe(true);
+    expect((request.request.body as FormData).get('title')).toBe('playa');
+    expect(panel.phase()).toBe('preparing');
+
+    request.flush({ data: { id: 1, file_type: 'image' }, message: 'ok' });
+    await Promise.resolve();
+    expect(panel.phase()).toBe('done');
+    expect(events).toEqual({ uploaded: 1, closed: 1 });
+    http.verify();
+  });
+
+  it('reports real byte progress: preparing, uploading %, then finalizing', async () => {
+    const { http, panel } = setup();
+    const request = await start(panel, photo('grande.jpg'), http);
+    expect(panel.phase()).toBe('preparing');
+    expect(panel.percent()).toBe(0);
+
+    request.event({ type: HttpEventType.UploadProgress, loaded: 25, total: 100 });
+    expect(panel.phase()).toBe('uploading');
+    expect(panel.percent()).toBe(25);
+    request.event({ type: HttpEventType.UploadProgress, loaded: 99, total: 100 });
+    expect(panel.percent()).toBe(99);
+    request.event({ type: HttpEventType.UploadProgress, loaded: 100, total: 100 });
+    expect(panel.phase()).toBe('finalizing');
+    request.flush({ data: { id: 2, file_type: 'image' }, message: 'ok' });
+  });
+
+  it('cancels only while bytes are still leaving, and never while the server finalizes', async () => {
+    const { http, panel, events } = setup();
+    let request = await start(panel, photo('uno.jpg'), http);
+    request.event({ type: HttpEventType.UploadProgress, loaded: 10, total: 100 });
+    panel.cancelUpload();
+    expect(request.cancelled).toBe(true);
+    expect(panel.phase()).toBe('ready');
+
+    const again = panel.submit();
+    await again;
+    request = http.expectOne(URL_UPLOAD);
+    request.event({ type: HttpEventType.UploadProgress, loaded: 100, total: 100 });
+    panel.cancelUpload();
+    panel.requestClose();
+    expect(request.cancelled).toBe(false);
+    expect(panel.phase()).toBe('finalizing');
+    expect(events.closed).toBe(0);
+    expect(panel.error()).toContain('guardando');
+    request.flush({ data: { id: 3, file_type: 'image' }, message: 'ok' });
+  });
+
+  it('warns before closing an upload in progress', async () => {
+    const { http, panel, events } = setup();
+    const request = await start(panel, photo('dos.jpg'), http);
+    panel.requestClose();
+    expect(panel.closeWarning()).toBe(true);
+    expect(events.closed).toBe(0);
+    panel.cancelAndClose();
+    expect(request.cancelled).toBe(true);
+    expect(events.closed).toBe(1);
+  });
+
+  it('never retries blindly after an ambiguous failure, but does after a clear 4xx', async () => {
+    const { http, fixture, panel } = setup();
+    let request = await start(panel, photo('tres.jpg'), http);
+    request.flush({ message: 'boom' }, { status: 502, statusText: 'Bad Gateway' });
+    fixture.detectChanges();
+    expect(panel.ambiguous()).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('Revisa el álbum');
+    expect(fixture.nativeElement.textContent).not.toContain('Reintentar');
+
+    panel.selectFile(photo('cuatro.jpg'));
+    await panel.submit();
+    request = http.expectOne(URL_UPLOAD);
+    request.flush({ message: 'Formato no admitido' }, { status: 400, statusText: 'Bad Request' });
+    fixture.detectChanges();
+    expect(panel.ambiguous()).toBe(false);
+    expect(fixture.nativeElement.textContent).toContain('Reintentar');
+  });
+
+  it('accepts HEIC/HEIF without a MIME and uses only the first dropped file', () => {
+    const { panel } = setup();
+    panel.selectFile(new File(['heic'], 'iphone.heic', { type: '' }));
+    expect(panel.file()?.name).toBe('iphone.heic');
+    const drop = { preventDefault() {}, dataTransfer: { files: [photo('a.jpg'), photo('b.jpg')] } } as unknown as DragEvent;
+    panel.onDrop(drop);
+    expect(panel.file()?.name).toBe('a.jpg');
+    expect(panel.error()).toContain('un archivo a la vez');
+  });
+
+  it('saves the chosen frame as the poster right after a video upload', async () => {
+    const { http, panel, events } = setup();
+    const request = await start(panel, video('olas.mp4'), http);
+    (panel as any).posterBlob = new Blob(['frame'], { type: 'image/jpeg' });
+    request.flush({ data: { id: 9, file_type: 'video' }, message: 'ok' });
+    await Promise.resolve();
+    const poster = http.expectOne('/api/media/9/poster');
+    expect(poster.request.method).toBe('PUT');
+    expect((poster.request.body as FormData).get('poster')).toBeTruthy();
+    poster.flush({ data: { media_id: 9 }, message: 'ok' });
+    await new Promise(resolve => setTimeout(resolve));
+    expect(events).toEqual({ uploaded: 1, closed: 1 });
+  });
+
+  it('offers a safe existing link and uploads again only after confirmation', async () => {
+    const { http, fixture, panel } = setup();
+    const request = await start(panel, photo('duplicada.jpg'), http);
+    request.flush({ ok: false, code: 'exact_duplicate', message: 'Este archivo exacto ya existe',
+      existing_media_id: 41, existing_album_id: 7 }, { status: 409, statusText: 'Conflict' });
+    fixture.detectChanges();
+    const link = fixture.nativeElement.querySelector('[data-testid="view-existing"]') as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe('/albumes/7/media/41');
+    expect(link.target).toBe('_blank');
+    expect(fixture.nativeElement.querySelector('[data-testid="add-existing"]')).toBeNull();
+
+    (fixture.nativeElement.querySelector('[data-testid="force-duplicate"]') as HTMLButtonElement).click();
+    await new Promise(resolve => setTimeout(resolve));
+    const repeated = http.expectOne(URL_UPLOAD);
+    expect((repeated.request.body as FormData).get('force_duplicate')).toBe('true');
+    repeated.flush({ data: { id: 42, file_type: 'image' }, message: 'ok' });
+  });
+
+  it('adds an existing duplicate to this album without uploading its bytes again', async () => {
+    const { http, fixture, panel } = setup({ canAddExisting: true });
+    const request = await start(panel, photo('repetida.jpg'), http);
+    request.flush({ ok: false, code: 'exact_duplicate', message: 'Ya existe',
+      existing_media_id: 41, existing_album_id: null }, { status: 409, statusText: 'Conflict' });
+    fixture.detectChanges();
+    expect((fixture.nativeElement.querySelector('[data-testid="view-existing"]') as HTMLAnchorElement)
+      .getAttribute('href')).toBe('/recuerdos/41');
     (fixture.nativeElement.querySelector('[data-testid="add-existing"]') as HTMLButtonElement).click();
     const put = http.expectOne('/api/albums/7/assets/41');
     expect(put.request.method).toBe('PUT');
     put.flush({ data: { album_id: 7, asset_id: 41, added: true }, message: 'ok' });
     fixture.detectChanges();
-
-    expect(fixture.componentInstance.queue.items()[0].state).toBe('success');
     expect(fixture.nativeElement.querySelector('[data-testid="reused-existing"]')?.textContent).toContain('sin volver a subirlo');
-    expect(http.match(request => request.method === 'POST').length).toBe(0);
-    fixture.destroy();
+    expect(http.match(r => r.method === 'POST').length).toBe(0);
   });
 
-  it('never offers a collaborator to manage album membership', () => {
-    const { fixture } = duplicateOf(5, false);
+  it('never offers a collaborator to manage album membership', async () => {
+    const { http, fixture, panel } = setup({ canAddExisting: false });
+    const request = await start(panel, photo('otra.jpg'), http);
+    request.flush({ ok: false, code: 'exact_duplicate', message: 'Ya existe',
+      existing_media_id: 41, existing_album_id: 5 }, { status: 409, statusText: 'Conflict' });
+    fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('[data-testid="add-existing"]')).toBeNull();
-    expect((fixture.nativeElement.querySelector('[data-testid="view-existing"]') as HTMLAnchorElement)
-      .getAttribute('href')).toBe('/albumes/5/media/41');
-    fixture.destroy();
   });
 });

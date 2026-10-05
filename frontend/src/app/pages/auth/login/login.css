@@ -2,13 +2,16 @@
    el resto del sitio y que el dashboard: Fraunces en el titular, Inter en todo
    lo demás. register.css importa este archivo. */
 
-.auth-heading { margin-bottom: 32px; }
+/* v1.1: los espacios verticales se miden contra el alto de la ventana. En
+   1366x768 con los dos errores, el aviso de passkey y los dos enlaces, el
+   formulario tiene que entrar entero sin scroll; en 1080p recupera el aire. */
+.auth-heading { margin-bottom: clamp(14px, 2.6vh, 32px); }
 
 .auth-heading h1 {
   margin: 0;
   font-family: var(--display);
   font-weight: 500;
-  font-size: clamp(30px, 3.4vw, 40px);
+  font-size: clamp(26px, min(3.4vw, 4.6vh), 40px);
   line-height: 1.08;
   letter-spacing: -.028em;
   text-wrap: balance;
@@ -18,14 +21,14 @@
    vista son el mismo gris oscuro. */
 .auth-heading > span {
   display: block;
-  margin-top: 14px;
+  margin-top: clamp(6px, 1.3vh, 14px);
   max-width: 36ch;
   color: var(--text);
   font-size: 14.5px;
-  line-height: 1.62;
+  line-height: 1.55;
 }
 
-form { display: grid; gap: 18px; }
+form { display: grid; gap: clamp(10px, 1.6vh, 18px); }
 
 /* Etiquetas visibles y legibles: ni placeholder solo, ni versalitas diminutas. */
 .form-label {
@@ -36,7 +39,7 @@ form { display: grid; gap: 18px; }
   text-transform: none;
   color: var(--text);
 }
-.field { min-height: 48px; font-size: 14.5px; }
+.field { min-height: clamp(40px, 5.8vh, 48px); font-size: 14.5px; padding-top: 8px; padding-bottom: 8px; }
 
 /* El ojo de la contrasena es el unico control tactil del formulario y la regla
    global lo deja en 30px. Se amplia solo aqui (el dashboard no usa esta clase)
@@ -67,14 +70,16 @@ form { display: grid; gap: 18px; }
 
 .submit {
   width: 100%;
-  min-height: 50px;
-  margin-top: 8px;
+  min-height: clamp(42px, 6vh, 50px);
+  margin-top: clamp(0px, .8vh, 8px);
   font-size: 14.5px;
 }
 .submit:not(:disabled):hover { box-shadow: 0 10px 26px rgba(18, 52, 38, .2); }
 .auth-error { margin: 0; font-size: 13px; }
 
-.switch { margin: 26px 0 0; color: var(--text-soft); font-size: 13.5px; }
+.switch { margin: clamp(12px, 2.6vh, 26px) 0 0; color: var(--text-soft); font-size: 13.5px; }
+/* Dos enlaces seguidos (login: crear cuenta y recuperar) se leen como un par. */
+.switch + .switch { margin-top: clamp(6px, 1vh, 10px); }
 .switch a {
   color: var(--text);
   font-weight: 600;

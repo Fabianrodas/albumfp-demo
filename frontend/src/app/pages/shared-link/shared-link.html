@@ -30,7 +30,7 @@
 
     @if (media().length) {
       <app-media-grid [items]="media()" mode="album" [shareToken]="token" role="read"
-        [allowOriginalDownload]="!!share()?.allow_original_download" (itemOpened)="openMedia($event)" />
+        (itemOpened)="openMedia($event)" />
     } @else {
       <section class="empty-state shared-empty"><div class="empty-state__copy"><h2>No hay archivos.</h2></div></section>
     }

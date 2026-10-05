@@ -13,15 +13,14 @@ import { onceVisible } from './visibility';
  * unos cientos de píxeles y descargar la foto entera para eso era justo el
  * gasto que esa fase venía a quitar. El servidor cae al original solo cuando
  * esa foto no tiene vista previa, así que no hay nada que comprobar aquí.
+ * Una portada de VIDEO pide lo mismo: su vista previa es su fotograma de
+ * portada (v1.1); sin él el servidor da 404 y la tarjeta pinta su marcador.
  *
  * Se llama desde el contexto de inyección de un componente (un inicializador
  * de campo o el constructor); toma su elemento anfitrión para observarlo y
  * limpia la suscripción y la object URL al destruirse.
  */
-export function lazyCoverUrl(
-  coverId: () => number | null | undefined,
-  loadable: () => boolean = () => true,
-): Signal<string> {
+export function lazyCoverUrl(coverId: () => number | null | undefined): Signal<string> {
   const api = inject(AlbumApi);
   const host = inject(ElementRef<HTMLElement>);
   const destroyRef = inject(DestroyRef);
@@ -33,7 +32,7 @@ export function lazyCoverUrl(
 
   const load = () => {
     const id = coverId();
-    if (!id || !loadable() || request || cover.value()) return;
+    if (!id || request || cover.value()) return;
     request = api.mediaPreview(id).subscribe({
       next: blob => cover.set(blob),
       error: () => { request = undefined; },
@@ -44,7 +43,6 @@ export function lazyCoverUrl(
   // pide la nueva de inmediato.
   effect(() => {
     coverId();
-    loadable();
     untracked(() => {
       request?.unsubscribe();
       request = undefined;

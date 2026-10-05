@@ -10,7 +10,6 @@ export class PlaceCard {
 
   readonly coverUrl = lazyCoverUrl(
     () => this.place().cover_media_id,
-    () => this.place().cover_file_type !== 'video',
   );
 
   /** "Guayaquil" o, sin ciudad, "Guayas" o "Ecuador": nunca se inventa un nombre. */

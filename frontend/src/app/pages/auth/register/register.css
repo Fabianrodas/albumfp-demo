@@ -1,18 +1,18 @@
 @import '../login/login.css';
 
-/* El registro tiene cuatro campos, dos pistas de ayuda y el enlace de cambio:
+/* Registro y recuperar (v1.1) tienen cuatro campos, dos pistas de ayuda y el enlace de cambio:
    con la escala del login no cabía en una ventana de portátil y el formulario
    acababa con scroll interno, que cortaba el titular por arriba. Aquí todo baja
    un punto. */
-.auth-heading { margin-bottom: 22px; }
-.auth-heading h1 { font-size: clamp(26px, 2.7vw, 33px); }
-.auth-heading > span { margin-top: 10px; font-size: 13.5px; }
+.auth-heading { margin-bottom: clamp(12px, 2.4vh, 22px); }
+.auth-heading h1 { font-size: clamp(24px, min(2.7vw, 4vh), 33px); }
+.auth-heading > span { margin-top: clamp(4px, 1vh, 10px); font-size: 13.5px; max-width: none; }
 
-form { gap: 13px; }
+form { gap: clamp(8px, 1.5vh, 13px); }
 
 .form-label { gap: 6px; font-size: 12.5px; }
-.field { min-height: 42px; font-size: 14px; padding-top: 9px; padding-bottom: 9px; }
-.password-hint { font-size: 11.5px; }
+.field { min-height: clamp(38px, 5.2vh, 42px); font-size: 14px; padding-top: 7px; padding-bottom: 7px; }
+.password-hint { font-size: 11.5px; line-height: 1.4; }
 
-.submit { min-height: 46px; margin-top: 4px; font-size: 14px; }
-.switch { margin-top: 18px; font-size: 13px; }
+.submit { min-height: clamp(40px, 5.6vh, 46px); margin-top: 4px; font-size: 14px; }
+.switch { margin-top: clamp(10px, 2vh, 18px); font-size: 13px; }

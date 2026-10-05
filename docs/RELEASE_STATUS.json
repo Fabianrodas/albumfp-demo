@@ -1,8 +1,8 @@
 {
   "product": "AlbumFP Demo",
   "target_version": "1.3.0",
-  "current_version": null,
-  "stage": "v1.0.0-certified-awaiting-tag",
+  "current_version": "1.0.0",
+  "stage": "v1.1.0-port",
   "source_tags_verified": [
     "v1.0.0",
     "v1.1.0",
@@ -17,8 +17,8 @@
   "real_source_repository_mutated": false,
   "milestones": {
     "foundation": "complete",
-    "v1.0.0": "certified-awaiting-tag",
-    "v1.1.0": "not-started",
+    "v1.0.0": "complete",
+    "v1.1.0": "in-progress",
     "v1.1.1": "not-started",
     "v1.2.0": "not-started",
     "v1.2.1": "not-started",
@@ -27,12 +27,14 @@
   },
   "checks": {
     "database_safety_tests": "PASS (17 pytest cases, 13 subtests)",
-    "automated_tests": "PASS (backend 901 passed, 3 skipped; frontend 208 passed; production build passed)",
-    "browser_qa": "PASS (local-only flows, responsive widths, cookie-less guest share, no external requests)",
-    "publication_scan": "PASS (489 tracked files; Gitleaks unavailable)",
+    "automated_tests": "PASS (v1.1 backend 911 passed, 3 skipped; frontend 205 passed; production build passed)",
+    "browser_qa": "PASS (synthetic WebM upload, 320x180 poster, 206 playback; 0 external requests)",
+    "publication_scan": "PASS (494 tracked files; Gitleaks unavailable)",
     "readme_screenshots": "PASS (29 synthetic captures checked; final gallery refresh pending)",
-    "main_push": "PASS through commit 77f74cf"
+    "main_push": "PASS through commit 90f09ae"
   },
-  "last_pushed_commit": "77f74cf",
-  "release_tags": {}
+  "last_pushed_commit": "90f09ae",
+  "release_tags": {
+    "v1.0.0": "90f09aef1a5938b57ea2e431b14bf9352a65a0c5"
+  }
 }

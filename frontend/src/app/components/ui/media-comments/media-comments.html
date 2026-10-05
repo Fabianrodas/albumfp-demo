@@ -21,13 +21,26 @@
     <ol class="comments__list">
       @for (comment of comments(); track comment.id) {
         <li class="comment">
-          <span class="comment__avatar" aria-hidden="true">
+          <ng-template #avatar>
             @if (comment.author.has_avatar) { <img [src]="avatarUrl(comment.author.id)" alt="" loading="lazy"> }
             @else { <b>{{ initials(comment.author.username) }}</b> }
-          </span>
+          </ng-template>
+          <!-- v1.1: autor y avatar llevan al perfil, que ofrece «Regresar al post».
+               Sin sesión (enlace público) no hay perfil que abrir. -->
+          @if (readOnly()) {
+            <span class="comment__avatar" aria-hidden="true"><ng-container [ngTemplateOutlet]="avatar" /></span>
+          } @else {
+            <a class="comment__avatar" [routerLink]="['/u', comment.author.username]" [state]="returnState()"
+              tabindex="-1" aria-hidden="true"><ng-container [ngTemplateOutlet]="avatar" /></a>
+          }
           <div class="comment__main">
             <p class="comment__meta">
-              <strong>{{ comment.author.full_name }}</strong>
+              @if (readOnly()) {
+                <strong>{{ comment.author.full_name }}</strong>
+              } @else {
+                <a class="comment__author" [routerLink]="['/u', comment.author.username]" [state]="returnState()"
+                  [attr.aria-label]="'Ver el perfil de ' + comment.author.full_name">{{ comment.author.full_name }}</a>
+              }
               <span>&#64;{{ comment.author.username }}</span>
               <time [attr.datetime]="comment.created_at">{{ comment.created_at | date:'d MMM y, HH:mm' }}</time>
               @if (comment.edited) { <span class="comment__edited">(editado)</span> }

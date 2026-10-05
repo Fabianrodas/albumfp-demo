@@ -1,4 +1,4 @@
-.home-eyebrow, .section-kicker { margin: 0 0 8px; color: var(--accent-coral-text); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.home-eyebrow, .section-kicker { margin: 0 0 8px; color: var(--brand-700); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .home-error { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
 .home-error .btn { flex: 0 0 auto; }
 .home-section { margin-top: clamp(36px, 6vw, 58px); }

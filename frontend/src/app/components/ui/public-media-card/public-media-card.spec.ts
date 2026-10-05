@@ -24,14 +24,17 @@ describe('PublicMediaCard video placeholder', () => {
 
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
-  it('shows an accessible video marker without requesting preview or original', () => {
+  it('shows its poster when it has one, and an accessible video marker when it does not', async () => {
     const http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(PublicMediaCard);
     fixture.componentRef.setInput('media', video);
     fixture.detectChanges();
+    await fixture.whenStable();
 
-    http.expectNone('/api/media/23/preview');
+    // v1.1: la vista previa de un video es su portada; nunca se pide el original.
+    http.expectOne('/api/media/23/preview').flush(new Blob(), { status: 404, statusText: 'Not Found' });
     http.expectNone('/api/media/23/file');
+    fixture.detectChanges();
     const cover: HTMLAnchorElement = fixture.nativeElement.querySelector('.public-card__cover');
     expect(cover.getAttribute('aria-label')).toBe('Abrir video Atardecer');
     expect(fixture.nativeElement.querySelector('.public-card__video-placeholder')).toBeTruthy();
@@ -39,10 +42,12 @@ describe('PublicMediaCard video placeholder', () => {
     fixture.destroy();
   });
 
-  it('opens the detail with the explore origin so "back" returns to Explore', () => {
+  it('opens the detail with the explore origin so "back" returns to Explore', async () => {
     const fixture = TestBed.createComponent(PublicMediaCard);
     fixture.componentRef.setInput('media', video);
     fixture.detectChanges();
+    await fixture.whenStable();
+    TestBed.inject(HttpTestingController).match('/api/media/23/preview').forEach(r => r.flush(new Blob(['poster'])));
 
     const links = [...fixture.nativeElement.querySelectorAll('a[href*="/media/23"]')] as HTMLAnchorElement[];
     expect(links.length).toBe(2);

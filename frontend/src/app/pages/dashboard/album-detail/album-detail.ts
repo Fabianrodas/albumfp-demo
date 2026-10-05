@@ -16,7 +16,6 @@ import { Album, AlbumApi, Media, Share, SharePermission, Tag } from '../../../co
 import { Confirm } from '../../../core/services/confirm';
 import { Toast } from '../../../core/services/toast';
 import { copyToClipboard } from '../../../core/utils/clipboard';
-import { upsertTagSorted } from '../../../core/utils/tag-catalog';
 import { publicLinkOptions } from '../../../core/utils/public-link-options';
 
 /** Opciones del selector de orden, traducidas a los parámetros de la API. */
@@ -99,8 +98,6 @@ export class AlbumDetail {
 
   shares = signal<Share[]>([]);
   tags = signal<Tag[]>([]);
-  selectedMedia = signal<Media | null>(null);
-  selectedMediaTags = signal<Tag[]>([]);
   copiedLink = signal('');
   error = signal('');
   readonly loaded = this.pages.loaded;
@@ -151,7 +148,6 @@ export class AlbumDetail {
   };
   closeEditing = () => this.editing.set(false);
   closeActivity = () => this.showingActivity.set(false);
-  closeTags = () => this.selectedMedia.set(null);
   closePermissionStep = () => { if (!this.savingPermissions()) { this.permissionStep.set(false); this.editingShare.set(null); } };
   closeLinkOptionsStep = () => { if (!this.creatingLink()) { this.linkOptionsStep.set(false); this.sharePassword = ''; this.shareAllowOriginalDownload = false; this.shareShowMetadata = true; } };
 
@@ -170,8 +166,7 @@ export class AlbumDetail {
   filterFavorite = '';
   filterPlace = '';
   sortKey: SortKey = 'created_at:desc';
-  tagToAssign = '';
-  newTagName = '';
+  readonly filtersOpen = signal(false);
 
   readonly sortOptions = Object.entries(SORT_OPTIONS).map(([value, option]) => ({ value, label: option.label }));
 
@@ -213,6 +208,18 @@ export class AlbumDetail {
       },
       error: error => this.error.set(error?.error?.message || 'No se pudo cargar el álbum.'),
     });
+  }
+
+  /** Cuántos filtros se apartan del estado por defecto: el número del botón. */
+  activeFilterCount() {
+    return [this.filterType, this.filterTag, this.filterFavorite, this.filterPlace.trim(), this.sortKey !== 'created_at:desc']
+      .filter(Boolean).length;
+  }
+
+  clearFilters() {
+    this.filterType = this.filterTag = this.filterFavorite = this.filterPlace = '';
+    this.sortKey = 'created_at:desc';
+    this.loadMedia();
   }
 
   loadMedia() {
@@ -438,60 +445,6 @@ export class AlbumDetail {
     this.api.updateAlbum(this.id, { cover_media_id: null }).subscribe({
       next: response => { this.album.set(response.data); this.toast.success('Portada quitada.'); },
       error: error => this.toast.error(error?.error?.message || 'No se pudo quitar la portada.'),
-    });
-  }
-
-  // --- Tags ---------------------------------------------------------------
-
-  openTags(item: Media) {
-    if (!this.canOrganize()) return;
-    this.selectedMedia.set(item);
-    this.api.mediaDetail(item.id).subscribe({
-      next: r => this.selectedMediaTags.set(r.data.tags),
-      error: error => this.toast.error(error?.error?.message || 'No se pudieron cargar los tags.'),
-    });
-  }
-
-  assignTag() {
-    const item = this.selectedMedia();
-    const tagId = Number(this.tagToAssign);
-    if (!item || !tagId) return;
-    this.api.assignTags(item.id, [tagId]).subscribe({
-      next: () => {
-        const tag = this.tags().find(t => t.id === tagId);
-        if (tag) this.selectedMediaTags.update(tags => upsertTagSorted(tags, tag));
-        this.tagToAssign = '';
-      },
-      error: error => this.toast.error(error?.error?.message || 'No se pudo asignar el tag.'),
-    });
-  }
-
-  createAndAssignTag() {
-    const name = this.newTagName.trim();
-    const item = this.selectedMedia();
-    if (!name || !item) return;
-    this.api.createTag(name, this.id).subscribe({
-      next: response => {
-        const tag = response.data;
-        this.tags.update(tags => upsertTagSorted(tags, tag));
-        this.api.assignTags(item.id, [tag.id]).subscribe({
-          next: () => {
-            this.selectedMediaTags.update(tags => upsertTagSorted(tags, tag));
-            this.newTagName = '';
-          },
-          error: error => this.toast.error(error?.error?.message || 'No se pudo asignar el tag.'),
-        });
-      },
-      error: error => this.toast.error(error?.error?.message || 'No se pudo crear el tag.'),
-    });
-  }
-
-  removeTag(tag: Tag) {
-    const item = this.selectedMedia();
-    if (!item) return;
-    this.api.unassignTag(item.id, tag.id).subscribe({
-      next: () => this.selectedMediaTags.update(tags => tags.filter(t => t.id !== tag.id)),
-      error: error => this.toast.error(error?.error?.message || 'No se pudo quitar el tag.'),
     });
   }
 

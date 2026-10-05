@@ -3,418 +3,439 @@
 @if (error() || mediaError()) { <p class="notice notice-error error-banner">{{ error() || mediaError() }}</p> }
 
 @if (album(); as item) {
-  <section class="album-hero">
-    <div class="album-hero__copy">
-      <div class="chip-row">
-        @if (item.role === 'owner') {
-          <span class="chip" [class.chip-accent]="item.is_private"><app-icon [name]="item.is_private ? 'lock' : 'albums'" [size]="13"/>{{ item.is_private ? 'Privado' : 'Público' }}</span>
-        } @else {
-          <span class="chip chip-accent"><app-icon name="share" [size]="13"/>{{ item.role === 'write' ? 'Colaborador' : 'Solo lectura' }}</span>
-        }
-        <span class="chip">{{ totalMedia() ?? media().length }} {{ (totalMedia() ?? media().length) === 1 ? 'elemento' : 'elementos' }}</span>
-      </div>
-      <h1>{{ item.titulo }}</h1>
-      @if (item.descripcion) { <p>{{ item.descripcion }}</p> }
-    </div>
-    <div class="album-actions">
-      <button type="button" class="btn btn-secondary" [disabled]="downloadingAlbum()" (click)="downloadAlbum()">
-        @if (downloadingAlbum()) { <span class="btn-spinner"></span> } @else { <app-icon name="download" [size]="16"/> }
-        {{ downloadingAlbum() ? 'Descargando…' : 'Descargar álbum' }}
-      </button>
-      @if (canUpload()) { <button type="button" class="btn btn-brand" (click)="openUpload()"><app-icon name="upload" [size]="16"/>Agregar</button> }
-      @if (canManage()) {
-        <button type="button" class="btn btn-secondary" (click)="openSharing()">
-          <app-icon name="share" [size]="16"/>Compartir
-          @if (totalShareCount()) { <span class="count-pill">{{ totalShareCount() }}</span> }
-        </button>
+<section class="album-hero">
+  <div class="album-hero__copy">
+    <div class="chip-row">
+      @if (item.role === 'owner') {
+      <span class="chip" [class.chip-accent]="item.is_private"><app-icon [name]="item.is_private ? 'lock' : 'albums'"
+          [size]="13" />{{ item.is_private ? 'Privado' : 'Público' }}</span>
+      } @else {
+      <span class="chip chip-accent"><app-icon name="share" [size]="13" />{{ item.role === 'write' ? 'Colaborador' :
+        'Solo lectura' }}</span>
       }
-      @if (canEdit()) { <button type="button" class="btn btn-secondary" (click)="editing.set(true)"><app-icon name="settings" [size]="16"/>Ajustes</button> }
-      @if (item.can_view_activity) { <button type="button" class="btn btn-secondary" (click)="showingActivity.set(true)"><app-icon name="bell" [size]="16"/>Actividad</button> }
+      <span class="chip">{{ totalMedia() ?? media().length }} {{ (totalMedia() ?? media().length) === 1 ? 'elemento' :
+        'elementos' }}</span>
     </div>
-  </section>
-
-  @if (uploading()) { <app-upload-panel [albumId]="id" [allowFavorite]="canOrganize()" [canAddExisting]="canManage()" (uploaded)="onUploaded()" (closed)="closeUpload()" /> }
-
-  <section class="library-toolbar">
-    <h2>Fotos y videos</h2>
-    <div class="filters">
-      <label>
-        <span>Orden</span>
-        <select name="sort" [(ngModel)]="sortKey" (change)="loadMedia()">
-          @for (option of sortOptions; track option.value) { <option [value]="option.value">{{ option.label }}</option> }
-        </select>
-      </label>
-      <label>
-        <span>Tipo</span>
-        <select name="filterType" [(ngModel)]="filterType" (change)="loadMedia()">
-          <option value="">Todos</option><option value="image">Fotos</option><option value="video">Videos</option>
-        </select>
-      </label>
-      <label>
-        <span>Tag</span>
-        <select name="filterTag" [(ngModel)]="filterTag" (change)="loadMedia()">
-          <option value="">Todos</option>
-          @for (tag of tags(); track tag.id) { <option [value]="tag.id">{{ tag.name }}</option> }
-        </select>
-      </label>
-      <label class="filter-place">
-        <span>Lugar</span>
-        <input type="text" placeholder="Ciudad, región o país" name="filterPlace" [(ngModel)]="filterPlace" (change)="loadMedia()">
-      </label>
-      @if (canOrganize()) {
-        <label>
-          <span>Favoritos</span>
-          <select name="filterFavorite" [(ngModel)]="filterFavorite" (change)="loadMedia()">
-            <option value="">Todos</option><option value="true">Sí</option><option value="false">No</option>
-          </select>
-        </label>
-      }
-    </div>
-  </section>
-
-  @if (selection().size) {
-    <div class="selection-bar" role="status">
-      <strong>{{ selection().size }} {{ selection().size === 1 ? 'seleccionado' : 'seleccionados' }}</strong>
-      <div class="selection-actions">
-        @if (canOrganize()) {
-          <button type="button" class="btn btn-secondary" [disabled]="bulkRunning()" (click)="favoriteSelected()">
-            <app-icon name="heart" [size]="16"/>Añadir a favoritos
-          </button>
-          <button type="button" class="btn btn-secondary" [disabled]="bulkRunning()" (click)="archiveSelected()">
-            <app-icon name="archive" [size]="16"/>Archivar
-          </button>
-        }
-        @if (canDelete()) {
-          <button type="button" class="btn btn-danger" [disabled]="bulkRunning()" (click)="deleteSelected()">
-            <app-icon name="trash" [size]="16"/>Enviar a papelera
-          </button>
-        }
-        <button type="button" class="btn btn-ghost" (click)="clearSelection()">Cancelar</button>
-      </div>
-    </div>
-  }
-
-  @if (media().length) {
-    <app-media-grid
-      [items]="media()"
-      mode="album"
-      [role]="item.role"
-      [capabilities]="item.capabilities || []"
-      [selectable]="canDelete() || canOrganize()"
-      [selected]="selection()"
-      appScrollReveal
-      (selectionToggled)="toggleSelection($event)"
-      (deleteRequested)="deleteMedia($event)"
-      (favoriteChanged)="toggleFavorite($event)"
-      (tagRequested)="openTags($event)"
-      (coverRequested)="setCover($event)" />
-    @if (hasMore()) {
-      <div class="load-more">
-        <button type="button" class="btn btn-ghost" (click)="loadMore()" [disabled]="loadingMore()">
-          {{ loadingMore() ? 'Cargando...' : 'Cargar más' }}
-        </button>
-        <p class="load-more__count">{{ media().length }} de {{ totalMedia() }}</p>
-      </div>
+    <h1>{{ item.titulo }}</h1>
+    @if (item.descripcion) { <p>{{ item.descripcion }}</p> }
+  </div>
+  <div class="album-actions">
+    <button type="button" class="btn btn-secondary" [disabled]="downloadingAlbum()" (click)="downloadAlbum()"
+      [attr.aria-label]="downloadingAlbum() ? 'Descargando' : 'Descargar'">
+      @if (downloadingAlbum()) { <span class="btn-spinner"></span> } @else { <app-icon name="download" [size]="16" /> }
+      @if (downloadingAlbum()) { Descargando… } @else { Descargar<span class="label-long">&nbsp;álbum</span> }
+    </button>
+    @if (canUpload()) { <button type="button" class="btn btn-brand" (click)="openUpload()"><app-icon name="upload"
+        [size]="16" />Agregar</button> }
+    @if (canManage()) {
+    <button type="button" class="btn btn-secondary" (click)="openSharing()">
+      <app-icon name="share" [size]="16" />Compartir
+      @if (totalShareCount()) { <span class="count-pill">{{ totalShareCount() }}</span> }
+    </button>
     }
-  } @else if (loaded()) {
-    <section class="empty-state album-empty">
-      <div class="empty-state__copy">
-        <h2>{{ canUpload() ? 'Este álbum está vacío.' : 'Todavía no hay contenido.' }}</h2>
-        @if (canUpload()) { <p>Usa “Agregar” para subir tus primeras fotos y videos.</p> }
-      </div>
-    </section>
-  }
+    @if (canEdit()) { <button type="button" class="btn btn-secondary" (click)="editing.set(true)"><app-icon
+        name="settings" [size]="16" />Ajustes</button> }
+    @if (item.can_view_activity) { <button type="button" class="btn btn-secondary"
+      (click)="showingActivity.set(true)"><app-icon name="bell" [size]="16" />Actividad</button> }
+  </div>
+</section>
 
-  <!-- Ajustes del álbum -->
-  <app-modal [open]="showingActivity() && !!item.can_view_activity" title="Actividad del álbum" (closed)="closeActivity()">
-    @if (showingActivity()) { <app-album-activity [albumId]="item.id" /> }
-  </app-modal>
+@if (uploading()) { <app-upload-panel [albumId]="id" [allowFavorite]="canOrganize()" [canAddExisting]="canManage()"
+  (uploaded)="onUploaded()" (closed)="closeUpload()" /> }
 
-  <app-modal [open]="editing() && canEdit()" title="Ajustes del álbum" (closed)="closeEditing()">
-    <label class="form-label">Título
-      <div class="field-icon"><app-icon name="albums" [size]="16"/><input class="field" [(ngModel)]="editTitle" maxlength="100"></div>
-    </label>
-    <label class="form-label">Descripción
-      <input class="field" [(ngModel)]="editDescription" placeholder="Opcional">
-    </label>
-    <label class="privacy-setting">
-      <input type="checkbox" name="editPrivate" [(ngModel)]="editPrivate">
-      <span><b>Álbum privado</b><small>Si lo desmarcas, aparecerá en el inicio y en tu perfil público.</small></span>
-    </label>
+<!-- v1.1: los cinco filtros viven detrás de UN botón. En la barra eran ruido
+       visual y en móvil una fila que había que deslizar. -->
+<section class="library-toolbar">
+  <h2>Fotos y videos</h2>
+  <button type="button" class="btn btn-secondary filters-button" (click)="filtersOpen.set(true)"
+    [attr.aria-label]="activeFilterCount() ? 'Filtros, ' + activeFilterCount() + ' activos' : 'Filtros'">
+    <app-icon name="settings" [size]="16" />Filtros
+    @if (activeFilterCount()) { <span class="count-pill">{{ activeFilterCount() }}</span> }
+  </button>
+</section>
 
-    <div class="danger-note">
-      <div>
-        <strong>Eliminar álbum</strong>
-        <span>Se borra el álbum, sin pasar por la papelera. Sus fotos y videos no se borran: siguen en tu biblioteca.</span>
-      </div>
-      <button type="button" class="btn btn-danger" (click)="deleteAlbum()">Eliminar álbum</button>
+<app-modal [open]="filtersOpen()" title="Filtros" size="sm" (closed)="filtersOpen.set(false)">
+  <div class="filters">
+    <label class="form-label">Orden
+      <select class="field" name="sort" [(ngModel)]="sortKey" (change)="loadMedia()">
+        @for (option of sortOptions; track option.value) { <option [value]="option.value">{{ option.label }}</option> }
+      </select>
+    </label>
+    <label class="form-label">Tipo
+      <select class="field" name="filterType" [(ngModel)]="filterType" (change)="loadMedia()">
+        <option value="">Todos</option>
+        <option value="image">Fotos</option>
+        <option value="video">Videos</option>
+      </select>
+    </label>
+    <label class="form-label">Tag
+      <select class="field" name="filterTag" [(ngModel)]="filterTag" (change)="loadMedia()">
+        <option value="">Todos</option>
+        @for (tag of tags(); track tag.id) { <option [value]="tag.id">{{ tag.name }}</option> }
+      </select>
+    </label>
+    <label class="form-label">Lugar
+      <input class="field" type="text" placeholder="Ciudad, región o país" name="filterPlace" [(ngModel)]="filterPlace"
+        (change)="loadMedia()">
+    </label>
+    @if (canOrganize()) {
+    <label class="form-label">Favoritos
+      <select class="field" name="filterFavorite" [(ngModel)]="filterFavorite" (change)="loadMedia()">
+        <option value="">Todos</option>
+        <option value="true">Sí</option>
+        <option value="false">No</option>
+      </select>
+    </label>
+    }
+  </div>
+  <div modal-actions>
+    <button type="button" class="btn btn-ghost" [disabled]="!activeFilterCount()"
+      (click)="clearFilters()">Limpiar</button>
+    <button type="button" class="btn btn-brand" (click)="filtersOpen.set(false)">Listo</button>
+  </div>
+</app-modal>
+
+@if (selection().size) {
+<div class="selection-bar" role="status">
+  <strong>{{ selection().size }} {{ selection().size === 1 ? 'seleccionado' : 'seleccionados' }}</strong>
+  <div class="selection-actions">
+    @if (canOrganize()) {
+    <button type="button" class="btn btn-secondary" [disabled]="bulkRunning()" (click)="favoriteSelected()">
+      <app-icon name="heart" [size]="16" />Añadir a favoritos
+    </button>
+    <button type="button" class="btn btn-secondary" [disabled]="bulkRunning()" (click)="archiveSelected()">
+      <app-icon name="archive" [size]="16" />Archivar
+    </button>
+    }
+    @if (canDelete()) {
+    <button type="button" class="btn btn-danger" [disabled]="bulkRunning()" (click)="deleteSelected()">
+      <app-icon name="trash" [size]="16" />Enviar a papelera
+    </button>
+    }
+    <button type="button" class="btn btn-ghost" (click)="clearSelection()">Cancelar</button>
+  </div>
+</div>
+}
+
+@if (media().length) {
+<app-media-grid [items]="media()" mode="album" [role]="item.role" [capabilities]="item.capabilities || []"
+  [selectable]="canDelete() || canOrganize()" [selected]="selection()" appScrollReveal
+  (selectionToggled)="toggleSelection($event)" (deleteRequested)="deleteMedia($event)"
+  (favoriteChanged)="toggleFavorite($event)" (coverRequested)="setCover($event)" />
+@if (hasMore()) {
+<div class="load-more">
+  <button type="button" class="btn btn-ghost" (click)="loadMore()" [disabled]="loadingMore()">
+    {{ loadingMore() ? 'Cargando...' : 'Cargar más' }}
+  </button>
+  <p class="load-more__count">{{ media().length }} de {{ totalMedia() }}</p>
+</div>
+}
+} @else if (loaded()) {
+<section class="empty-state album-empty">
+  <div class="empty-state__copy">
+    <h2>{{ canUpload() ? 'Este álbum está vacío.' : 'Todavía no hay contenido.' }}</h2>
+    @if (canUpload()) { <p>Usa “Agregar” para subir tus primeras fotos y videos.</p> }
+  </div>
+</section>
+}
+
+<!-- Ajustes del álbum -->
+<app-modal [open]="showingActivity() && !!item.can_view_activity" title="Actividad del álbum"
+  (closed)="closeActivity()">
+  @if (showingActivity()) { <app-album-activity [albumId]="item.id" /> }
+</app-modal>
+
+<app-modal [open]="editing() && canEdit()" title="Ajustes del álbum" (closed)="closeEditing()">
+  <label class="form-label">Título
+    <div class="field-icon"><app-icon name="albums" [size]="16" /><input class="field" [(ngModel)]="editTitle"
+        maxlength="100"></div>
+  </label>
+  <label class="form-label">Descripción
+    <input class="field" [(ngModel)]="editDescription" placeholder="Opcional">
+  </label>
+  <label class="privacy-setting">
+    <input type="checkbox" name="editPrivate" [(ngModel)]="editPrivate">
+    <span><b>Álbum privado</b><small>Si lo desmarcas, aparecerá en el inicio y en tu perfil público.</small></span>
+  </label>
+
+  <div class="danger-note">
+    <div>
+      <strong>Eliminar álbum</strong>
+      <span>Se borra el álbum, sin pasar por la papelera. Sus fotos y videos no se borran: siguen en tu
+        biblioteca.</span>
     </div>
+    <button type="button" class="btn btn-danger" (click)="deleteAlbum()">Eliminar álbum</button>
+  </div>
 
-    <div modal-actions>
-      @if (album()?.cover_media_id) { <button type="button" class="btn btn-secondary" (click)="clearCover()">Quitar portada</button> }
-      <button type="button" class="btn btn-ghost" (click)="closeEditing()">Cancelar</button>
-      <button type="button" class="btn btn-brand" [disabled]="savingSettings()" (click)="saveSettings()">
-        @if (savingSettings()) { <span class="btn-spinner"></span> }{{ savingSettings() ? 'Guardando…' : 'Guardar' }}
-      </button>
-    </div>
-  </app-modal>
+  <div modal-actions>
+    @if (album()?.cover_media_id) { <button type="button" class="btn btn-secondary" (click)="clearCover()">Quitar
+      portada</button> }
+    <button type="button" class="btn btn-ghost" (click)="closeEditing()">Cancelar</button>
+    <button type="button" class="btn btn-brand" [disabled]="savingSettings()" (click)="saveSettings()">
+      @if (savingSettings()) { <span class="btn-spinner"></span> }{{ savingSettings() ? 'Guardando…' : 'Guardar' }}
+    </button>
+  </div>
+</app-modal>
 
-  <!-- Compartir: un solo diálogo con tres pestañas. Antes eran tres botones
+<!-- Compartir: un solo diálogo con tres pestañas. Antes eran tres botones
        de la barra (Compartir/Colaboradores/Enlaces) abriendo tres modales
        distintos -- demasiadas opciones antes de siquiera entrar a hacer
        algo. Mismo remedio que ya usó MediaDetail para su panel de cuatro
        secciones: pestañas dentro de un único panel, no varias superficies
        de nivel superior. -->
-  <app-modal [open]="sharing() && canManage()" title="Compartir álbum" size="lg" (closed)="closeSharing()">
-    <div class="info-tabs" role="tablist" aria-label="Compartir álbum">
-      <button type="button" role="tab" id="share-tab-new" aria-controls="share-tab-panel" [attr.aria-selected]="shareTab() === 'new'" [class.is-on]="shareTab() === 'new'" (click)="setShareTab('new')">Nuevo acceso</button>
-      <button type="button" role="tab" id="share-tab-collaborators" aria-controls="share-tab-panel" [attr.aria-selected]="shareTab() === 'collaborators'" [class.is-on]="shareTab() === 'collaborators'" (click)="setShareTab('collaborators')">
-        Colaboradores @if (collaboratorShares().length) { <span class="count-pill">{{ collaboratorShares().length }}</span> }
+<app-modal [open]="sharing() && canManage()" title="Compartir álbum" size="lg" (closed)="closeSharing()">
+  <div class="info-tabs" role="tablist" aria-label="Compartir álbum">
+    <button type="button" role="tab" id="share-tab-new" aria-controls="share-tab-panel"
+      [attr.aria-selected]="shareTab() === 'new'" [class.is-on]="shareTab() === 'new'"
+      (click)="setShareTab('new')">Nuevo acceso</button>
+    <button type="button" role="tab" id="share-tab-collaborators" aria-controls="share-tab-panel"
+      [attr.aria-selected]="shareTab() === 'collaborators'" [class.is-on]="shareTab() === 'collaborators'"
+      (click)="setShareTab('collaborators')">
+      Colaboradores @if (collaboratorShares().length) { <span class="count-pill">{{ collaboratorShares().length
+        }}</span> }
+    </button>
+    <button type="button" role="tab" id="share-tab-links" aria-controls="share-tab-panel"
+      [attr.aria-selected]="shareTab() === 'links'" [class.is-on]="shareTab() === 'links'"
+      (click)="setShareTab('links')">
+      Enlaces @if (publicLinkShares().length) { <span class="count-pill">{{ publicLinkShares().length }}</span> }
+    </button>
+  </div>
+
+  <div class="info-body" id="share-tab-panel" role="tabpanel" [attr.aria-labelledby]="'share-tab-' + shareTab()">
+    @switch (shareTab()) {
+
+    @case ('new') {
+    <div class="permission-choice" aria-label="Tipo de acceso">
+      <button type="button" [class.active]="permission === 'read'" (click)="permission='read'">
+        <app-icon name="eye" [size]="18" /><span><b>Solo lectura</b><small>Puede ver fotos y videos, nada
+            más</small></span>
       </button>
-      <button type="button" role="tab" id="share-tab-links" aria-controls="share-tab-panel" [attr.aria-selected]="shareTab() === 'links'" [class.is-on]="shareTab() === 'links'" (click)="setShareTab('links')">
-        Enlaces @if (publicLinkShares().length) { <span class="count-pill">{{ publicLinkShares().length }}</span> }
+      <button type="button" [class.active]="permission === 'write'" (click)="permission='write'">
+        <app-icon name="upload" [size]="18" /><span><b>Colaborador</b><small>Eliges qué puede hacer en el siguiente
+            paso</small></span>
       </button>
     </div>
 
-    <div class="info-body" id="share-tab-panel" role="tabpanel" [attr.aria-labelledby]="'share-tab-' + shareTab()">
-      @switch (shareTab()) {
-
-        @case ('new') {
-          <div class="permission-choice" aria-label="Tipo de acceso">
-            <button type="button" [class.active]="permission === 'read'" (click)="permission='read'">
-              <app-icon name="eye" [size]="18"/><span><b>Solo lectura</b><small>Puede ver fotos y videos, nada más</small></span>
-            </button>
-            <button type="button" [class.active]="permission === 'write'" (click)="permission='write'">
-              <app-icon name="upload" [size]="18"/><span><b>Colaborador</b><small>Eliges qué puede hacer en el siguiente paso</small></span>
-            </button>
-          </div>
-
-          <div class="share-link-options">
-            @if (permission === 'read') {
-              <div class="share-option">
-                <div><strong>Enlace público</strong><span>Se abre sin iniciar sesión. No se guarda en ninguna cuenta.</span></div>
-                <button type="button" class="btn btn-secondary" (click)="openLinkOptionsStep()">Continuar</button>
-              </div>
-              <div class="share-option">
-                <div><strong>Guardar en una cuenta</strong><span>Pide iniciar sesión y después queda en Compartido conmigo.</span></div>
-                <button type="button" class="btn btn-brand" (click)="createAccountLink()">Crear invitación</button>
-              </div>
-            } @else {
-              <div class="share-option share-option--single">
-                <div><strong>Invitación de colaborador</strong><span>Es obligatorio iniciar sesión. El álbum quedará guardado en su cuenta, pero tú sigues siendo el propietario.</span></div>
-                <button type="button" class="btn btn-brand" (click)="createAccountLink()">Elegir permisos</button>
-              </div>
-            }
-          </div>
-
-          <label class="expiry-row">
-            <span><b>Expira</b><small>Opcional</small></span>
-            <input class="field" [(ngModel)]="expiresAt" type="datetime-local">
-          </label>
-
-          @if (copiedLink(); as enlace) {
-            <div class="copied-link">
-              <app-icon name="check" [size]="16"/><span>Enlace copiado.</span>
-              <button type="button" (click)="copyCurrentLink()">Copiar otra vez</button>
-              <button type="button" (click)="toggleQr(enlace)">{{ qrLink() === enlace ? 'Ocultar QR' : 'Mostrar QR' }}</button>
-            </div>
-            @if (qrLink() === enlace) { <app-share-qr [link]="enlace" [filename]="qrFilename()" /> }
-          }
-        }
-
-        @case ('collaborators') {
-          @if (collaboratorShares().length) {
-            <div class="share-list">
-              @for (share of collaboratorShares(); track share.id) {
-                <div class="share-row">
-                  <span class="share-avatar"><app-icon [name]="share.shared_with_username ? 'user' : 'link'" [size]="16"/></span>
-                  <span class="share-copy">
-                    <b>{{ shareLabel(share) }}</b>
-                    @if (share.shared_with_full_name) { <em>{{ share.shared_with_full_name }}</em> }
-                    <small>{{ shareDescription(share) }}@if (share.expires_at) { · expira {{ share.expires_at | date:'mediumDate' }} }</small>
-                  </span>
-                  @if (share.permission === 'write') {
-                    <button type="button" class="text-action" (click)="editSharePermissions(share)">Permisos</button>
-                  }
-                  @if (share.token) { <button type="button" class="text-action" (click)="copyShare(share)">Copiar enlace</button> }
-                  @if (share.token && share.active) {
-                    <button type="button" class="text-action" (click)="toggleQr(shareUrl(share))">{{ qrLink() === shareUrl(share) ? 'Ocultar QR' : 'Mostrar QR' }}</button>
-                  }
-                  <button type="button" class="text-action danger-text" (click)="revokeShare(share)">Revocar</button>
-                </div>
-                @if (share.token && share.active && qrLink() === shareUrl(share)) {
-                  <app-share-qr [link]="qrLink()" [filename]="qrFilename()" />
-                }
-              }
-            </div>
-          } @else {
-            <p class="share-empty">Nadie tiene acceso de escritura todavía. Ve a “Nuevo acceso” para invitar a alguien.</p>
-          }
-        }
-
-        @case ('links') {
-          @if (publicLinkShares().length) {
-            <div class="link-list">
-              @for (share of publicLinkShares(); track share.id) {
-                <div class="link-card">
-                  <div class="link-card__head">
-                    <span class="share-avatar"><app-icon [name]="isPublicLink(share) ? 'link' : 'user'" [size]="16"/></span>
-                    <span class="link-card__meta">
-                      <b>{{ isPublicLink(share) ? 'Enlace público' : 'Guardar en una cuenta' }}</b>
-                      <small>
-                        Creado {{ share.created_at | date:'mediumDate' }}
-                        @if (share.expires_at) { · expira {{ share.expires_at | date:'mediumDate' }} }
-                      </small>
-                    </span>
-                    <button type="button" class="text-action danger-text" (click)="revokeShare(share)">Revocar</button>
-                  </div>
-
-                  @if (savedInAccount(share); as cuenta) {
-                    <p class="link-card__row">Guardado en: <b>{{ cuenta }}</b></p>
-                  }
-
-                  <p class="link-card__row">
-                    @if (share.last_accessed_at) {
-                      Última vez abierto: {{ share.last_accessed_at | date:'medium' }}@if (share.last_accessed_user_agent) { · {{ share.last_accessed_user_agent }} }
-                    } @else {
-                      Nadie lo ha abierto todavía.
-                    }
-                  </p>
-
-                  @if (share.has_token) {
-                    <div class="link-card__actions">
-                      @if (knownShareUrl(share)) {
-                        <button type="button" class="text-action" (click)="copyKnownLink(share)">Copiar enlace</button>
-                        <button type="button" class="text-action" (click)="toggleQr(knownShareUrl(share))">
-                          {{ qrLink() === knownShareUrl(share) ? 'Ocultar QR' : 'Ver QR' }}
-                        </button>
-                      } @else if (share.can_reveal) {
-                        <button type="button" class="text-action" [disabled]="revealingShareId() === share.id" (click)="revealLink(share)">
-                          {{ revealingShareId() === share.id ? 'Mostrando…' : 'Ver enlace' }}
-                        </button>
-                      } @else {
-                        <span class="link-card__hint">Este enlace no se puede volver a mostrar.</span>
-                      }
-                      <button type="button" class="text-action" (click)="regenerateLink(share)">Regenerar</button>
-                    </div>
-                    @if (knownShareUrl(share) && qrLink() === knownShareUrl(share)) {
-                      <app-share-qr [link]="qrLink()" [filename]="qrFilename()" />
-                    }
-                  }
-
-                  @if (isPublicLink(share)) {
-                    <label class="link-toggle">
-                      <input type="checkbox" name="linkAllowOriginal" [checked]="share.allow_original_download" (change)="toggleLinkDownload(share)">
-                      <span>Permitir descargar el archivo original</span>
-                    </label>
-
-                    <div class="link-card__row link-card__password">
-                      @if (editingLinkPassword() === share.id) {
-                        <input class="field" type="password" [(ngModel)]="linkPasswordDraft" placeholder="Nueva contraseña (vacío = quitar)" autocomplete="new-password">
-                        <button type="button" class="text-action" (click)="saveLinkPassword(share)">Guardar</button>
-                        <button type="button" class="text-action" (click)="cancelEditLinkPassword()">Cancelar</button>
-                      } @else {
-                        <span>{{ share.has_password ? 'Con contraseña' : 'Sin contraseña' }}</span>
-                        <button type="button" class="text-action" (click)="startEditLinkPassword(share)">{{ share.has_password ? 'Cambiar contraseña' : 'Poner contraseña' }}</button>
-                      }
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          } @else {
-            <p class="share-empty">No hay enlaces activos todavía. Ve a “Nuevo acceso” para crear uno.</p>
-          }
-        }
+    <div class="share-link-options">
+      @if (permission === 'read') {
+      <div class="share-option">
+        <div><strong>Enlace público</strong><span>Se abre sin iniciar sesión. No se guarda en ninguna cuenta.</span>
+        </div>
+        <button type="button" class="btn btn-secondary" (click)="openLinkOptionsStep()">Continuar</button>
+      </div>
+      <div class="share-option">
+        <div><strong>Guardar en una cuenta</strong><span>Pide iniciar sesión y después queda en Compartido
+            conmigo.</span></div>
+        <button type="button" class="btn btn-brand" (click)="createAccountLink()">Crear invitación</button>
+      </div>
+      } @else {
+      <div class="share-option share-option--single">
+        <div><strong>Invitación de colaborador</strong><span>Es obligatorio iniciar sesión. El álbum quedará guardado en
+            su cuenta, pero tú sigues siendo el propietario.</span></div>
+        <button type="button" class="btn btn-brand" (click)="createAccountLink()">Elegir permisos</button>
+      </div>
       }
     </div>
-  </app-modal>
 
-  <!-- Paso 2: qué podrá hacer este colaborador. Mismo diálogo al invitar y al
+    <label class="expiry-row">
+      <span><b>Expira</b><small>Opcional</small></span>
+      <input class="field" [(ngModel)]="expiresAt" type="datetime-local">
+    </label>
+
+    @if (copiedLink(); as enlace) {
+    <div class="copied-link">
+      <app-icon name="check" [size]="16" /><span>Enlace copiado.</span>
+      <button type="button" (click)="copyCurrentLink()">Copiar otra vez</button>
+      <button type="button" (click)="toggleQr(enlace)">{{ qrLink() === enlace ? 'Ocultar QR' : 'Mostrar QR' }}</button>
+    </div>
+    @if (qrLink() === enlace) { <app-share-qr [link]="enlace" [filename]="qrFilename()" /> }
+    }
+    }
+
+    @case ('collaborators') {
+    @if (collaboratorShares().length) {
+    <div class="share-list">
+      @for (share of collaboratorShares(); track share.id) {
+      <div class="share-row">
+        <span class="share-avatar"><app-icon [name]="share.shared_with_username ? 'user' : 'link'" [size]="16" /></span>
+        <span class="share-copy">
+          <b>{{ shareLabel(share) }}</b>
+          @if (share.shared_with_full_name) { <em>{{ share.shared_with_full_name }}</em> }
+          <small>{{ shareDescription(share) }}@if (share.expires_at) { · expira {{ share.expires_at | date:'mediumDate'
+            }} }</small>
+        </span>
+        @if (share.permission === 'write') {
+        <button type="button" class="text-action" (click)="editSharePermissions(share)">Permisos</button>
+        }
+        @if (share.token) { <button type="button" class="text-action" (click)="copyShare(share)">Copiar enlace</button>
+        }
+        @if (share.token && share.active) {
+        <button type="button" class="text-action" (click)="toggleQr(shareUrl(share))">{{ qrLink() === shareUrl(share) ?
+          'Ocultar QR' : 'Mostrar QR' }}</button>
+        }
+        <button type="button" class="text-action danger-text" (click)="revokeShare(share)">Revocar</button>
+      </div>
+      @if (share.token && share.active && qrLink() === shareUrl(share)) {
+      <app-share-qr [link]="qrLink()" [filename]="qrFilename()" />
+      }
+      }
+    </div>
+    } @else {
+    <p class="share-empty">Nadie tiene acceso de escritura todavía. Ve a “Nuevo acceso” para invitar a alguien.</p>
+    }
+    }
+
+    @case ('links') {
+    @if (publicLinkShares().length) {
+    <div class="link-list">
+      @for (share of publicLinkShares(); track share.id) {
+      <div class="link-card">
+        <div class="link-card__head">
+          <span class="share-avatar"><app-icon [name]="isPublicLink(share) ? 'link' : 'user'" [size]="16" /></span>
+          <span class="link-card__meta">
+            <b>{{ isPublicLink(share) ? 'Enlace público' : 'Guardar en una cuenta' }}</b>
+            <small>
+              Creado {{ share.created_at | date:'mediumDate' }}
+              @if (share.expires_at) { · expira {{ share.expires_at | date:'mediumDate' }} }
+            </small>
+          </span>
+          <button type="button" class="text-action danger-text" (click)="revokeShare(share)">Revocar</button>
+        </div>
+
+        @if (savedInAccount(share); as cuenta) {
+        <p class="link-card__row">Guardado en: <b>{{ cuenta }}</b></p>
+        }
+
+        <p class="link-card__row">
+          @if (share.last_accessed_at) {
+          Última vez abierto: {{ share.last_accessed_at | date:'medium' }}@if (share.last_accessed_user_agent) { · {{
+          share.last_accessed_user_agent }} }
+          } @else {
+          Nadie lo ha abierto todavía.
+          }
+        </p>
+
+        @if (share.has_token) {
+        <div class="link-card__actions">
+          @if (knownShareUrl(share)) {
+          <button type="button" class="text-action" (click)="copyKnownLink(share)">Copiar enlace</button>
+          <button type="button" class="text-action" (click)="toggleQr(knownShareUrl(share))">
+            {{ qrLink() === knownShareUrl(share) ? 'Ocultar QR' : 'Ver QR' }}
+          </button>
+          } @else if (share.can_reveal) {
+          <button type="button" class="text-action" [disabled]="revealingShareId() === share.id"
+            (click)="revealLink(share)">
+            {{ revealingShareId() === share.id ? 'Mostrando…' : 'Ver enlace' }}
+          </button>
+          } @else {
+          <span class="link-card__hint">Este enlace no se puede volver a mostrar.</span>
+          }
+          <button type="button" class="text-action" (click)="regenerateLink(share)">Regenerar</button>
+        </div>
+        @if (knownShareUrl(share) && qrLink() === knownShareUrl(share)) {
+        <app-share-qr [link]="qrLink()" [filename]="qrFilename()" />
+        }
+        }
+
+        @if (isPublicLink(share)) {
+        <label class="link-toggle">
+          <input type="checkbox" name="linkAllowOriginal" [checked]="share.allow_original_download"
+            (change)="toggleLinkDownload(share)">
+          <span>Permitir descargar el archivo original</span>
+        </label>
+
+        <div class="link-card__row link-card__password">
+          @if (editingLinkPassword() === share.id) {
+          <input class="field" type="password" [(ngModel)]="linkPasswordDraft"
+            placeholder="Nueva contraseña (vacío = quitar)" autocomplete="new-password">
+          <button type="button" class="text-action" (click)="saveLinkPassword(share)">Guardar</button>
+          <button type="button" class="text-action" (click)="cancelEditLinkPassword()">Cancelar</button>
+          } @else {
+          <span>{{ share.has_password ? 'Con contraseña' : 'Sin contraseña' }}</span>
+          <button type="button" class="text-action" (click)="startEditLinkPassword(share)">{{ share.has_password ?
+            'Cambiar contraseña' : 'Poner contraseña' }}</button>
+          }
+        </div>
+        }
+      </div>
+      }
+    </div>
+    } @else {
+    <p class="share-empty">No hay enlaces activos todavía. Ve a “Nuevo acceso” para crear uno.</p>
+    }
+    }
+    }
+  </div>
+</app-modal>
+
+<!-- Paso 2: qué podrá hacer este colaborador. Mismo diálogo al invitar y al
        corregir permisos de alguien que ya entró. -->
-  <app-modal
-    [open]="permissionStep() && canManage()"
-    [title]="editingShare() ? 'Permisos de ' + shareLabel(editingShare()!) : 'Permisos del colaborador'"
-    [dismissable]="!savingPermissions()"
-    (closed)="closePermissionStep()">
-    <p class="permission-intro">Ver el álbum va siempre incluido. Marca lo que además podrá hacer.</p>
+<app-modal [open]="permissionStep() && canManage()"
+  [title]="editingShare() ? 'Permisos de ' + shareLabel(editingShare()!) : 'Permisos del colaborador'"
+  [dismissable]="!savingPermissions()" (closed)="closePermissionStep()">
+  <p class="permission-intro">Ver el álbum va siempre incluido. Marca lo que además podrá hacer.</p>
 
-    <ul class="capability-list">
-      <li class="capability-row capability-row--locked">
-        <span class="capability-check"><app-icon name="check" [size]="14"/></span>
-        <span class="capability-copy"><b>Ver fotos y videos</b><small>Siempre incluido</small></span>
-      </li>
-      @for (capability of capabilityList; track capability) {
-        <li>
-          <label class="capability-row">
-            <input type="checkbox" [name]="'capability-' + capability" [checked]="isDraftCapability(capability)" (change)="toggleDraftCapability(capability)">
-            <span class="capability-copy">
-              <b>{{ capabilityLabel(capability) }}</b>
-              @if (capabilityHint(capability)) { <small>{{ capabilityHint(capability) }}</small> }
-            </span>
-          </label>
-        </li>
-      }
-    </ul>
+  <ul class="capability-list">
+    <li class="capability-row capability-row--locked">
+      <span class="capability-check"><app-icon name="check" [size]="14" /></span>
+      <span class="capability-copy"><b>Ver fotos y videos</b><small>Siempre incluido</small></span>
+    </li>
+    @for (capability of capabilityList; track capability) {
+    <li>
+      <label class="capability-row">
+        <input type="checkbox" [name]="'capability-' + capability" [checked]="isDraftCapability(capability)"
+          (change)="toggleDraftCapability(capability)">
+        <span class="capability-copy">
+          <b>{{ capabilityLabel(capability) }}</b>
+          @if (capabilityHint(capability)) { <small>{{ capabilityHint(capability) }}</small> }
+        </span>
+      </label>
+    </li>
+    }
+  </ul>
 
-    <p class="permission-note">Compartir el álbum, vaciar su papelera y eliminarlo siguen siendo solo tuyos.</p>
+  <p class="permission-note">Compartir el álbum, vaciar su papelera y eliminarlo siguen siendo solo tuyos.</p>
 
-    <div modal-actions>
-      <button type="button" class="btn btn-ghost" [disabled]="savingPermissions()" (click)="closePermissionStep()">Cancelar</button>
-      <button type="button" class="btn btn-brand" [disabled]="savingPermissions() || !draftCapabilities().size" (click)="confirmPermissions()">
-        @if (savingPermissions()) { <span class="btn-spinner"></span> }
-        {{ savingPermissions() ? 'Guardando…' : editingShare() ? 'Guardar permisos' : 'Crear invitación' }}
-      </button>
-    </div>
-  </app-modal>
+  <div modal-actions>
+    <button type="button" class="btn btn-ghost" [disabled]="savingPermissions()"
+      (click)="closePermissionStep()">Cancelar</button>
+    <button type="button" class="btn btn-brand" [disabled]="savingPermissions() || !draftCapabilities().size"
+      (click)="confirmPermissions()">
+      @if (savingPermissions()) { <span class="btn-spinner"></span> }
+      {{ savingPermissions() ? 'Guardando…' : editingShare() ? 'Guardar permisos' : 'Crear invitación' }}
+    </button>
+  </div>
+</app-modal>
 
-  <!-- Paso 2 (enlace público): contraseña y descarga del original, los dos
+<!-- Paso 2 (enlace público): contraseña y descarga del original, los dos
        opcionales -- se puede crear el enlace sin tocar ninguno. Mismo
        patrón que el paso 2 de colaborador: "Compartir álbum" se queda
        "abierto" en estado, así que cancelar o crear vuelve a él. -->
-  <app-modal
-    [open]="linkOptionsStep() && canManage()"
-    title="Opciones del enlace público"
-    [dismissable]="!creatingLink()"
-    (closed)="closeLinkOptionsStep()">
-    <p class="permission-intro">Todo esto es opcional -- puedes crear el enlace sin cambiar nada aquí.</p>
+<app-modal [open]="linkOptionsStep() && canManage()" title="Opciones del enlace público" [dismissable]="!creatingLink()"
+  (closed)="closeLinkOptionsStep()">
+  <p class="permission-intro">Todo esto es opcional -- puedes crear el enlace sin cambiar nada aquí.</p>
 
-    <label class="form-label">Contraseña <small>Opcional</small>
-      <input class="field" [(ngModel)]="sharePassword" type="password" autocomplete="new-password" placeholder="Sin contraseña">
-    </label>
-    <label class="favorite-control">
-      <input type="checkbox" name="shareAllowOriginalDownload" [(ngModel)]="shareAllowOriginalDownload">
-      <span><b>Permitir descargar el archivo original</b></span>
-    </label>
-    <label class="favorite-control">
-      <input type="checkbox" name="shareShowMetadata" [(ngModel)]="shareShowMetadata">
-      <span><b>Mostrar información de la foto</b><small>Incluye ficha, ubicación, tags y texto detectado.</small></span>
-    </label>
+  <label class="form-label">Contraseña <small>Opcional</small>
+    <input class="field" [(ngModel)]="sharePassword" type="password" autocomplete="new-password"
+      placeholder="Sin contraseña">
+  </label>
+  <label class="favorite-control">
+    <input type="checkbox" name="shareAllowOriginalDownload" [(ngModel)]="shareAllowOriginalDownload">
+    <span><b>Permitir descargar el archivo original</b></span>
+  </label>
+  <label class="favorite-control">
+    <input type="checkbox" name="shareShowMetadata" [(ngModel)]="shareShowMetadata">
+    <span><b>Mostrar información de la foto</b><small>Incluye ficha, ubicación, tags y texto detectado.</small></span>
+  </label>
 
-    <div modal-actions>
-      <button type="button" class="btn btn-ghost" [disabled]="creatingLink()" (click)="closeLinkOptionsStep()">Cancelar</button>
-      <button type="button" class="btn btn-brand" [disabled]="creatingLink()" (click)="confirmPublicLink()">
-        @if (creatingLink()) { <span class="btn-spinner"></span> }
-        {{ creatingLink() ? 'Creando…' : 'Crear enlace' }}
-      </button>
-    </div>
-  </app-modal>
+  <div modal-actions>
+    <button type="button" class="btn btn-ghost" [disabled]="creatingLink()"
+      (click)="closeLinkOptionsStep()">Cancelar</button>
+    <button type="button" class="btn btn-brand" [disabled]="creatingLink()" (click)="confirmPublicLink()">
+      @if (creatingLink()) { <span class="btn-spinner"></span> }
+      {{ creatingLink() ? 'Creando…' : 'Crear enlace' }}
+    </button>
+  </div>
+</app-modal>
 
-  <!-- Tags de un archivo -->
-  <app-modal [open]="!!selectedMedia() && canOrganize()" [title]="'Tags de ' + (selectedMedia()?.title || 'este archivo')" (closed)="closeTags()">
-    <div class="tag-list">
-      @for (tag of selectedMediaTags(); track tag.id) {
-        <span>{{ tag.name }} <button type="button" (click)="removeTag(tag)" aria-label="Quitar tag"><app-icon name="close" [size]="11"/></button></span>
-      } @empty { <small>Sin tags.</small> }
-    </div>
-    <div class="tag-actions">
-      <select class="field" [(ngModel)]="tagToAssign" aria-label="Tag existente para asignar">
-        <option value="">Selecciona un tag</option>
-        @for (tag of tags(); track tag.id) { <option [value]="tag.id">{{ tag.name }}</option> }
-      </select>
-      <button class="btn btn-secondary" type="button" (click)="assignTag()">Asignar</button>
-      <input class="field" [(ngModel)]="newTagName" placeholder="Nuevo tag" aria-label="Nombre del tag nuevo">
-      <button class="btn btn-brand" type="button" (click)="createAndAssignTag()">Crear</button>
-    </div>
-  </app-modal>
 }

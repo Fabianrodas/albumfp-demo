@@ -1,13 +1,20 @@
 :host { display: block; }
 
-/* Alto exacto de la ventana y sin desbordar: las dos pantallas de cuenta tienen
-   que entrar enteras, sin scroll. */
+/* Las pantallas de cuenta entran enteras en la ventana: login, registro y
+   recuperar, también con todos los avisos de error a la vista.
+
+   v1.1: el alto es un MÍNIMO, no un alto fijo recortado. Antes era
+   `height: 100svh; overflow: hidden` con un `.auth-content` que scrolleaba por
+   dentro, y en un portátil el formulario con errores se cortaba arriba (el
+   titular desaparecía bajo la marca) detrás de una barra de scroll interna.
+   Ahora el tamaño se ajusta al alto de la ventana (los `vh` de login.css) para
+   que quepa, y si una ventana es de verdad diminuta crece la PÁGINA, nunca un
+   contenedor escondido. */
 .auth-shell {
-  height: 100svh;
+  min-height: 100svh;
   display: grid;
   /* Transparente: el color lo pone app-public-backdrop, por debajo. */
   background: transparent;
-  overflow: hidden;
 }
 
 /* ---------- Formulario ---------- */
@@ -16,7 +23,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: clamp(20px, 3vw, 40px) clamp(20px, 5vw, 56px) clamp(20px, 3vw, 40px);
+  padding: clamp(14px, 2.6vh, 36px) clamp(20px, 5vw, 56px);
 }
 
 /* La marca a la izquierda y el interruptor de tema a la derecha. Estas dos
@@ -35,12 +42,13 @@
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid var(--border-strong);
-  border-radius: 12px;
-  background: var(--surface-raised);
-  color: var(--text);
+  /* v1.1: discreto, igual que en la barra pública — sin marco en reposo. */
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-soft);
 }
-.tema:hover { border-color: var(--text-soft); }
+.tema:hover { color: var(--text); background: color-mix(in srgb, var(--brand-900) 9%, transparent); }
 
 .brand {
   display: inline-flex;
@@ -54,19 +62,17 @@
 }
 .brand img { width: 38px; height: 38px; object-fit: contain; }
 
+/* Crece con su contenido (`1 0 auto`) y centra con `safe`: si no sobra
+   espacio, arranca arriba en vez de empujar el titular fuera de la vista. */
 .auth-content {
-  flex: 1;
-  min-height: 0;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: clamp(16px, 2.5vw, 36px) 0;
+  justify-content: safe center;
+  padding: clamp(8px, 1.4vh, 32px) 0;
   width: 100%;
   max-width: 25.5rem;
   margin: 0 auto;
-  /* Si la ventana es de verdad muy baja, que ceda el formulario y no la página
-     entera: así el panel visual no se descoloca. */
-  overflow-y: auto;
 }
 
 /* ---------- Panel visual ---------- */

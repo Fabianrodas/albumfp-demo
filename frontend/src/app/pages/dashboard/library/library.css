@@ -24,7 +24,12 @@
 .load-zone { min-height: 88px; display: grid; place-items: center; margin-top: 28px; }
 .load-button { min-height: 44px; }
 .timeline-end { margin: 0; color: var(--muted); font-size: 13px; }
-.library-empty { margin-top: 8px; }
+/* v1.1: el vacío es una columna centrada entera. Antes solo el icono se
+   centraba (margin auto) y el título, el texto y el botón quedaban a la
+   izquierda: se veía descolocado, sobre todo en Archivo. */
+.library-empty { margin-top: 8px; padding-block: clamp(36px, 6vw, 56px); }
+.library-empty .empty-state__copy { margin: 0 auto; max-width: 460px; display: grid; justify-items: center; text-align: center; }
+.library-empty .empty-state__copy p { margin-bottom: 20px; }
 .empty-icon { width: 52px; height: 52px; margin: 0 auto 15px; display: grid; place-items: center; border-radius: 50%; background: var(--surface-sage); color: var(--brand-700); }
 @media (max-width: 800px) {
   .year-group { grid-template-columns: 1fr; gap: 18px; }
