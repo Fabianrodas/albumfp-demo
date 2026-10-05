@@ -35,7 +35,7 @@
     "readme_screenshots": "PASS (33 synthetic captures checked; 9 desktop/phone captures refreshed from the local Demo)",
     "main_push": "PASS (origin/main contains v1.3.0 release commit 653ee53bea1360da15c6db8c1c34fce1f8ac7ea6; annotated tag peeled to the same commit)"
   },
-  "last_pushed_commit": "6a7280ff1d4922387303c632b5ad9064c1f013d0",
+  "last_pushed_commit": "653ee53bea1360da15c6db8c1c34fce1f8ac7ea6",
   "release_tags": {
     "v1.0.0": "90f09aef1a5938b57ea2e431b14bf9352a65a0c5",
     "v1.1.0": "d6546e8beaddf8b837951ccca1ce016ad88016a8",
