@@ -43,7 +43,7 @@
     "synthetic_seed": "PASS (one local-only account, one private album, four generated JPEG illustrations without EXIF)",
     "publication_scan": "PASS (514 tracked Git blobs; deterministic scan passed; Gitleaks unavailable)",
     "readme_screenshots": "PASS (33 synthetic captures checked in the prior release certification; v1.3.1 changes README version text only)",
-    "main_push": "PASS (v1.3.1 release closure commit pushed normally to origin/main; annotated v1.3.1 targets this commit)"
+    "main_push": "PASS (post-v1.3.1 public-boundary and local-runtime safety hygiene is on main; the annotated v1.3.1 tag remains unchanged at its verified product commit, and hygiene does not create a new version or release)"
   },
   "post_release_hygiene": {
     "status": "PASS",
@@ -83,5 +83,15 @@
     "tag": "v1.3.1",
     "annotated": true,
     "peeled_target": "c8821c9f1b9e318957b25114d7726f1df0ea0a56"
+  },
+  "github_release_publication": {
+    "status": "published",
+    "release_count": 7,
+    "latest_release_tag": "v1.3.1",
+    "latest_release_url": "https://github.com/Fabianrodas/albumfp-demo/releases/tag/v1.3.1",
+    "product_boundary": "v1.3",
+    "post_release_main": "Public-boundary and local-runtime safety hygiene; this does not create a new product version or release.",
+    "v1_4_plus_development": false,
+    "project_state": "closed"
   }
 }
