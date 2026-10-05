@@ -66,7 +66,7 @@ nav a.active app-icon { opacity: 1; }
 }
 
 @media (max-width: 1050px) {
-  .sidebar { width: 76px; padding: 22px 10px; }
+  .sidebar { width: calc(76px + env(safe-area-inset-left)); padding: 22px 10px 22px calc(10px + env(safe-area-inset-left)); }
   .brand { padding: 0 8px 17px; justify-content: center; }
   .brand span, .nav-label, nav a span, .nav-button span { display: none; }
   .brand img { width: 38px; height: 38px; }
@@ -75,13 +75,10 @@ nav a.active app-icon { opacity: 1; }
   nav a:hover, .nav-button:hover { transform: none; }
 }
 
-/* En móvil SIGUE siendo una barra lateral, no una de pestañas abajo. El carril
-   solo se estrecha. Con la barra inferior se perdían el interruptor de tema y
-   el cierre de sesión, que viven en `utility-nav`, y la marca desaparecía; el
-   carril los conserva los tres. */
+/* En el teléfono el carril desaparece: 62px de 390 eran demasiado, y ocho
+   iconos sin nombre no se entendían. La navegación pasa a la barra inferior
+   (`app-mobile-nav`), el tema a su hoja «Más» y cerrar sesión sigue en el menú
+   de la cuenta, así que no se pierde nada de lo que vivía aquí. */
 @media (max-width: 760px) {
-  .sidebar { width: 62px; padding: 16px 7px max(14px, env(safe-area-inset-bottom)); }
-  .brand img { width: 32px; height: 32px; }
-  nav a, .nav-button { min-height: 42px; }
-  .primary-nav { gap: 2px; }
+  .sidebar { display: none; }
 }

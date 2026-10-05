@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Theme } from '../../../core/services/theme';
 import { Icon } from '../../ui/icon/icon';
@@ -9,7 +9,7 @@ import { MenuItem, UserMenu } from '../../ui/user-menu/user-menu';
 
 @Component({
   selector: 'app-topbar',
-  imports: [FormsModule, Icon, NotificationBell, UserMenu],
+  imports: [FormsModule, RouterLink, Icon, NotificationBell, UserMenu],
   templateUrl: './topbar.html',
   styleUrl: './topbar.css',
 })
@@ -18,6 +18,9 @@ export class Topbar {
   readonly theme = inject(Theme);
   private readonly router = inject(Router);
   query = '';
+  /** En el teléfono la búsqueda es un botón que se abre sobre la barra. */
+  readonly searchOpen = signal(false);
+  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
 
   /** El menú de la cuenta (F03). "Ir al sitio público" y no "Inicio" porque
    * el carril lateral ya tiene un "Inicio" que significa otra cosa. Cerrar
@@ -34,7 +37,18 @@ export class Topbar {
     this.auth.logout().subscribe(() => this.router.navigateByUrl('/'));
   }
 
+  openSearch() {
+    this.searchOpen.set(true);
+    // El campo existe siempre (solo se oculta); el foco va tras pintarse visible.
+    setTimeout(() => this.searchInput()?.nativeElement.focus());
+  }
+
+  closeSearch() {
+    this.searchOpen.set(false);
+  }
+
   search() {
+    this.searchOpen.set(false);
     const q = this.query.trim();
     this.router.navigate(['/albumes'], { queryParams: q ? { q } : {} });
   }

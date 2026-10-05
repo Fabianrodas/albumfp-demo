@@ -8,6 +8,7 @@
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
       <a routerLink="/acerca-de" routerLinkActive="active">Acerca de</a>
       <a routerLink="/como-funciona" routerLinkActive="active">Cómo funciona</a>
+      <a routerLink="/webapp" routerLinkActive="active">WebApp</a>
     </nav>
 
     <div class="account">
@@ -35,6 +36,7 @@
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="close()">Inicio</a>
       <a routerLink="/acerca-de" routerLinkActive="active" (click)="close()">Acerca de</a>
       <a routerLink="/como-funciona" routerLinkActive="active" (click)="close()">Cómo funciona</a>
+      <a routerLink="/webapp" routerLinkActive="active" (click)="close()">WebApp</a>
       @if (auth.user()) {
         <a routerLink="/inicio" (click)="close()">Ir al panel</a>
         <button type="button" class="panel__logout" (click)="auth.logout().subscribe(); close()">Cerrar sesión</button>

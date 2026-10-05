@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.2.0 - Mobile UX and WebApp
+
+Adds phone navigation, responsive search, safe-area support, and an installable local WebApp shell. The Demo remains available only on the computer running its local services.
+
 ## v1.1.1 - Screenshot cache refresh
 
 Versions public screenshot URLs by the content of the Demo's synthetic capture set, so updated screenshots are fetched instead of served from an older browser cache.

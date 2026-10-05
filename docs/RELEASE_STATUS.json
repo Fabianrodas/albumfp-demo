@@ -1,8 +1,8 @@
 {
   "product": "AlbumFP Demo",
   "target_version": "1.3.0",
-  "current_version": "1.1.0",
-  "stage": "v1.1.1-cache-revision",
+  "current_version": "1.2.0",
+  "stage": "v1.2.1-port",
   "source_tags_verified": [
     "v1.0.0",
     "v1.1.0",
@@ -19,23 +19,24 @@
     "foundation": "complete",
     "v1.0.0": "complete",
     "v1.1.0": "complete",
-    "v1.1.1": "in-progress",
-    "v1.2.0": "not-started",
-    "v1.2.1": "not-started",
+    "v1.1.1": "complete",
+    "v1.2.0": "complete",
+    "v1.2.1": "in-progress",
     "v1.3.0": "not-started",
     "final_certification": "not-started"
   },
   "checks": {
     "database_safety_tests": "PASS (17 pytest cases, 13 subtests)",
-    "automated_tests": "PASS (v1.1 backend 911 passed, 3 skipped; v1.1.1 focused 4 passed; frontend 205 passed; production build passed)",
-    "browser_qa": "PASS (video poster and 206 playback; screenshot URLs carry revision 85f922be2f; 0 external requests)",
-    "publication_scan": "PASS (495 tracked files; Gitleaks unavailable)",
-    "readme_screenshots": "PASS (29 synthetic captures checked; final gallery refresh pending)",
-    "main_push": "PASS through commit d6546e8"
+    "automated_tests": "PASS (v1.1 backend 911 passed, 3 skipped; v1.2 focused backend 4 passed; frontend 209 passed; production build passed)",
+    "browser_qa": "PASS (390x844 phone navigation/search/detail; 768/1024 tablet; 1440 desktop; long-title wrap; WebApp assets in both themes; production service worker cached the shell offline; 0 external requests)",
+    "publication_scan": "PASS (508 tracked files; deterministic Git-tree checks; Gitleaks unavailable)",
+    "readme_screenshots": "PASS (33 synthetic captures checked; 8 phone captures refreshed from the local Demo; final gallery refresh pending)",
+    "main_push": "PASS through commit 92a3e60; v1.2.0 release push pending"
   },
-  "last_pushed_commit": "d6546e8",
+  "last_pushed_commit": "92a3e60",
   "release_tags": {
     "v1.0.0": "90f09aef1a5938b57ea2e431b14bf9352a65a0c5",
-    "v1.1.0": "d6546e8beaddf8b837951ccca1ce016ad88016a8"
+    "v1.1.0": "d6546e8beaddf8b837951ccca1ce016ad88016a8",
+    "v1.1.1": "92a3e60ca0013b681bb866bcad9764ce03fdbfa3"
   }
 }

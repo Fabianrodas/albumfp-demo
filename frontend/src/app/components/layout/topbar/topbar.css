@@ -3,16 +3,34 @@
 .search:focus-within{border-color:var(--sage-500);box-shadow:var(--focus-ring);background:var(--surface-raised)}
 .search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font-size:13px}
 .search input::placeholder{color:var(--input-placeholder)}
+/* El anillo de foco lo pinta el formulario entero (`:focus-within`); el input no
+   dibuja un segundo recuadro dentro. */
+.search input:focus,.search input:focus-visible{outline:none;box-shadow:none;border:0}
 .search-clear{width:25px;height:25px;border:0;background:transparent;color:var(--muted);display:grid;place-items:center;border-radius:50%;padding:0}
 .search-clear:hover{background:var(--surface-muted);color:var(--text)}
-.top-actions{display:flex;align-items:center;gap:13px}/* Mismo trato que el interruptor de la navegacion publica, para que los dos
-   se vean iguales: el vidrio blanco resaltaba de mas sobre la topbar. */
-.mobile-theme{display:none;width:40px;height:40px;border:1px solid color-mix(in srgb,var(--brand-900) 16%,var(--border));border-radius:50%;background:color-mix(in srgb,var(--brand-900) 7%,transparent);color:var(--text);place-items:center;padding:0}
+.top-actions{display:flex;align-items:center;gap:13px}
+/* La marca y el botón de búsqueda solo existen en el teléfono: en escritorio la
+   marca vive en el carril lateral y la búsqueda está siempre abierta. */
+.topbar-brand,.search-toggle,.search-cancel{display:none}
 .avatar{width:39px;height:39px;border-radius:50%;display:grid;place-items:center;background:var(--brand-900);color:var(--on-brand);text-decoration:none;font-size:11px;font-weight:800;letter-spacing:.05em;box-shadow:0 5px 16px rgba(18,52,38,.15);transition:transform .18s ease,background-color .18s ease}
 .avatar:hover{transform:translateY(-1px);background:var(--brand-800)}
 .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
-/* La marca no se repite: el carril lateral la sigue enseñando en movil desde que
-   dejo de convertirse en barra inferior, y tenerla dos veces en 390px solo
-   quitaba sitio a la busqueda. */
-@media(max-width:760px){.search{width:min(310px,48vw)}.mobile-theme{display:grid}}
-@media(max-width:560px){.search{display:none}}
+/* Teléfono: sin carril lateral, así que la marca vuelve a la barra (a la
+   izquierda) y las acciones quedan a la derecha. La zona segura de arriba ya
+   va sumada a --topbar-h; aquí se reserva como relleno. */
+@media(max-width:760px){
+  .topbar{justify-content:space-between;gap:10px;padding-top:env(safe-area-inset-top)}
+  .topbar-brand{display:flex;align-items:center;gap:8px;min-height:44px;margin-right:auto;color:var(--text);text-decoration:none;font:700 21px/1 var(--display);letter-spacing:-.04em}
+  .topbar-brand img{width:30px;height:30px;object-fit:contain}
+  .search{width:min(300px,42vw)}
+  .top-actions{gap:8px}
+}
+@media(max-width:560px){
+  .search{display:none}
+  .search-toggle{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--border);border-radius:50%;background:transparent;color:var(--text);padding:0}
+  /* Abierta, la búsqueda tapa la barra entera: un campo ancho y un
+     «Cancelar», como en cualquier app del teléfono. */
+  .searching .search{display:flex;position:absolute;left:0;right:0;bottom:11px;width:auto;height:44px;background:var(--surface-raised);z-index:2}
+  .searching .search input{font-size:16px}
+  .searching .search-cancel{display:block;min-height:40px;padding:0 4px 0 8px;border:0;background:transparent;color:var(--text);font:650 14px/1 var(--sans)}
+}

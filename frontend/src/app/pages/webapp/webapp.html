@@ -1,0 +1,187 @@
+<app-public-backdrop />
+
+<app-public-nav />
+
+<main class="webapp">
+  <!-- 1. Qué es. -->
+  <header class="hero">
+    <div class="hero__copy" appScrollReveal>
+      <p class="kicker">WebApp</p>
+      <h1>AlbumFP, en la pantalla de inicio de este equipo.</h1>
+      <p class="lead">
+        Instálala desde el navegador en menos de un minuto. Se abre a pantalla completa, con su propio
+        icono y siempre en su última versión. Esta Demo solo funciona en este equipo.
+      </p>
+      <div class="hero__actions">
+        @if (installer.installed()) {
+          <p class="estado"><app-icon name="check" [size]="18"/>Ya estás usando AlbumFP como WebApp.</p>
+        } @else if (installer.canInstall()) {
+          <button type="button" class="btn btn-brand" (click)="install()"><app-icon name="download" [size]="18"/>Instalar AlbumFP</button>
+        }
+        <a class="btn btn-secondary" href="/webapp#instalar">Ver cómo instalarla</a>
+      </div>
+      <p class="aviso-local" role="note">La Demo se conecta a servicios locales de este equipo. No se puede abrir desde un teléfono u otro equipo; las pantallas móviles de esta página muestran el diseño adaptable.</p>
+    </div>
+
+    <div class="hero__phones" appScrollReveal>
+      <figure class="phone phone--back">
+        <app-shot-frame src="capturas/movil/album.webp" ratio="390 / 844" [still]="true" alt="Un álbum abierto en AlbumFP en el teléfono" />
+      </figure>
+      <figure class="phone phone--front">
+        <app-shot-frame src="capturas/movil/inicio.webp" ratio="390 / 844" [still]="true" [priority]="true"
+          alt="El inicio de AlbumFP instalado como WebApp, con la barra de navegación abajo" />
+      </figure>
+    </div>
+  </header>
+
+  <!-- 2. Por qué. -->
+  <section class="ventajas" aria-labelledby="ventajas-title">
+    <h2 id="ventajas-title" appScrollReveal>Por qué instalarla</h2>
+    <ul class="ventajas__grid" appScrollReveal="stagger">
+      @for (v of ventajas; track v.titulo) {
+        <li class="ventaja">
+          <span class="ventaja__icon"><app-icon [name]="v.icon" [size]="20"/></span>
+          <h3>{{ v.titulo }}</h3>
+          <p>{{ v.texto }}</p>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <!-- 3. Cómo: un teléfono por sistema, con los pasos al lado. Los dibujos del
+       navegador son ilustraciones, no capturas del sistema: la pantalla de
+       dentro sí es AlbumFP de verdad. -->
+  <section class="instalar" id="instalar" aria-labelledby="instalar-title">
+    <header class="instalar__head" appScrollReveal>
+      <h2 id="instalar-title">Cómo instalarla en este equipo</h2>
+      <p>Abre AlbumFP Demo en Chrome o Edge desde el mismo equipo que ejecuta el servidor. Si el navegador ofrece instalarla, la WebApp conserva la interfaz y tus datos siguen en los servicios locales.</p>
+    </header>
+
+    <div class="plataformas">
+      <article class="plataforma" id="instalar-iphone" aria-labelledby="iphone-title" appScrollReveal>
+        <div class="plataforma__demo" aria-hidden="true">
+          <div class="phone phone--demo">
+            <app-shot-frame src="capturas/movil/inicio.webp" ratio="390 / 844" [still]="true" alt="" />
+            <div class="ilus ilus--ios">
+              <div class="ilus__hoja">
+                <span class="ilus__fila">Copiar</span>
+                <span class="ilus__fila">Añadir a favoritos</span>
+                <span class="ilus__fila ilus__fila--clave"><app-icon name="plus-square" [size]="17"/>Añadir a pantalla de inicio</span>
+              </div>
+              <div class="ilus__barra">
+                <span class="ilus__url">localhost:4200</span>
+                <span class="ilus__boton ilus__boton--clave"><app-icon name="share-ios" [size]="18"/></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="plataforma__pasos">
+          <h3 id="iphone-title"><app-icon name="smartphone" [size]="20"/>iPhone y iPad</h3>
+          <p class="plataforma__nota">Con Safari.</p>
+          <ol class="pasos">
+            @for (p of pasosIphone; track p.titulo; let i = $index) {
+              <li>
+                <span class="paso__num">{{ i + 1 }}</span>
+                <div>
+                  <strong>{{ p.titulo }}</strong>
+                  <p>{{ p.texto }}</p>
+                  @if (p.icon) { <span class="paso__chip"><app-icon [name]="p.icon" [size]="16"/>{{ p.boton }}</span> }
+                </div>
+              </li>
+            }
+          </ol>
+        </div>
+      </article>
+
+      <article class="plataforma" id="instalar-android" aria-labelledby="android-title" appScrollReveal>
+        <div class="plataforma__demo" aria-hidden="true">
+          <div class="phone phone--demo">
+            <app-shot-frame src="capturas/movil/biblioteca.webp" ratio="390 / 844" [still]="true" alt="" />
+            <div class="ilus ilus--android">
+              <div class="ilus__barra ilus__barra--arriba">
+                <span class="ilus__url">localhost:4200</span>
+                <span class="ilus__boton ilus__boton--clave"><app-icon name="more-vertical" [size]="18"/></span>
+              </div>
+              <div class="ilus__menu">
+                <span class="ilus__fila">Nueva pestaña</span>
+                <span class="ilus__fila">Compartir…</span>
+                <span class="ilus__fila ilus__fila--clave"><app-icon name="download" [size]="17"/>Instalar aplicación</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="plataforma__pasos">
+          <h3 id="android-title"><app-icon name="smartphone" [size]="20"/>Android</h3>
+          <p class="plataforma__nota">Con Chrome (también en Edge y Samsung Internet).</p>
+          <ol class="pasos">
+            @for (p of pasosAndroid; track p.titulo; let i = $index) {
+              <li>
+                <span class="paso__num">{{ i + 1 }}</span>
+                <div>
+                  <strong>{{ p.titulo }}</strong>
+                  <p>{{ p.texto }}</p>
+                  @if (p.icon) { <span class="paso__chip"><app-icon [name]="p.icon" [size]="16"/>{{ p.boton }}</span> }
+                </div>
+              </li>
+            }
+          </ol>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 4. Qué esperar. -->
+  <section class="instalada" aria-labelledby="instalada-title">
+    <header class="instalada__head" appScrollReveal>
+      <h2 id="instalada-title">Así se ve una vez instalada</h2>
+      <p>
+        La misma AlbumFP, pensada para el pulgar: la navegación vive abajo, las fotos usan todo el
+        ancho y cada recuerdo se abre a pantalla completa.
+      </p>
+    </header>
+    <ul class="galeria" appScrollReveal="stagger">
+      <li>
+        <figure class="phone">
+          <app-shot-frame src="capturas/movil/inicio.webp" ratio="390 / 844" [still]="true" alt="Inicio: tus aniversarios y las fotos de la comunidad" />
+        </figure>
+        <p><strong>Inicio.</strong> Tus aniversarios y lo último de la comunidad.</p>
+      </li>
+      <li>
+        <figure class="phone">
+          <app-shot-frame src="capturas/movil/biblioteca.webp" ratio="390 / 844" [still]="true" alt="Biblioteca: todos tus recuerdos en orden" />
+        </figure>
+        <p><strong>Biblioteca.</strong> Todo lo que guardaste, en el orden en que pasó.</p>
+      </li>
+      <li>
+        <figure class="phone">
+          <app-shot-frame src="capturas/movil/album.webp" ratio="390 / 844" [still]="true" alt="Un álbum con sus fotos y videos" />
+        </figure>
+        <p><strong>Álbumes.</strong> Sube, comparte y organiza desde el teléfono.</p>
+      </li>
+      <li>
+        <figure class="phone">
+          <app-shot-frame src="capturas/movil/recuerdo.webp" ratio="390 / 844" [still]="true" alt="Un recuerdo abierto a pantalla completa" />
+        </figure>
+        <p><strong>Recuerdos.</strong> Cada foto a pantalla completa, con su historia.</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 5. Dudas. -->
+  <section class="faq" aria-labelledby="faq-title">
+    <h2 id="faq-title" appScrollReveal>Preguntas frecuentes</h2>
+    <div class="faq__lista" appScrollReveal>
+      @for (p of preguntas; track p.q) {
+        <details>
+          <summary>{{ p.q }}</summary>
+          <p>{{ p.a }}</p>
+        </details>
+      }
+    </div>
+    <p class="faq__cta">
+      ¿Todavía no tienes cuenta? <a routerLink="/registro">Crea una</a> y luego instala la app.
+    </p>
+  </section>
+</main>
+
+<app-public-footer />

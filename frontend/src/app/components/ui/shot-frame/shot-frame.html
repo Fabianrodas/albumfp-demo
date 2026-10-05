@@ -1,4 +1,4 @@
-<figure class="shot" [style.--ratio]="ratio()">
+<figure class="shot" [class.shot--still]="still()" [style.--ratio]="ratio()">
   <img [src]="themedSrc()" [alt]="alt()" [style.object-position]="crop()" [style.scale]="zoom()"
     [attr.loading]="priority() ? 'eager' : 'lazy'" [attr.fetchpriority]="priority() ? 'high' : null"
     decoding="async" width="1000" height="750">

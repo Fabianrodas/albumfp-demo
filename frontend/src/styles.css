@@ -175,7 +175,11 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* `viewport-fit=cover` (index.html) deja que la página llegue a los bordes del
+   teléfono; con el teléfono en horizontal, la muesca queda a un lado y este
+   relleno aparta el contenido de ella. Lo fijo (carril, barras) pone el suyo. */
+body { padding-inline: env(safe-area-inset-left) env(safe-area-inset-right); }
 body { margin: 0; min-width: 320px; background: var(--paper); color: var(--text); -webkit-font-smoothing: antialiased; }
 button, input, select, textarea { font: inherit; }
 button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
@@ -432,7 +436,10 @@ img, video { max-width: 100%; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--motion-base); animation-timing-function: var(--ease-in-out); }
 
 @media (max-width: 760px) {
-  :root { --topbar-h: 70px; --page-pad-b: 48px; }
+  /* La topbar suma la zona segura de arriba (la muesca en la WebApp instalada)
+     a su alto, y la barra inferior del panel mide --tabbar-h más la de abajo.
+     Todo lo que se mide contra la topbar sigue leyendo un único token. */
+  :root { --topbar-h: calc(64px + env(safe-area-inset-top)); --page-pad-b: 28px; --tabbar-h: 62px; }
   /* La cabecera se comia media pantalla de un telefono antes de la primera
      foto. El titulo sigue siendo el elemento mas grande de la pagina. */
   .page-header { align-items: flex-start; flex-direction: column; padding: 20px 0 16px; gap: 14px; }
@@ -479,8 +486,10 @@ img, video { max-width: 100%; }
   border-bottom: 1px solid var(--border);
 }
 .album-hero__copy { max-width: 760px; min-width: 0; }
-.album-hero h1 { margin: 13px 0 0; font: 500 clamp(36px, 4.6vw, 52px)/1 var(--display); letter-spacing: -.045em; }
-.album-hero p { margin: 12px 0 0; max-width: 620px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+/* Una palabra sin cortes en el título (un enlace, un nombre_con_guiones) marcaba
+   el ancho mínimo de la cabecera y en el teléfono la página scrolleaba de lado. */
+.album-hero h1 { margin: 13px 0 0; font: 500 clamp(36px, 4.6vw, 52px)/1 var(--display); letter-spacing: -.045em; overflow-wrap: anywhere; }
+.album-hero p { margin: 12px 0 0; max-width: 620px; color: var(--muted); font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
 /* v1.1: las acciones van en UNA fila, a la misma altura (Actividad caía sola
    a una segunda). Por debajo de 1200px esa fila no cabe al lado del título,
    así que baja debajo de él, donde sí cabe entera. */

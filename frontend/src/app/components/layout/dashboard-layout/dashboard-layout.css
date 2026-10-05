@@ -1,12 +1,17 @@
-.dashboard-shell{min-height:100vh;background:var(--paper)}
+/* `--tabbar-space` es lo que la barra inferior del teléfono ocupa abajo. Vale 0
+   donde no hay barra, y lo heredan las páginas que miden su alto (el detalle). */
+.dashboard-shell{--tabbar-space:0px;min-height:100vh;background:var(--paper)}
 .dashboard-main{min-height:100vh;margin-left:248px;padding:0 clamp(20px,2.4vw,36px) var(--page-pad-b);transition:margin-left .22s ease}
 /* Se resta tambien el hueco inferior del propio main. Sin eso, una pagina que
    cabe de sobra reservaba 100vh menos la topbar y el main le sumaba encima sus
    64px de relleno: cada pagina corta del panel scrolleaba 64px de nada. */
-.dashboard-page{width:100%;max-width:1440px;margin:0 auto;min-height:calc(100vh - var(--topbar-h) - var(--page-pad-b))}
+.dashboard-page{width:100%;max-width:1440px;margin:0 auto;min-height:calc(100vh - var(--topbar-h) - var(--page-pad-b) - var(--tabbar-space))}
 @media(max-width:1050px){.dashboard-main{margin-left:76px;padding-inline:30px}}
-/* El carril lateral se mantiene en movil (62px), asi que el contenido sigue
-   apartandose por la izquierda y ya no hace falta el hueco de 94px que dejaba
-   la barra inferior. */
-@media(max-width:760px){.dashboard-main{margin-left:62px;padding-inline:16px}}
-@media(max-width:420px){.dashboard-main{padding-inline:12px}}
+/* Teléfono: sin carril lateral. El contenido usa el ancho entero y la
+   navegación es la barra inferior (`app-mobile-nav`). */
+@media(max-width:760px){
+  .dashboard-shell{--tabbar-space:calc(var(--tabbar-h) + env(safe-area-inset-bottom))}
+  .dashboard-shell.immersive{--tabbar-space:env(safe-area-inset-bottom)}
+  .dashboard-main{margin-left:0;padding-inline:16px;padding-bottom:calc(var(--page-pad-b) + var(--tabbar-space))}
+}
+@media(max-width:420px){.dashboard-main{padding-inline:14px}}

@@ -1,9 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Theme } from '../../../core/services/theme';
 
-/** SHA-256 prefix of the synthetic public capture paths and bytes. */
-export const CAPTURAS_REV = '85f922be2f';
-
 /**
  * Marco editorial de una captura real del producto: papel, filo cálido y sombra
  * tintada, con la proporción declarada para que el hueco esté reservado antes de
@@ -40,9 +37,19 @@ export class ShotFrame {
   crop = input('center');
   /** La del hero: se carga con prioridad en vez de en diferido. */
   priority = input(false);
+  /** Dentro de un marco de teléfono la pantalla no se levanta al pasar por encima. */
+  still = input(false);
 
   private readonly theme = inject(Theme);
   readonly themedSrc = computed(() =>
-    `${this.theme.isDark() ? this.src() : this.src().replace(/^capturas\//, 'capturas/claro/')}` +
-    `?v=${CAPTURAS_REV}`);
+    `${this.theme.isDark() ? this.src() : this.src().replace(/^capturas\//, 'capturas/claro/')}?v=${CAPTURAS_REV}`);
 }
+
+/**
+ * Huella del contenido de `public/capturas/**` (SHA-256 de ruta + bytes, 10
+ * hex). Las capturas no llevan hash en el nombre y se sobrescriben al
+ * retomarlas: sin esto, un navegador que ya las tenía en caché (algunas se
+ * sirven `immutable` un año) seguiría enseñando las viejas. `source_checks.py`
+ * la recalcula y falla si cambian los archivos y no esta constante.
+ */
+export const CAPTURAS_REV = '6ad4d1831f';

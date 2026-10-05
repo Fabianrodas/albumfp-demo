@@ -1,13 +1,17 @@
-<header class="topbar">
+<header class="topbar" [class.searching]="searchOpen()">
+  <a class="topbar-brand" routerLink="/inicio" aria-label="Ir al inicio de AlbumFP">
+    <img [src]="theme.logo()" alt="" width="30" height="30"><span>AlbumFP</span>
+  </a>
   <form class="search" (ngSubmit)="search()" role="search">
     <app-icon name="search" [size]="17"/>
     <label for="album-search" class="sr-only">Buscar álbumes y fotos</label>
-    <input id="album-search" [(ngModel)]="query" name="query" placeholder="Buscar álbumes y fotos" autocomplete="off">
+    <input #searchInput id="album-search" [(ngModel)]="query" name="query" placeholder="Buscar álbumes y fotos" autocomplete="off" enterkeyhint="search">
     @if(query){<button type="button" class="search-clear" (click)="query=''" aria-label="Limpiar búsqueda"><app-icon name="close" [size]="15"/></button>}
+    <button type="button" class="search-cancel" (click)="closeSearch()">Cancelar</button>
   </form>
   <div class="top-actions">
+    <button type="button" class="search-toggle" (click)="openSearch()" aria-label="Buscar álbumes y fotos"><app-icon name="search" [size]="19"/></button>
     <app-notification-bell />
-    <button type="button" class="mobile-theme" (click)="theme.toggle()" [attr.aria-label]="theme.isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'" [title]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'"><app-icon [name]="theme.isDark() ? 'sun' : 'moon'" [size]="17"/></button>
     <app-user-menu [items]="menu" />
   </div>
 </header>

@@ -1,0 +1,257 @@
+/* «WebApp»: cómo se instala AlbumFP en el teléfono. Mismo papel, fondo y
+   medida que las otras públicas; los teléfonos son marcos de CSS alrededor de
+   capturas reales (`shot-frame`), y los dibujos del navegador son eso,
+   ilustraciones, nunca capturas del sistema. */
+
+:host {
+  display: block;
+  --pad: clamp(16px, 3vw, 40px);
+  --acto: clamp(64px, 8vw, 128px);
+}
+
+/* Por encima de app-public-backdrop, que vive en la capa posicionada. Las
+   tarjetas son opacas: translúcidas sobre el fondo animado obligaban a
+   recomponerlas en cada fotograma (Firefox bajaba a 24 fps). */
+.webapp { position: relative; z-index: 1; }
+
+.aviso-local { margin-top: 18px; padding: 13px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-raised); color: var(--text-soft); font-size: 13px; line-height: 1.55; }
+
+h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.03em; margin: 0; text-wrap: balance; color: var(--text); }
+figure { margin: 0; }
+p { margin: 0; }
+
+.hero, .ventajas, .instalar, .instalada, .faq {
+  max-width: var(--public-max);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+/* --- Marco de teléfono ------------------------------------------------ */
+/* El marco es concéntrico con la pantalla: 7px de bisel + los 20px de radio
+   de `shot-frame` dan 27. Oscuro en los dos temas, como un teléfono. */
+.phone {
+  position: relative;
+  padding: 7px;
+  border-radius: 27px;
+  background: #0d120f;
+  /* El canto claro lo separa del papel oscuro. Sin sombra difuminada, a
+     propósito: siete teléfonos con sombra costaban 11 fps al hacer scroll en
+     Firefox (33 -> 44 medidos), y un borde no cuesta nada. */
+  border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+}
+
+/* --- 1. Hero ---------------------------------------------------------- */
+.hero {
+  padding-block: clamp(36px, 5vw, 72px) var(--acto);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+}
+.kicker {
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.hero h1 { margin-top: 14px; font-size: clamp(2.4rem, 5vw, 4.2rem); line-height: 1.02; }
+.lead { margin-top: 20px; max-width: 46ch; font-size: clamp(16px, 1.3vw, 18px); line-height: 1.6; color: var(--text); }
+.hero__actions { margin-top: 30px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.hero__actions .btn { min-height: 48px; padding-inline: 22px; font-size: 14.5px; }
+.estado {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 48px; padding: 0 18px; border-radius: 999px;
+  background: color-mix(in srgb, var(--sage-500) 22%, var(--surface-raised));
+  color: var(--text); font-weight: 650; font-size: 14px;
+}
+
+.hero__phones {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  padding-block: 12px;
+}
+.phone--front { width: min(300px, 72%); z-index: 1; }
+/* El de atrás asoma a la izquierda, un poco más bajo: dos pantallas de la
+   misma app, no un collage. */
+.phone--back {
+  position: absolute;
+  width: min(250px, 58%);
+  left: 2%;
+  top: 14%;
+  transform: rotate(-5deg);
+}
+
+/* --- 2. Ventajas ------------------------------------------------------ */
+.ventajas { padding-bottom: var(--acto); }
+.ventajas h2, .instalar__head h2, .instalada__head h2, .faq h2 { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.08; }
+.ventajas__grid {
+  margin: 30px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.ventaja {
+  padding: 24px 22px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface-raised);
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+.ventaja__icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  display: grid; place-items: center;
+  background: color-mix(in srgb, var(--sage-500) 22%, transparent);
+  color: var(--text);
+}
+.ventaja h3 { font-size: 1.3rem; line-height: 1.2; }
+.ventaja p { color: var(--text-soft); font-size: 14.5px; line-height: 1.55; }
+
+/* --- 3. Cómo instalarla ----------------------------------------------- */
+.instalar { padding-bottom: var(--acto); scroll-margin-top: 90px; }
+.instalar__head p, .instalada__head p { margin-top: 12px; max-width: 58ch; font-size: 16px; line-height: 1.6; color: var(--text); }
+.plataformas { margin-top: 34px; display: grid; gap: 22px; }
+.plataforma {
+  padding: clamp(20px, 3vw, 40px);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--surface-raised);
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 64px);
+  scroll-margin-top: 90px;
+}
+.plataforma:nth-child(2) { grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); }
+.plataforma:nth-child(2) .plataforma__demo { order: 2; }
+.plataforma__demo { display: grid; justify-items: center; }
+.plataforma__pasos { max-width: 62ch; }
+.phone--demo { width: 100%; max-width: 280px; }
+
+.plataforma h3 { display: flex; align-items: center; gap: 10px; font-size: clamp(1.6rem, 2.6vw, 2.1rem); }
+.plataforma__nota { margin-top: 6px; color: var(--text-soft); font-size: 14.5px; }
+.pasos { margin: 22px 0 0; padding: 0; list-style: none; display: grid; gap: 18px; }
+.pasos li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 14px; align-items: start; }
+.paso__num {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--brand-900); color: var(--on-brand);
+  font-weight: 750; font-size: 15px;
+}
+.pasos strong { display: block; font-size: 16px; line-height: 1.35; color: var(--text); }
+.pasos p { margin-top: 4px; font-size: 14.5px; line-height: 1.55; color: var(--text-soft); }
+.paso__chip {
+  margin-top: 10px;
+  display: inline-flex; align-items: center; gap: 7px;
+  min-height: 34px; padding: 0 12px;
+  border: 1px solid var(--border-strong, var(--border));
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--text);
+  font-size: 13px; font-weight: 650;
+}
+
+/* Ilustración del navegador sobre la captura. Colores fijos y neutros en los
+   dos temas: es un dibujo del sistema, no parte de AlbumFP. */
+.ilus {
+  position: absolute;
+  inset: 7px;
+  border-radius: 20px;
+  overflow: hidden;
+  pointer-events: none;
+  background: rgba(8, 12, 10, .38);
+  font: 600 12.5px/1.2 var(--sans);
+  color: #1c201d;
+}
+.ilus__barra {
+  position: absolute;
+  left: 10px; right: 10px; bottom: 12px;
+  height: 44px;
+  padding: 0 6px 0 12px;
+  border-radius: 16px;
+  background: #f6f6f3;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  box-shadow: 0 6px 12px -8px rgba(0, 0, 0, .5);
+}
+.ilus__barra--arriba { top: 12px; bottom: auto; }
+.ilus__url { color: #5a5f5b; font-weight: 550; }
+.ilus__boton { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #1c201d; }
+.ilus__boton--clave, .ilus__fila--clave { box-shadow: 0 0 0 2.5px #7fae4f; background: #eef5e2; }
+.ilus__hoja, .ilus__menu {
+  position: absolute;
+  display: grid;
+  padding: 6px;
+  border-radius: 16px;
+  background: #fbfbf8;
+  box-shadow: 0 8px 16px -10px rgba(0, 0, 0, .55);
+}
+.ilus__hoja { left: 10px; right: 10px; bottom: 66px; }
+.ilus__menu { top: 62px; right: 10px; width: 72%; }
+.ilus__fila { min-height: 38px; padding: 0 10px; border-radius: 10px; display: flex; align-items: center; gap: 8px; }
+
+/* --- 4. Así se ve instalada ------------------------------------------- */
+.instalada { padding-bottom: var(--acto); }
+.galeria {
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 28px);
+}
+.galeria li { display: grid; gap: 14px; align-content: start; }
+.galeria p { font-size: 14.5px; line-height: 1.5; color: var(--text); }
+
+/* --- 5. Preguntas ----------------------------------------------------- */
+.faq { padding-bottom: var(--acto); }
+.faq__lista { margin-top: 26px; display: grid; gap: 10px; max-width: 860px; }
+details {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-raised);
+}
+summary {
+  min-height: 56px;
+  padding: 14px 20px;
+  display: flex; align-items: center;
+  cursor: pointer;
+  font-weight: 650; font-size: 15.5px; color: var(--text);
+  list-style: none;
+}
+summary::-webkit-details-marker { display: none; }
+summary::after { content: '+'; margin-left: auto; padding-left: 16px; font-size: 22px; font-weight: 400; color: var(--text-soft); }
+details[open] summary::after { content: '–'; }
+details p { padding: 0 20px 18px; font-size: 15px; line-height: 1.6; color: var(--text-soft); max-width: 70ch; }
+.faq__cta { margin-top: 26px; font-size: 15px; color: var(--text); }
+.faq__cta a { color: var(--text); font-weight: 700; text-underline-offset: 3px; }
+
+/* --- Responsive ------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .ventajas__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .galeria { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 640px; }
+}
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; text-align: left; }
+  .hero__phones { max-width: 460px; width: 100%; margin: 0 auto; }
+  .plataforma, .plataforma:nth-child(2) { grid-template-columns: 1fr; }
+  .plataforma:nth-child(2) .plataforma__demo { order: 0; }
+  .phone--demo { max-width: 250px; }
+}
+
+@media (max-width: 560px) {
+  .hero__actions .btn { flex: 1 1 100%; }
+  .ventajas__grid { grid-template-columns: 1fr; }
+  .phone--front { width: 64%; }
+  .phone--back { width: 52%; left: 0; }
+  .plataforma { border-radius: 22px; }
+  .galeria { gap: 14px 12px; }
+  .galeria p { font-size: 13.5px; }
+  summary { padding-inline: 16px; font-size: 15px; }
+  details p { padding-inline: 16px; }
+}

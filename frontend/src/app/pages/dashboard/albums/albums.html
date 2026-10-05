@@ -1,7 +1,7 @@
 <section class="page-header">
   <div class="page-header__copy">
     <h1 class="page-title">Mis álbumes</h1>
-    <p class="page-subtitle">Encuentra recuerdos por título, fecha, lugar, datos del archivo o tags.</p>
+    <p class="page-subtitle">Encuentra recuerdos por texto, fecha, lugar, cámara, archivo, OCR o tags.</p>
   </div>
   <div class="page-actions">
     <button type="button" class="btn btn-secondary" (click)="openSmartCreate()"><app-icon name="sparkle" [size]="16"/>Álbum inteligente</button>
@@ -15,7 +15,7 @@
       <app-icon name="search" [size]="18"/>
       <span class="sr-only">Buscar en mi biblioteca</span>
       <input id="library-search" formControlName="q" maxlength="200" autocomplete="off"
-             placeholder="Título, texto, archivo, lugar, cámara o tag">
+             placeholder="Busca en tus recuerdos">
     </label>
     <button type="button" class="btn btn-secondary filter-toggle" (click)="filtersOpen.set(!filtersOpen())"
             [attr.aria-expanded]="filtersOpen()" aria-controls="advanced-search-filters">

@@ -6,7 +6,7 @@
    Es flex y no grid a proposito: los tres app-modal cuelgan de aqui como
    hijos directos, y con un grid-template-rows fijo cada uno reclamaria su
    propia fila. Como flex items vacios miden 0 y no estorban. */
-.media-detail-page{height:calc(100svh - var(--topbar-h));margin-bottom:calc(-1 * var(--page-pad-b));padding:12px 0 16px;display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0}
+.media-detail-page{height:calc(100svh - var(--topbar-h) - var(--tabbar-space, 0px));margin-bottom:calc(-1 * var(--page-pad-b));padding:12px 0 16px;display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0}
 /* Abierta desde un enlace publico no hay cascara de dashboard: ni topbar que
    restar ni hueco inferior que cancelar, asi que la pagina vale la ventana
    entera y se le devuelve su propio margen lateral. */
@@ -149,3 +149,5 @@
 /* F06: el enlace de volver, tocable en movil (>=40px). */
 @media (max-width: 560px) { .back-link { min-height: 40px; display: inline-flex; align-items: center; } }
 @media (max-width: 560px) { .info-body .btn { min-height: 40px; } }
+/* Teléfono: «Anterior»/«Siguiente» siguen pareciendo enlaces, con 40px al tacto. */
+@media(max-width:560px){.detail-navigation .text-action{min-height:40px;padding:0 8px;margin-left:-8px}}

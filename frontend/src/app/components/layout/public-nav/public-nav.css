@@ -11,6 +11,8 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid color-mix(in srgb, var(--brand-900) 30%, var(--border));
+  /* En la WebApp instalada la barra queda bajo la de estado del teléfono. */
+  padding-top: env(safe-area-inset-top);
 }
 
 /* Pegada a los bordes: la barra usa el ancho de la pantalla, no la medida del

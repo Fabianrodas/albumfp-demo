@@ -4,7 +4,8 @@ export type IconName =
   | 'home' | 'albums' | 'heart' | 'share' | 'trash' | 'settings' | 'logout'
   | 'search' | 'upload' | 'plus' | 'user' | 'lock' | 'image' | 'video'
   | 'tag' | 'link' | 'close' | 'restore'
-  | 'check' | 'moon' | 'sun' | 'menu' | 'sparkle' | 'layers' | 'eye' | 'eye-off' | 'pin' | 'edit' | 'cloud' | 'rain' | 'snow' | 'bell' | 'calendar' | 'download' | 'compass' | 'archive';
+  | 'check' | 'moon' | 'sun' | 'menu' | 'sparkle' | 'layers' | 'eye' | 'eye-off' | 'pin' | 'edit' | 'cloud' | 'rain' | 'snow' | 'bell' | 'calendar' | 'download' | 'compass' | 'archive'
+  | 'more' | 'more-vertical' | 'smartphone' | 'share-ios' | 'plus-square';
 
 @Component({
   selector: 'app-icon',

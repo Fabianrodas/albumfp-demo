@@ -2,6 +2,9 @@ import { Injectable, computed, effect, signal } from '@angular/core';
 
 export type ThemeMode = 'light' | 'dark';
 
+/** El `--paper` de cada tema (styles.css). También lo usa `public/theme-init.js`. */
+export const THEME_COLOR: Record<ThemeMode, string> = { light: '#f4f1ea', dark: '#101511' };
+
 @Injectable({ providedIn: 'root' })
 export class Theme {
   private readonly storageKey = 'albumfp_theme';
@@ -26,6 +29,9 @@ export class Theme {
       const mode = this.mode();
       document.documentElement.dataset['theme'] = mode;
       document.documentElement.style.colorScheme = mode;
+      // La barra de estado del teléfono (y la de la WebApp instalada) toma el
+      // color del papel, así no queda una franja verde sobre la app en claro.
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[mode]);
       try { localStorage.setItem(this.storageKey, mode); } catch { /* storage can be unavailable */ }
     });
   }

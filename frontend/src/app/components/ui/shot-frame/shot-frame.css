@@ -32,6 +32,7 @@
   transform: translateY(-4px);
   box-shadow: 0 22px 46px -20px rgba(18, 52, 38, .38);
 }
+.shot--still, .shot--still:hover { transform: none; box-shadow: none; }
 /* Con el puntero grueso (dedo) no hay hover que valga: no se anima nada. */
 @media (hover: none) {
   .shot:hover { transform: none; box-shadow: 0 14px 32px -18px rgba(18, 52, 38, .3); }

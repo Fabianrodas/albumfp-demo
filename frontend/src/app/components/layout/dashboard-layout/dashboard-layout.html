@@ -1,9 +1,10 @@
-<div class="dashboard-shell">
+<div class="dashboard-shell" [class.immersive]="immersive()">
   <app-sidebar />
   <main class="dashboard-main">
     <app-topbar />
     <div class="dashboard-page"><router-outlet /></div>
   </main>
+  @if (!immersive()) { <app-mobile-nav /> }
 </div>
 
 <app-confirm-host />

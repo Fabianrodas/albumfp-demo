@@ -1,0 +1,32 @@
+<nav class="tabbar" aria-label="Navegación principal">
+  @for (tab of tabs; track tab.path) {
+    <a class="tab" [routerLink]="tab.path" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="close()">
+      <span class="tab__icon"><app-icon [name]="tab.icon" [size]="21"/></span><span class="tab__label">{{ tab.label }}</span>
+    </a>
+  }
+  <button type="button" class="tab" [class.active]="moreActive() || open()" (click)="toggle()"
+    [attr.aria-expanded]="open()" aria-controls="mobile-more" aria-haspopup="dialog">
+    <span class="tab__icon"><app-icon name="more" [size]="21"/></span><span class="tab__label">Más</span>
+  </button>
+</nav>
+
+@if (open()) {
+  <div class="sheet-backdrop" (click)="close()" aria-hidden="true"></div>
+  <div class="sheet" id="mobile-more" role="dialog" aria-modal="true" aria-label="Más secciones" [appDialogTrap]="close">
+    <div class="sheet__head">
+      <h2>Más</h2>
+      <button type="button" class="sheet__close" (click)="close()" aria-label="Cerrar"><app-icon name="close" [size]="18"/></button>
+    </div>
+    <nav class="sheet__grid" aria-label="Más secciones">
+      @for (item of more; track item.path) {
+        <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="close()">
+          <app-icon [name]="item.icon" [size]="20"/><span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <button type="button" class="sheet__theme" (click)="theme.toggle()" [attr.aria-pressed]="theme.isDark()">
+      <app-icon [name]="theme.isDark() ? 'sun' : 'moon'" [size]="19"/>
+      <span>{{ theme.isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro' }}</span>
+    </button>
+  </div>
+}

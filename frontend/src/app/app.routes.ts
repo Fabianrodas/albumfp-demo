@@ -20,6 +20,7 @@ export const routes: Routes = [
   { path: '', component: Landing, title: 'AlbumFP' },
   { path: 'acerca-de', loadComponent: () => import('./pages/about/about').then(m => m.About), title: 'Acerca de - AlbumFP' },
   { path: 'como-funciona', loadComponent: () => import('./pages/how-it-works/how-it-works').then(m => m.HowItWorks), title: 'Cómo funciona - AlbumFP' },
+  { path: 'webapp', loadComponent: () => import('./pages/webapp/webapp').then(m => m.WebApp), title: 'WebApp - AlbumFP' },
   {
     path: '', component: AuthLayout, canActivate: [guestGuard], children: [
       { path: 'login', loadComponent: () => import('./pages/auth/login/login').then(m => m.Login), title: 'Iniciar sesión - AlbumFP' },
