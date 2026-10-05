@@ -22,8 +22,8 @@
     "v1.1.1": "complete",
     "v1.2.0": "complete",
     "v1.2.1": "complete",
-    "v1.3.0": "release-gates-complete; publication-pending",
-    "final_certification": "in-progress"
+    "v1.3.0": "complete",
+    "final_certification": "complete"
   },
   "checks": {
     "database_safety_tests": "PASS (17 pytest cases, 13 subtests)",
@@ -33,7 +33,7 @@
     "synthetic_seed": "PASS (one local-only account, one private album, four generated JPEG illustrations without EXIF)",
     "publication_scan": "PASS (513 tracked files; deterministic Git-tree checks; Gitleaks unavailable)",
     "readme_screenshots": "PASS (33 synthetic captures checked; 9 desktop/phone captures refreshed from the local Demo)",
-    "main_push": "pending v1.3.0 release"
+    "main_push": "PASS (origin/main contains v1.3.0 release commit 653ee53bea1360da15c6db8c1c34fce1f8ac7ea6; annotated tag peeled to the same commit)"
   },
   "last_pushed_commit": "6a7280ff1d4922387303c632b5ad9064c1f013d0",
   "release_tags": {
@@ -41,6 +41,7 @@
     "v1.1.0": "d6546e8beaddf8b837951ccca1ce016ad88016a8",
     "v1.1.1": "92a3e60ca0013b681bb866bcad9764ce03fdbfa3",
     "v1.2.0": "e7114b58bba8c4f9bd63e13433567cbb9b3823b8",
-    "v1.2.1": "6a7280ff1d4922387303c632b5ad9064c1f013d0"
+    "v1.2.1": "6a7280ff1d4922387303c632b5ad9064c1f013d0",
+    "v1.3.0": "653ee53bea1360da15c6db8c1c34fce1f8ac7ea6"
   }
 }
