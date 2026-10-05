@@ -1,20 +1,24 @@
 {
   "product": "AlbumFP Demo",
-  "target_version": "1.3.0",
-  "current_version": "1.3.0",
-  "stage": "v1.3.0-post-tag-fix-certification",
+  "target_version": "1.3.1",
+  "current_version": "1.3.1",
+  "stage": "v1.3.1-release-certified",
   "source_tags_verified": [
     "v1.0.0",
     "v1.1.0",
     "v1.1.1",
     "v1.2.0",
     "v1.2.1",
-    "v1.3.0"
+    "v1.3.0",
+    "v1.3.1"
   ],
   "database": "PostgreSQL",
   "runtime": "loopback-only",
   "media": "local-filesystem-only",
   "real_source_repository_mutated": false,
+  "private_infrastructure_exposed": false,
+  "real_secrets_present": false,
+  "real_user_data_present": false,
   "milestones": {
     "foundation": "complete",
     "v1.0.0": "complete",
@@ -23,24 +27,24 @@
     "v1.2.0": "complete",
     "v1.2.1": "complete",
     "v1.3.0": "complete",
+    "v1.3.1": "complete",
     "final_certification": "complete"
   },
   "checks": {
     "database_safety_tests": "PASS (17 pytest cases, 13 subtests)",
-    "automated_tests": "PASS (backend 928 passed, 3 Windows permission skips, 1595 subtests; frontend 212 passed across 47 files; production build passed)",
+    "automated_tests": "PASS (backend 928 passed, 3 Windows permission skips, 1595 subtests; frontend 212 passed across 47 files; TypeScript no-emit check and production build passed)",
     "dependency_audit": "PASS (pip-audit: no known vulnerabilities; npm audit: 0 vulnerabilities)",
-    "browser_qa": "PASS (release desktop/tablet/phone/PWA matrix retained; post-tag light-theme screenshot fallback verified on the built registration page at desktop, phone light/dark, and tablet dark sizes; anonymous public share opened logged out; album create/upload, favorite/archive/trash/restore, smart albums, activity/notifications, and local video upload/play/seek exercised; WebM duration 2.986s, seek 1.493s, byte-range response 206; no external requests, failed responses, console errors, or runtime errors)",
+    "browser_qa": "PASS (production build checked at desktop 1365x900, phone 390x844 light/dark, and tablet 768x1024 plus 1024x768; screenshot assets loaded, no horizontal overflow, failed requests, runtime errors, or non-loopback requests)",
     "synthetic_seed": "PASS (one local-only account, one private album, four generated JPEG illustrations without EXIF)",
-    "publication_scan": "PASS (514 tracked files; deterministic Git-tree checks; Gitleaks unavailable)",
-    "readme_screenshots": "PASS (33 synthetic captures checked; 9 desktop/phone captures refreshed from the local Demo)",
-    "main_push": "PASS (post-tag screenshot fallback fix 5ec50317f7a5de605c7c81b8bedef0b984138917 pushed to origin/main; v1.3.0 annotated tag remains peeled to 653ee53bea1360da15c6db8c1c34fce1f8ac7ea6; no tags moved or added)"
+    "publication_scan": "PASS (514 tracked Git blobs; deterministic scan passed; Gitleaks unavailable)",
+    "readme_screenshots": "PASS (33 synthetic captures checked in the prior release certification; v1.3.1 changes README version text only)",
+    "main_push": "PASS (v1.3.1 release closure commit pushed normally to origin/main; annotated v1.3.1 targets this commit)"
   },
-  "last_pushed_commit": "5ec50317f7a5de605c7c81b8bedef0b984138917",
   "post_tag_fix": {
     "commit": "5ec50317f7a5de605c7c81b8bedef0b984138917",
     "scope": "Use light-theme screenshot files only when the corresponding paired asset exists; preserve base screenshots otherwise.",
-    "verification": "PASS (3 focused regression cases, 212 frontend tests, production build, local browser checks)",
-    "release_tag": "v1.3.0 unchanged"
+    "verification": "PASS (3 focused regression cases, 212 frontend tests, production build, responsive local browser checks)",
+    "release_tag": "v1.3.0 unchanged; included in v1.3.1"
   },
   "release_tags": {
     "v1.0.0": "90f09aef1a5938b57ea2e431b14bf9352a65a0c5",
@@ -49,5 +53,10 @@
     "v1.2.0": "e7114b58bba8c4f9bd63e13433567cbb9b3823b8",
     "v1.2.1": "6a7280ff1d4922387303c632b5ad9064c1f013d0",
     "v1.3.0": "653ee53bea1360da15c6db8c1c34fce1f8ac7ea6"
+  },
+  "current_release": {
+    "tag": "v1.3.1",
+    "annotated": true,
+    "peeled_target": "this commit"
   }
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.1 — Final visual/certification hotfix
+
+- Keeps the existing desktop screenshot visible in light theme when no separate light-theme image is available.
+
 ## v1.3.0 - Registration and media privacy hardening
 
 - Closes registration when `REGISTRATION_MODE` is unknown or invalid.
