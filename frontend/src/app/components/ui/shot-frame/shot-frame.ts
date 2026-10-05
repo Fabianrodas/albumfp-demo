@@ -1,6 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Theme } from '../../../core/services/theme';
 
+/** SHA-256 prefix of the synthetic public capture paths and bytes. */
+export const CAPTURAS_REV = '85f922be2f';
+
 /**
  * Marco editorial de una captura real del producto: papel, filo cálido y sombra
  * tintada, con la proporción declarada para que el hueco esté reservado antes de
@@ -40,5 +43,6 @@ export class ShotFrame {
 
   private readonly theme = inject(Theme);
   readonly themedSrc = computed(() =>
-    this.theme.isDark() ? this.src() : this.src().replace(/^capturas\//, 'capturas/claro/'));
+    `${this.theme.isDark() ? this.src() : this.src().replace(/^capturas\//, 'capturas/claro/')}` +
+    `?v=${CAPTURAS_REV}`);
 }
