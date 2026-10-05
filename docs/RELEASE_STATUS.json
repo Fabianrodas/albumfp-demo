@@ -2,7 +2,7 @@
   "product": "AlbumFP Demo",
   "target_version": "1.3.0",
   "current_version": "1.3.0",
-  "stage": "v1.3.0-certification",
+  "stage": "v1.3.0-post-tag-fix-certification",
   "source_tags_verified": [
     "v1.0.0",
     "v1.1.0",
@@ -27,15 +27,21 @@
   },
   "checks": {
     "database_safety_tests": "PASS (17 pytest cases, 13 subtests)",
-    "automated_tests": "PASS (backend 928 passed, 3 Windows permission skips, 1595 subtests; frontend 209 passed; production build passed)",
+    "automated_tests": "PASS (backend 928 passed, 3 Windows permission skips, 1595 subtests; frontend 212 passed across 47 files; production build passed)",
     "dependency_audit": "PASS (pip-audit: no known vulnerabilities; npm audit: 0 vulnerabilities)",
-    "browser_qa": "PASS (v1.2.1 pointer/tablet/desktop/PWA matrix; v1.3.0 9 refreshed captures, six phone routes at 390x844 with zero overflow/broken images, no external requests/console errors/failed responses; registration closed UI verified with a mocked closed health payload, live health open UI verified)",
+    "browser_qa": "PASS (release desktop/tablet/phone/PWA matrix retained; post-tag light-theme screenshot fallback verified on the built registration page at desktop, phone light/dark, and tablet dark sizes; anonymous public share opened logged out; album create/upload, favorite/archive/trash/restore, smart albums, activity/notifications, and local video upload/play/seek exercised; WebM duration 2.986s, seek 1.493s, byte-range response 206; no external requests, failed responses, console errors, or runtime errors)",
     "synthetic_seed": "PASS (one local-only account, one private album, four generated JPEG illustrations without EXIF)",
-    "publication_scan": "PASS (513 tracked files; deterministic Git-tree checks; Gitleaks unavailable)",
+    "publication_scan": "PASS (514 tracked files; deterministic Git-tree checks; Gitleaks unavailable)",
     "readme_screenshots": "PASS (33 synthetic captures checked; 9 desktop/phone captures refreshed from the local Demo)",
-    "main_push": "PASS (origin/main contains v1.3.0 release commit 653ee53bea1360da15c6db8c1c34fce1f8ac7ea6; annotated tag peeled to the same commit)"
+    "main_push": "PASS (post-tag screenshot fallback fix 5ec50317f7a5de605c7c81b8bedef0b984138917 pushed to origin/main; v1.3.0 annotated tag remains peeled to 653ee53bea1360da15c6db8c1c34fce1f8ac7ea6; no tags moved or added)"
   },
-  "last_pushed_commit": "653ee53bea1360da15c6db8c1c34fce1f8ac7ea6",
+  "last_pushed_commit": "5ec50317f7a5de605c7c81b8bedef0b984138917",
+  "post_tag_fix": {
+    "commit": "5ec50317f7a5de605c7c81b8bedef0b984138917",
+    "scope": "Use light-theme screenshot files only when the corresponding paired asset exists; preserve base screenshots otherwise.",
+    "verification": "PASS (3 focused regression cases, 212 frontend tests, production build, local browser checks)",
+    "release_tag": "v1.3.0 unchanged"
+  },
   "release_tags": {
     "v1.0.0": "90f09aef1a5938b57ea2e431b14bf9352a65a0c5",
     "v1.1.0": "d6546e8beaddf8b837951ccca1ce016ad88016a8",
