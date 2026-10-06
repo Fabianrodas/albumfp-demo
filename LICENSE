@@ -1,0 +1,154 @@
+AlbumFP Demo Source-Available Non-Commercial License 1.0
+
+Copyright © 2026 Fabian Rodas. All rights reserved.
+
+This is a source-available license. It is NOT an open-source license.
+
+1. Scope
+
+This license applies to the original source code, documentation, user-interface
+designs, original graphics, branding, logos, screenshots, and other original
+materials authored for the AlbumFP Demo (collectively, the "Licensed
+Materials"), except for third-party materials identified below.
+
+2. Permitted Non-Commercial Use
+
+Subject to all conditions of this license, you are granted a limited,
+non-exclusive, non-transferable, revocable license to:
+
+- view and inspect the source code;
+- clone or download the repository;
+- run the AlbumFP Demo locally;
+- study and evaluate the software;
+- use it for personal learning or non-commercial educational purposes; and
+- make private modifications for those same permitted non-commercial purposes.
+
+No other rights are granted.
+
+3. Commercial Use Is Prohibited
+
+You may not use the Licensed Materials for commercial purposes without prior
+written permission from the Licensor.
+
+"Commercial use" includes, without limitation:
+
+- selling, licensing, renting, or sublicensing the software or a derivative;
+- charging users for access to the software or any hosted version;
+- providing it as SaaS, hosted software, or part of a paid service;
+- using it as part of a revenue-generating product, service, or business;
+- incorporating substantial portions into commercial software;
+- using substantial portions in paid client work;
+- white-labeling, rebranding, or reselling it;
+- using it internally to obtain material commercial advantage for a for-profit
+  operation.
+
+4. Public Hosting and Service Operation Are Prohibited
+
+You may not deploy or operate the AlbumFP Demo, or a substantial derivative of
+it, as a publicly accessible hosted application, public SaaS service, paid
+service, or production service without prior written permission.
+
+Local personal use and private non-commercial evaluation are permitted.
+
+5. Redistribution and Public Derivatives Are Prohibited
+
+Except for functionality inherently provided by GitHub for accessing or
+forking a public repository, you may not redistribute, mirror, republish,
+re-upload, or make available copies or substantial portions of the Licensed
+Materials, whether modified or unmodified.
+
+You may not publish a modified or derivative version as a separate project
+without prior written permission.
+
+A GitHub fork created through GitHub's normal platform functionality does not
+grant any additional rights beyond this license and must preserve the original
+copyright and license notices.
+
+6. Attribution and No Misrepresentation
+
+You may not remove, conceal, or materially alter copyright, ownership, license,
+or attribution notices.
+
+You may not claim that AlbumFP, a substantial copy of AlbumFP, or a derivative
+was authored entirely by you or another party when that claim would be false or
+misleading.
+
+You may not use the Licensed Materials in a portfolio, showcase, competition,
+academic submission, or similar context in a way that falsely represents the
+work as your own original implementation.
+
+7. No Trademark or Branding License
+
+No rights are granted to use the name "AlbumFP", its logos, branding, trade
+dress, visual identity, or other source-identifying elements to identify,
+market, endorse, or promote another product, service, repository, or business.
+
+8. Photographs, Screenshots, Media, and Visual Assets
+
+Unless a file expressly states otherwise, photographs, screenshots,
+illustrations, logos, branding, and other visual assets are excluded from the
+software-use permission except to the minimum extent necessary to run and
+evaluate the AlbumFP Demo as permitted by this license.
+
+They may not be separately copied, redistributed, sold, republished, used in
+another project, or commercially exploited without prior written permission.
+
+Where third-party rights exist in any material, those rights remain with their
+respective owners.
+
+9. Machine Learning and Generative AI
+
+No permission is granted under this license to use the Licensed Materials,
+documentation, original visual assets, or substantial extracts of them as
+training data for a commercial machine-learning or generative-AI model, or to
+build a commercial dataset derived from them, without prior written permission
+from the Licensor.
+
+This clause does not purport to limit rights that cannot lawfully be restricted
+by license.
+
+10. Third-Party Components
+
+This license applies only to original materials owned by the Licensor.
+
+Third-party libraries, frameworks, fonts, icons, packages, code, and other
+materials remain governed by their respective licenses and copyright notices.
+Nothing in this license attempts to relicense third-party material.
+
+11. No Sublicensing
+
+You may not sublicense the rights granted by this license.
+
+12. Written Exceptions
+
+The Licensor may grant additional permissions, including commercial or
+redistribution rights, under a separate written agreement. Any such permission
+applies only to the scope expressly stated in that agreement.
+
+13. Termination
+
+Your rights under this license terminate automatically if you materially breach
+its terms. Upon termination, you must stop all use not independently permitted
+by applicable law and remove any unauthorized redistributed or hosted copies
+under your control.
+
+14. No Warranty
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED MATERIALS ARE
+PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, OR
+NON-INFRINGEMENT.
+
+15. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSOR SHALL NOT BE
+LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM OR RELATED TO THE
+LICENSED MATERIALS.
+
+16. Reservation of Rights
+
+All rights not expressly granted are reserved by the Licensor.
+
+For commercial licensing, redistribution permission, or other exceptions,
+contact the copyright holder through the official repository owner account or
+another verified contact channel.

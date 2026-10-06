@@ -12,6 +12,11 @@ AlbumFP reúne fotos y videos en una biblioteca personal. Ordénalos en álbumes
 
 Esta edición Demo reproduce la experiencia del producto hasta la serie v1.3 y funciona solo en tu equipo. La versión actual es 1.3.1, un hotfix de la Demo dentro de la serie v1.3; no es la infraestructura de producción de AlbumFP.
 
+> **License:** Source available — non-commercial use only.
+> AlbumFP Demo is not open-source software. Commercial use, resale,
+> rebranding, public hosting/SaaS operation, misleading claims of authorship,
+> and redistribution outside the permissions in LICENSE are prohibited.
+
 ## Lo que puedes hacer
 
 - Organizar fotos y videos en álbumes y una biblioteca con búsqueda y filtros.
@@ -83,3 +88,22 @@ npm.cmd run build
 ## Edición local
 
 La búsqueda en mapas, el clima, el OCR y las sugerencias automáticas están desactivados. La aplicación no envía fotos, metadatos, datos de cuenta ni telemetría a servicios externos. Usa contenido sintético en capturas y pruebas.
+
+## License
+
+AlbumFP Demo is source-available for personal, educational, and evaluation
+purposes only under the terms in [LICENSE](LICENSE).
+
+It is **not open-source software**.
+
+Commercial use, resale, sublicensing, public hosting, SaaS operation,
+rebranding, misleading claims of authorship, and redistribution or publication
+of derivative versions outside the permissions in LICENSE are prohibited
+without prior written permission.
+
+The AlbumFP name, branding, logos, screenshots, and original visual assets are
+not licensed for reuse except as expressly stated in LICENSE.
+
+Third-party components remain subject to their respective licenses.
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE).
